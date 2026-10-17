@@ -23,7 +23,7 @@ In a traditional OSIsoft / AVEVA PI System, these instruments are ingested using
 
 ## 1.5 Non-Technical Step-by-Step Setup Guide (Balances, Osmometers & Filter Integrity Testers)
 
-Even if you have never configured a serial port before, you can connect any benchtop **[Mettler Toledo](https://www.mt.com/us/en/home/products/Laboratory_Weighing_Solutions/Balances/XPR-analytical-balance.html) / [Sartorius Cubis® II](https://www.sartorius.com/en/products/lab-weighing/lab-balances/cubis-ii) Balance**, **[Advanced Instruments OsmoTECH®](https://www.aicompanies.com/product/osmotech-xt-single-sample-micro-osmometer/) Osmometer**, or **[Sartocheck® 5](https://www.sartorius.com/en/products/process-filtration/filter-integrity-testing) / [Palltronic® Flowstar](https://www.cytivalifesciences.com/en/us/shop/bioprocess-filtration/integrity-test-instruments/palltronic-flowstar-iv-filter-integrity-test-instrument-p-45129) Filter Integrity Tester** in 4 simple steps:
+Even if you have never configured a serial port before, you can connect any benchtop **[Mettler Toledo](https://www.mt.com/us/en/home/products/Laboratory_Weighing_Solutions/analytical-balances/xpr-essential-analytical-balances.html) / [Sartorius Cubis® II](https://www.sartorius.com/en/products/weighing/laboratory-balances/cubis-ii) Balance**, **[Advanced Instruments OsmoTECH®](https://www.novabiomedical.com/bioprocessing-osmometers/osmotech-xt-single-sample-micro-osmometer/) Osmometer**, or **[Sartocheck® 5](https://www.sartorius.com/en/products/process-filtration/filter-integrity-testing) / [Palltronic® Flowstar](https://www.cytivalifesciences.com/en/us/products/items/palltronic-flowstar-v-filter-integrity-test-instrument-p-36943) Filter Integrity Tester** in 4 simple steps:
 
 ### Path A: Connecting Any 9-Pin RS-232 Benchtop Balance or Osmometer via a Moxa NPort 5150
 1. **What to Buy:**
@@ -34,8 +34,8 @@ Even if you have never configured a serial port before, you can connect any benc
    - Plug the 9-pin DB9 cable into the **`RS-232 / COM` port on the back of your balance or osmometer** and connect the other end to **Port 1 on the Moxa NPort 5150**.
    - Plug the **Cat6 Ethernet cable** into the Moxa NPort's RJ45 jack and into your lab wall Ethernet port.
 3. **Set the Balance / Osmometer Screen Settings (Must Match the Moxa!):**
-   - On a **[Mettler Toledo XPR / XSR / ICS Balance](https://www.mt.com/us/en/home/products/Laboratory_Weighing_Solutions/Balances/XPR-analytical-balance.html)**: Tap **Settings $\rightarrow$ Connections $\rightarrow$ RS232 $\rightarrow$ Protocol = `MT-SICS`**, **Baud = `9600`**, **Data Bits = `8`**, **Parity = `None`**, **Stop Bits = `1` (`9600 8N1`)**, **Handshake = `Off/Xon-Xoff`**.
-   - On a **[Sartorius Cubis® II Balance](https://www.sartorius.com/en/products/lab-weighing/lab-balances/cubis-ii)**: Tap **Settings $\rightarrow$ Connections $\rightarrow$ COM / RS232 $\rightarrow$ Protocol = `SBI` or `SICS` (`9600 8N1`)**.
+   - On a **[Mettler Toledo XPR / XSR / ICS Balance](https://www.mt.com/us/en/home/products/Laboratory_Weighing_Solutions/analytical-balances/xpr-essential-analytical-balances.html)**: Tap **Settings $\rightarrow$ Connections $\rightarrow$ RS232 $\rightarrow$ Protocol = `MT-SICS`**, **Baud = `9600`**, **Data Bits = `8`**, **Parity = `None`**, **Stop Bits = `1` (`9600 8N1`)**, **Handshake = `Off/Xon-Xoff`**.
+   - On a **[Sartorius Cubis® II Balance](https://www.sartorius.com/en/products/weighing/laboratory-balances/cubis-ii)**: Tap **Settings $\rightarrow$ Connections $\rightarrow$ COM / RS232 $\rightarrow$ Protocol = `SBI` or `SICS` (`9600 8N1`)**.
 4. **Configure the Moxa NPort 5150 Web Console (2 Minutes in Any Browser):**
    - Open `http://192.168.127.254` (default Moxa IP) in your browser and log in (`admin` / `moxa`).
    - Under **Network Settings**, assign your lab static IP (e.g., `10.20.55.10`).
@@ -43,7 +43,7 @@ Even if you have never configured a serial port before, you can connect any benc
    - Under **Operating Settings $\rightarrow$ Port 1**, select **Operation Mode = `TCP Server Mode`**, **Local TCP Port = `4001`**, **Delimiter 1 = `0D` (`\r`)**, **Delimiter 2 = `0A` (`\n`)**, and click **Save/Restart**.
    - **How to Verify It Works:** Press the **`Print`** button on your balance and watch the **orange `Tx/Rx` LED** on top of the Moxa NPort blink! If it doesn't blink, snap the **Null-Modem Adapter** onto the DB9 cable and press `Print` again.
 
-### Path B: Connecting a Filter Integrity Tester ([Sartocheck® 5](https://www.sartorius.com/en/products/process-filtration/filter-integrity-testing), [Palltronic® Flowstar V](https://www.cytivalifesciences.com/en/us/shop/bioprocess-filtration/integrity-test-instruments/palltronic-flowstar-iv-filter-integrity-test-instrument-p-45129), `Integritest® 5`) via Shared Folder
+### Path B: Connecting a Filter Integrity Tester ([Sartocheck® 5](https://www.sartorius.com/en/products/process-filtration/filter-integrity-testing), [Palltronic® Flowstar V](https://www.cytivalifesciences.com/en/us/products/items/palltronic-flowstar-v-filter-integrity-test-instrument-p-36943), `Integritest® 5`) via Shared Folder
 1. Plug a **Cat6 Ethernet cable** into the **rear RJ45 network port** of the Filter Integrity Tester cart.
 2. On the tester's touchscreen, log in as **Administrator $\rightarrow$ System Settings $\rightarrow$ Network Export / File Transfer (SMB/CIFS)**.
 3. Enter the `GxPHistorian` watch-folder network share path: `\\10.20.10.50\gxphistorian_ufl\incoming\filter_integrity` and check **Automatically Export XML/CSV Report After Test Completion**.

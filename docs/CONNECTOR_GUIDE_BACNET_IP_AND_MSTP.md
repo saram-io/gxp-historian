@@ -2,7 +2,7 @@
 
 **Document ID:** `REF-CONNECTOR-BACNET-GXPHISTORIAN-2026`  
 **Protocols Covered:** **BACnet/IP (ANSI/ASHRAE Standard 135 Annex J / ISO 16484-5)** over `UDP :47808` (`0xBAC0`) and **BACnet MS/TP (Master-Slave / Token-Passing)** over `EIA-485` 2-wire/3-wire twisted pair  
-**Typical Biopharma Equipment & Routers:** Cleanroom Differential Pressure ($\Delta P$) Cascades, Grade A/B/C/D HVAC Air Handling Units (AHUs), HEPA Terminal Filter Velocity Monitors, Walk-In Cold Rooms ($2\text{–}8\,^\circ\text{C}$) & Freezers ($-20\,^\circ\text{C}$), **[LOYTEC](https://www.loytec.com)** / **[Contemporary Controls BASrouter](https://www.ccontrols.com/basautomation/basrouters.php)** MS/TP-to-IP Routers, and Facility BMS Platforms (**[Siemens Desigo CC](https://www.siemens.com)**, **Johnson Controls Metasys**, **Schneider Electric EcoStruxure**, **Honeywell EBI**, **Automated Logic WebCTRL**)
+**Typical Biopharma Equipment & Routers:** Cleanroom Differential Pressure ($\Delta P$) Cascades, Grade A/B/C/D HVAC Air Handling Units (AHUs), HEPA Terminal Filter Velocity Monitors, Walk-In Cold Rooms ($2\text{–}8\,^\circ\text{C}$) & Freezers ($-20\,^\circ\text{C}$), **[LOYTEC](https://www.loytec.com/products/routers-nic/lip-bacnet)** / **[Contemporary Controls BASrouter](https://www.ccontrols.com/basautomation/basrouter.php)** MS/TP-to-IP Routers, and Facility BMS Platforms (**[Siemens Desigo CC](https://www.siemens.com/en-us/products/desigo/cc/)**, **Johnson Controls Metasys**, **Schneider Electric EcoStruxure**, **Honeywell EBI**, **Automated Logic WebCTRL**)
 
 ---
 

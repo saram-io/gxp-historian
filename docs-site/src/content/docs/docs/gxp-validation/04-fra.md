@@ -2,7 +2,7 @@
 title: "Document 04 — FDA CSA Functional Risk Assessment (FRA)"
 description: "Document 04 — FDA Computer Software Assurance (CSA) Functional Risk Assessment (FRA)."
 ---
-**Document ID:** `FRA-GXPHISTORIAN-2026-004` | **Generated (UTC):** `2026-10-17T19:10:26Z` | **Methodology:** ISPE GAMP 5 & FDA Computer Software Assurance (CSA)
+**Document ID:** `FRA-GXPHISTORIAN-2026-004` | **Generated (UTC):** `2026-10-17T20:07:04Z` | **Methodology:** ISPE GAMP 5 & FDA Computer Software Assurance (CSA)
 
 ## 1. Functional Risk Assessment Matrix
 
