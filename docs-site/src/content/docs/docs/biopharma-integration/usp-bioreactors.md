@@ -4,7 +4,7 @@ description: "Upstream bioreactor integration for Sartorius Biostat STR & Ambr 1
 ---
 **Connecting Sartorius Biostat® STR, Sartorius Ambr® 15/250, Thermo Fisher HyPerforma™ (TruBio® DV), and Eppendorf BioFlo® / DASGIP® Systems to GxPHistorian GxP Industrial Historian**
 
-> For **Cytiva Xcellerex™ X-Platform** bioreactors, see the dedicated guide: [XCELLEREX_X_PLATFORM_INTEGRATION.md](/biopharma-integration/xcellerex-x-platform/).
+> For **Cytiva Xcellerex™ X-Platform** bioreactors, see the dedicated guide: [XCELLEREX_X_PLATFORM_INTEGRATION.md](/docs/biopharma-integration/xcellerex-x-platform/).
 
 ---
 

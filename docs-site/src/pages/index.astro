@@ -1,0 +1,1721 @@
+---
+const pillars = [
+  {
+    badge: 'Pillar 1 • Edge Collector',
+    title: 'Multi-Protocol Edge & 1M-Sample Disk WAL',
+    tech: 'InfluxData Telegraf 1.32 + Python 3.12 Workers',
+    description:
+      'Normalizes OPC UA (:4840), Classic Windows OPC DA 2.05a (Zero-DCOM bridge), BACnet/IP (:47808 COV) & MS/TP, Siemens S7comm (:102), Modbus TCP/RTU, 4–20 mA HART, RS-232 MT-SICS balances, and SMB Watch-Folders with Stage 1 Exception/Deadband filtering (ExcDev/ExcMax) and a 1,000,000-sample disk Write-Ahead Log.',
+    href: '/docs/connectors/overview/',
+    cta: 'Explore 10 Protocol Connectors →',
+  },
+  {
+    badge: 'Pillar 2 • Telemetry Archive',
+    title: 'Lossless ClickHouse Time-Series Engine',
+    tech: 'ClickHouse Server 24.8 LTS (Apache-2.0)',
+    description:
+      'Replaces lossy Swinging Door compression with 100% mathematically lossless DoubleDelta + Gorilla + T64 + ZSTD(1) codecs (1.5–2.5 bytes/sample). Pre-computes real-time 1-minute AggregatingMergeTree rollups filtered strictly on Good OPC quality (WHERE quality >= 192) and serves LTTB peak-preserving visual trends.',
+    href: '/docs/architecture/four-pillar-architecture/',
+    cta: 'Inspect ClickHouse Schema & Codecs →',
+  },
+  {
+    badge: 'Pillar 3 • Part 11 Control Plane',
+    title: 'ISA-95 Asset Hierarchy & WORM Audit Trail',
+    tech: 'PostgreSQL 16 (ltree + pgcrypto) & FastAPI',
+    description:
+      'Manages ISA-95 ltree asset paths, GxP Tag Catalog, and ISA-88 Batch/Excursion Event Frames. Kernel-level PL/pgSQL triggers enforce mandatory X-Actor-Id & X-Change-Reason attribution, an immutable SHA-256 hash-chained WORM audit log, and §11.200 dual-challenge HMAC-SHA256 electronic signatures.',
+    href: '/docs/architecture/part11-compliance/',
+    cta: 'Review 21 CFR Part 11 Controls →',
+  },
+  {
+    badge: 'Pillar 4 • HMI, Excel & Lakehouse',
+    title: 'Grafana Vision HMI, Excel DataLink & Parquet',
+    tech: 'Grafana OSS 11.2, xlwings UDFs & PyArrow',
+    description:
+      'Delivers a pre-provisioned asset-relative Bioreactor & Cleanroom Operator HMI with Event Frame overlays, drop-in Excel DataLink formulas (=GXPHISTORIAN_SAMPLED, =GXPHISTORIAN_PLOT_VALUES, =GXPHISTORIAN_EVENT_SUMMARY) + zero-macro Power Query CSV streams (LINEAR vs. LOCF), and Snappy Apache Parquet exports.',
+    href: '/docs/clients-and-api/grafana-vision-hmi/',
+    cta: 'View HMI & Excel DataLink Guides →',
+  },
+];
+
+const parityRows = [
+  {
+    pi: 'PI Data Archive (Swinging Door CompDev)',
+    gxp: 'ClickHouse 24.8 LTS (pi_historian.sensor_data)',
+    capability:
+      '100% mathematically lossless Delta, DoubleDelta, Gorilla & T64 + ZSTD(1) compression (1.5–2.5 B/sample) + 1m AggregatingMergeTree rollups (WHERE quality >= 192).',
+  },
+  {
+    pi: 'PI Asset Framework (PI AF)',
+    gxp: 'PostgreSQL 16 ltree + ClickHouse FLAT Dictionary',
+    capability:
+      'ISA-95 Enterprise.Site.Area.Unit paths indexed via GiST and synced into ClickHouse RAM (pg_asset_tags) for O(1) metadata enrichment.',
+  },
+  {
+    pi: 'PI Event Frames (EF)',
+    gxp: 'PostgreSQL event_frames + FastAPI Engine',
+    capability:
+      'Automated ISA-88 batch & excursion capture (peak_val, avg_val, min_val over quality >= 192) with §11.200 dual-challenge HMAC-SHA256 electronic signatures.',
+  },
+  {
+    pi: 'PI Interface Node & PI Buffer Subsystem',
+    gxp: 'Telegraf 1.32 Disk WAL + Python Edge Workers',
+    capability:
+      'In-memory Stage 1 Exception/Deadband filtering (ExcDev & ExcMax) + 1,000,000-metric disk store-and-forward WAL across 10 industrial protocols.',
+  },
+  {
+    pi: 'PI Vision (PlotValues Trends & Overlays)',
+    gxp: 'Grafana OSS 11.2 + ClickHouse LTTB',
+    capability:
+      'Asset-relative (${asset_path}) operator HMI with native largestTriangleThreeBuckets peak preservation, Event Frame bands, and WORM audit table.',
+  },
+  {
+    pi: 'PI DataLink (Excel PISampDat / PIAdvCalcDat)',
+    gxp: 'FastAPI DataLink CSV/JSON + xlwings UDFs',
+    capability:
+      'Zero-macro Excel Power Query CSV streams & =GXPHISTORIAN_SAMPLED() UDFs enforcing LINEAR analog vs. LOCF discrete step interpolation.',
+  },
+  {
+    pi: 'PI Integrator for Business Analytics',
+    gxp: 'FastAPI + PyArrow Zero-ETL Exporter',
+    capability:
+      'Single-call POST /api/v1/lakehouse/export-parquet generating Snappy-compressed Apache Parquet files enriched with ISA-95 asset context.',
+  },
+];
+
+const equipmentGuides = [
+  {
+    category: 'Single-Use & Stainless USP Bioreactors',
+    title: 'Cytiva Xcellerex™ X-Platform & Figurate™ Automation',
+    instruments: 'XDR-50 to XDR-2000 • Emerson DeltaV™ • Rockwell PlantPAx®',
+    protocol: 'OPC UA (:4840) & Zero-DCOM OPC DA',
+    image: '/images/photos/xcellerex-2000l-bioreactor.jpg',
+    href: '/docs/biopharma-integration/xcellerex-x-platform/',
+  },
+  {
+    category: 'Multi-Parallel USP & High-Throughput DoE',
+    title: 'Sartorius Biostat® STR / Ambr®, Thermo S.U.B. & Eppendorf',
+    instruments: 'BioPAT® MFCS • Ambr® 15/250 • TruBio® DV • BioFlo® / DASGIP®',
+    protocol: 'OPC UA (:4840) & Siemens S7-1500',
+    image: '/images/photos/usp-bioreactors-collage.jpg',
+    href: '/docs/biopharma-integration/usp-bioreactors/',
+  },
+  {
+    category: 'At-Line PAT & In-Line Spectroscopy',
+    title: 'Cell Analyzers, Metabolite Bioanalyzers & Raman PAT',
+    instruments: 'Nova BioProfile® FLEX2 • Vi-CELL™ BLU • Cedex® Bio HT • Raman Rxn2/4 • Hamilton Arc®',
+    protocol: 'OPC UA, Modbus RTU/TCP & Watchfolder (exc_dev=0)',
+    image: '/images/photos/pat-cell-analyzers-collage.jpg',
+    href: '/docs/biopharma-integration/pat-analyzers-spectroscopy/',
+  },
+  {
+    category: 'Downstream Purification (Chromatography & TFF)',
+    title: 'Cytiva ÄKTA™ (UNICORN™ 7), Sartorius & MilliporeSigma Skids',
+    instruments: 'ÄKTA process™ / ready™ / readyflux™ • Sartoflow® • Mobius® / Cogent®',
+    protocol: 'OPC UA / OPC DA + LTTB UV280 Peak Preservation',
+    image: '/images/photos/dsp-chromatography-tff-collage.jpg',
+    href: '/docs/biopharma-integration/dsp-chromatography-tff/',
+  },
+  {
+    category: 'Cell & Gene Therapy (CAR-T) & mRNA-LNP',
+    title: 'Autologous Cell Processing, LNP Skids & Cryo Freezers',
+    instruments: 'CliniMACS Prodigy® • Cytiva Sefia™ & Sepax™ C-Pro • NanoAssemblr™ • Planer Kryo 560',
+    protocol: 'OPC UA (500 ms), RS-232 TCP & COI_ID Event Frames',
+    image: '/images/photos/cgt-mrna-lnp-crf-collage.jpg',
+    href: '/docs/biopharma-integration/cgt-mrna-lnp-instruments/',
+  },
+  {
+    category: 'Aseptic Fill-Finish, Lyophilization & Cleanroom EMS',
+    title: 'GMP Freeze Dryers, SKAN Isolators, Particle Counters & WFI TOC',
+    instruments: 'SP Scientific / Telstar Lyo • SKAN Isolators • PMS LasAir® III • Veolia Sievers® M9',
+    protocol: 'BACnet/IP (:47808 COV), Modbus TCP (:502) & S7comm',
+    image: '/images/photos/aseptic-lyo-isolator-ems-toc-collage.jpg',
+    href: '/docs/biopharma-integration/aseptic-fill-finish-lyo-utilities/',
+  },
+  {
+    category: 'ICH Q1A Stability, Cold Chain & Steam Sterilization',
+    title: 'Stability Chambers (MKT), CO₂ Incubators, -80°C ULT & Autoclaves',
+    instruments: 'BINDER KBF • Infors HT / Heracell™ • PHCbi / Thermo TSX • Fedegari / Getinge',
+    protocol: 'Modbus TCP, Adam-6015 RTD + ClickHouse MKT & F₀ SQL',
+    image: '/images/photos/stability-incubator-ult-autoclave-collage.jpg',
+    href: '/docs/biopharma-integration/stability-chambers-cold-chain-autoclaves/',
+  },
+  {
+    category: 'QC Balances, Osmometers & Filter Integrity Testers',
+    title: 'RS-232 Serial Streaming & OSIsoft PI UFL Replacement',
+    instruments: 'Mettler XPR • Sartorius Cubis® II • OsmoTECH® XT • Sartocheck® 5 • Palltronic®',
+    protocol: 'Moxa NPort TCP (:4001 MT-SICS) & SHA-256 Watchfolders',
+    image: '/images/photos/qc-balances-osmometer-filter-moxa-collage.jpg',
+    href: '/docs/biopharma-integration/legacy-serial-rs232-pi-ufl/',
+  },
+  {
+    category: 'Industrial Hardware & Fieldbus Encyclopedia',
+    title: 'Physical Pinouts, Industrial Gateways & Protocol Anatomy',
+    instruments: 'RJ45 T568B • M12 D/X/A-Coded • DB9 RS-232/MPI • RS-485 • 4–20 mA HART',
+    protocol: 'Moxa NPort • Advantech ADAM • LOYTEC BACnet • Helmholz S7',
+    image: '/images/photos/hardware-connectors-gateways-collage.jpg',
+    href: '/docs/connectors/overview/',
+  },
+];
+
+const validationDocs = [
+  { id: 'VMP-GXPHISTORIAN-2026-001', title: '01 — Validation Master Plan (VMP)', href: '/docs/gxp-validation/01-vmp/' },
+  { id: 'URS-GXPHISTORIAN-2026-002', title: '02 — User Requirements Specification (URS-001..015)', href: '/docs/gxp-validation/02-urs/' },
+  { id: 'FDS-GXPHISTORIAN-2026-003', title: '03 — Functional & Design Specification (FDS)', href: '/docs/gxp-validation/03-fds/' },
+  { id: 'FRA-GXPHISTORIAN-2026-004', title: '04 — FDA CSA Functional Risk Assessment (FRA)', href: '/docs/gxp-validation/04-fra/' },
+  { id: 'SOUP-GXPHISTORIAN-2026-005', title: '05 — SOUP / OSS Vendor Qualification Dossier', href: '/docs/gxp-validation/05-soup-dossier/' },
+  { id: 'IQOQ-GXPHISTORIAN-2026-006', title: '06 — Executed IQ/OQ Evidence Report (15/15 Passed)', href: '/docs/gxp-validation/06-iq-oq-evidence/' },
+  { id: 'RTM-GXPHISTORIAN-2026-007', title: '07 — Bidirectional Requirements Traceability Matrix', href: '/docs/gxp-validation/07-rtm/' },
+  { id: 'VSR-GXPHISTORIAN-2026-008', title: '08 — Validation Summary Report & QA Release', href: '/docs/gxp-validation/08-vsr/' },
+];
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- MANDATORY (dark-mode): Declare support for both light and dark themes early to prevent FOUC -->
+    <meta name="color-scheme" content="light dark" />
+    <title>GxPHistorian — 21 CFR Part 11 &amp; GAMP 5 Open-Source Industrial Historian</title>
+    <meta
+      name="description"
+      content="GxPHistorian is a 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 (2nd Ed.) qualified 4-Pillar open-source replacement for the OSIsoft / AVEVA PI System, powered by ClickHouse 24.8 LTS and PostgreSQL 16."
+    />
+    <link rel="canonical" href="https://gxphistorian.com/" />
+    <meta property="og:title" content="GxPHistorian — GxP Open-Source Industrial Time-Series Historian" />
+    <meta
+      property="og:description"
+      content="Replace proprietary per-tag historian licensing with lossless ClickHouse telemetry, PostgreSQL 16 ISA-95 Asset Framework & WORM SHA-256 audit trails, and 35+ biopharma equipment guides."
+    />
+    <meta property="og:url" content="https://gxphistorian.com/" />
+    <meta property="og:type" content="website" />
+    <script is:inline>
+      (function () {
+        const stored = typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        const theme = stored === 'light' || stored === 'dark' ? stored : prefersLight ? 'light' : 'dark';
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
+  </head>
+  <body>
+    <!-- Top Announcement / Regulatory Qualification Bar -->
+    <div class="top-banner">
+      <div class="container top-banner-inner">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span>
+          <strong>GxPHistorian 2026 LTS Qualified Release:</strong> 15/15 Automated IQ/OQ Pytest Verification Checks Passing &amp; 8-Document GAMP 5 / FDA CSA Validation Binder Included.
+        </span>
+        <a href="/binder/COMPLETE_GMP_VALIDATION_BINDER.html" class="top-banner-link">
+          Inspect Executed GMP Binder →
+        </a>
+      </div>
+    </div>
+
+    <!-- Sticky Header Navigation -->
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="/" class="brand-lockup" aria-label="GxPHistorian Home">
+          <svg class="brand-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="gxp-bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#0f766e"></stop>
+                <stop offset="50%" stop-color="#0284c7"></stop>
+                <stop offset="100%" stop-color="#1e3a8a"></stop>
+              </linearGradient>
+              <linearGradient id="gxp-line" x1="8" y1="32" x2="56" y2="32" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#34d399"></stop>
+                <stop offset="100%" stop-color="#38bdf8"></stop>
+              </linearGradient>
+            </defs>
+            <path d="M32 4L56 14V32C56 46.5 45.8 56.8 32 60C18.2 56.8 8 46.5 8 32V14L32 4Z" fill="url(#gxp-bg)" stroke="#38bdf8" stroke-width="2"></path>
+            <line x1="16" y1="24" x2="48" y2="24" stroke="rgba(255,255,255,0.16)" stroke-width="1" stroke-dasharray="2 2"></line>
+            <line x1="16" y1="36" x2="48" y2="36" stroke="rgba(255,255,255,0.16)" stroke-width="1" stroke-dasharray="2 2"></line>
+            <polyline points="14,38 22,36 27,20 33,42 39,26 44,30 50,18" fill="none" stroke="url(#gxp-line)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+            <circle cx="27" cy="20" r="3" fill="#34d399"></circle>
+            <circle cx="39" cy="26" r="3" fill="#38bdf8"></circle>
+            <circle cx="50" cy="18" r="3" fill="#facc15"></circle>
+          </svg>
+          <span class="brand-name">GxPHistorian</span>
+          <span class="brand-tag">GxP LTS</span>
+        </a>
+
+        <nav class="main-nav" aria-label="Marketing navigation">
+          <a href="#architecture">4-Pillar Architecture</a>
+          <a href="#pi-parity">PI System Parity</a>
+          <a href="#part11">21 CFR Part 11</a>
+          <a href="#equipment">35+ Biopharma Guides</a>
+          <a href="#validation">GAMP 5 Binder</a>
+          <a href="/docs/" class="nav-docs-pill">Documentation (/docs)</a>
+        </nav>
+
+        <div class="header-actions">
+          <button type="button" id="theme-toggle" class="theme-btn" aria-label="Toggle light or dark theme" title="Toggle theme">
+            <span class="theme-icon-dark" aria-hidden="true">☾</span>
+            <span class="theme-icon-light" aria-hidden="true">☀</span>
+          </button>
+          <a href="/docs/getting-started/quickstart/" class="btn btn-secondary btn-sm">Quickstart</a>
+          <a href="/docs/" class="btn btn-primary btn-sm">Read the Docs →</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero Section -->
+      <section class="hero-section">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <div class="eyebrow-pill">
+              <span>FDA 21 CFR Part 11</span>
+              <span class="sep">•</span>
+              <span>EU GMP Annex 11</span>
+              <span class="sep">•</span>
+              <span>ISPE GAMP 5 (2nd Ed.)</span>
+            </div>
+            <h1>
+              The Open-Source GxP Industrial Historian &amp; Asset Framework for Regulated Biopharma
+            </h1>
+            <p class="hero-lead">
+              Replace proprietary <strong>OSIsoft / AVEVA PI System</strong> per-tag and per-seat licensing with a mathematically lossless, 4-Pillar industrial time-series historian powered by <strong>ClickHouse 24.8 LTS</strong> and <strong>PostgreSQL 16</strong>—complete with cryptographic SHA-256 WORM audit trails, §11.200 electronic signatures, and visual wiring playbooks for 35+ GMP instruments.
+            </p>
+
+            <div class="hero-cta-row">
+              <a href="/docs/" class="btn btn-primary btn-lg">
+                Explore Documentation (/docs) →
+              </a>
+              <a href="/docs/getting-started/quickstart/" class="btn btn-secondary btn-lg">
+                5-Minute Docker Quickstart
+              </a>
+              <a href="/binder/COMPLETE_GMP_VALIDATION_BINDER.html" class="btn btn-ghost btn-lg">
+                Print-Ready GMP Validation Binder (HTML)
+              </a>
+            </div>
+
+            <div class="compliance-badges" aria-label="Supported regulatory standards">
+              <span class="c-badge">✓ 21 CFR §11.10(e) WORM Triggers</span>
+              <span class="c-badge">✓ §11.200 HMAC-SHA256 E-Signatures</span>
+              <span class="c-badge">✓ Lossless DoubleDelta + Gorilla Codecs</span>
+              <span class="c-badge">✓ OPC Quality &ge; 192 Enforcement</span>
+              <span class="c-badge">✓ Excel DataLink UDFs &amp; Power Query</span>
+            </div>
+          </div>
+
+          <div class="hero-visual">
+            <div class="terminal-card">
+              <div class="terminal-bar">
+                <div class="terminal-dots" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </div>
+                <span class="terminal-title">gxphistorian-control-plane — bash</span>
+                <span class="terminal-status">QUALIFIED</span>
+              </div>
+              <pre class="terminal-body"><code><span class="t-comment"># 1. Launch all 5 GxP services (Edge WAL, ClickHouse, PG16, FastAPI, Grafana)</span>
+<span class="t-prompt">$</span> cp .env.example .env &amp;&amp; docker compose up -d --build
+
+<span class="t-comment"># 2. Verify cryptographic SHA-256 WORM audit hash chain from GENESIS</span>
+<span class="t-prompt">$</span> curl -s http://localhost:8020/api/v1/audit-trail/verify | jq .
+&#123;
+  <span class="t-key">"chain_valid"</span>: <span class="t-bool">true</span>,
+  <span class="t-key">"verified_records"</span>: <span class="t-num">220</span>,
+  <span class="t-key">"genesis_anchor"</span>: <span class="t-str">"GENESIS_0000000000000000"</span>,
+  <span class="t-key">"broken_links"</span>: []
+&#125;
+
+<span class="t-comment"># 3. Execute 15-test GAMP 5 / FDA CSA IQ &amp; OQ qualification suite</span>
+<span class="t-prompt">$</span> .venv/bin/pytest -v
+<span class="t-pass">15 passed in 2.41s — Evidence written to oq_execution_results.json</span></code></pre>
+            </div>
+
+            <div class="hero-photo-card">
+              <!-- MANDATORY (optimize-image-priority): Elevate LCP priority on hero image without loading="lazy" -->
+              <img
+                src="/images/photos/xcellerex-2000l-bioreactor.jpg"
+                alt="Cytiva Xcellerex XDR-2000 Single-Use Bioreactor and Figurate Automation Cabinet integrated with GxPHistorian"
+                width="900"
+                height="520"
+                fetchpriority="high"
+              />
+              <div class="hero-photo-caption">
+                <div>
+                  <strong>Turnkey Biopharma Skid Connectivity</strong>
+                  <span>Step-by-step wiring &amp; tag provisioning for Cytiva Xcellerex™, Sartorius Biostat® STR, ÄKTA™, Raman PAT &amp; Cleanroom EMS.</span>
+                </div>
+                <a href="/docs/biopharma-integration/catalog/">View Catalog →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Executive Metrics Strip -->
+      <section class="metrics-strip" aria-label="Key architectural metrics">
+        <div class="container metrics-grid">
+          <div class="metric-item">
+            <span class="metric-val">1.5–2.5 B</span>
+            <span class="metric-label">Per Archived Sample</span>
+            <span class="metric-sub">100% lossless DoubleDelta + Gorilla + ZSTD(1)</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-val">1,000,000</span>
+            <span class="metric-label">Edge WAL Buffer Samples</span>
+            <span class="metric-sub">Zero-data-loss disk store-and-forward</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-val">35+ Skids</span>
+            <span class="metric-label">Biopharma Equipment Guides</span>
+            <span class="metric-sub">Rear-panel pinouts, gateways &amp; tag catalogs</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-val">15 / 15</span>
+            <span class="metric-label">Executable IQ/OQ Tests</span>
+            <span class="metric-sub">Automated pytest evidence &amp; 8-doc GMP binder</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-val">\$0 / Tag</span>
+            <span class="metric-label">Open-Source Licensing</span>
+            <span class="metric-sub">No per-tag, per-interface, or per-seat fees</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Why Switch / Core Differentiators -->
+      <section class="section why-section">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-kicker">Why Regulated Plants Standardize on GxPHistorian</span>
+            <h2>Engineered for FDA Data Integrity Audits—Without Legacy Historian Trade-Offs</h2>
+            <p>
+              Legacy industrial historians were designed in the 1980s around scarcity of disk space, relying on lossy "Swinging Door" compression and fragile Windows DCOM plumbing. GxPHistorian modernizes every layer for ALCOA+ data integrity.
+            </p>
+          </div>
+
+          <div class="diff-grid">
+            <article class="diff-card">
+              <div class="diff-number">01</div>
+              <h3>Mathematically Lossless Compression vs. Lossy Swinging Door</h3>
+              <p>
+                Traditional historians discard raw sensor readings using lossy <code>CompDev</code> swinging-door straight-line approximations—risking concealed thermal spikes or blunted chromatography UV280 peaks during GMP batch review. GxPHistorian applies <strong>Stage 1 Exception Deadband filtering (<code>ExcDev</code>/<code>ExcMax</code>)</strong> at the edge and archives every emitted sample losslessly in ClickHouse using <strong><code>DoubleDelta</code> + <code>Gorilla</code> + <code>ZSTD(1)</code></strong> at 1.5–2.5 bytes/sample.
+              </p>
+              <a href="/docs/architecture/hardware-sizing/" class="card-link">See Compression Math &amp; 25-Year Storage Sizing →</a>
+            </article>
+
+            <article class="diff-card">
+              <div class="diff-number">02</div>
+              <h3>Database-Kernel 21 CFR Part 11 WORM &amp; Hash Chaining</h3>
+              <p>
+                Application-only audit logs can be bypassed by direct SQL access or software bugs. GxPHistorian enforces 21 CFR Part 11 directly inside PostgreSQL 16 PL/pgSQL triggers: every mutation on <code>assets</code>, <code>tags</code>, or <code>event_frames</code> requires <code>app.actor_id</code> and <code>app.change_reason</code>, appends a <strong>SHA-256 hash-chained record</strong> to <code>part11_audit_log</code>, and unconditionally blocks <code>UPDATE</code>, <code>DELETE</code>, and <code>TRUNCATE</code>—even by database superusers.
+              </p>
+              <a href="/docs/architecture/part11-compliance/" class="card-link">Inspect PL/pgSQL WORM Triggers &amp; §11.200 Signatures →</a>
+            </article>
+
+            <article class="diff-card">
+              <div class="diff-number">03</div>
+              <h3>Signal Quality Discipline (<code>quality &ge; 192</code>) &amp; Step Interpolation</h3>
+              <p>
+                Sensor wire breaks and CIP maintenance cycles routinely emit sentinel values (such as <code>-999.0</code> with OPC Bad quality <code>0</code>). GxPHistorian archives raw diagnostic states while strictly filtering <strong><code>WHERE quality &ge; 192</code></strong> across all 1-minute rollups, LTTB visual trends, Event Frame KPIs, and Excel DataLink queries—and respects <strong><code>LINEAR</code></strong> vs. discrete <strong><code>LOCF</code></strong> step tags so agitator states never interpolate to <code>1.5</code>.
+              </p>
+              <a href="/docs/clients-and-api/excel-datalink/" class="card-link">Explore Excel DataLink &amp; Interpolation Discipline →</a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4-Pillar Architecture Section -->
+      <section id="architecture" class="section alt-bg deferred-section">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-kicker">4-Pillar Industrial Historian Architecture</span>
+            <h2>Strict Separation of Immutable Telemetry &amp; Mutable Relational Control</h2>
+            <p>
+              GxPHistorian decouples high-frequency append-only sensor ingestion (ClickHouse 24.8 LTS) from transactional ISA-95 asset state, ISA-88 Event Frames, and 21 CFR Part 11 WORM audit trails (PostgreSQL 16)—bridged in real time via an in-memory ClickHouse <code>FLAT</code> dictionary.
+            </p>
+          </div>
+
+          <div class="pillars-grid">
+            {
+              pillars.map((p) => (
+                <article class="pillar-card">
+                  <span class="pillar-badge">{p.badge}</span>
+                  <h3>{p.title}</h3>
+                  <div class="pillar-tech">{p.tech}</div>
+                  <p>{p.description}</p>
+                  <a href={p.href} class="card-link">
+                    {p.cta}
+                  </a>
+                </article>
+              ))
+            }
+          </div>
+
+          <div class="arch-diagram-box">
+            <div class="arch-diagram-header">
+              <div>
+                <strong>Hardware Connector &amp; Protocol Encyclopedia</strong>
+                <span>From physical RJ45, M12 D/X/A-Coded, DB9 RS-232, and Phoenix RS-485 terminals to ClickHouse MergeTree partitions.</span>
+              </div>
+              <a href="/docs/architecture/four-pillar-architecture/" class="btn btn-secondary btn-sm">
+                Full Architecture Spec →
+              </a>
+            </div>
+            <img
+              src="/images/connectors/connector-encyclopedia-overview.svg"
+              alt="GxPHistorian Physical Connectors and 10 Software Protocol Connectors Architecture Overview"
+              width="1200"
+              height="620"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- OSIsoft / AVEVA PI System Parity Section -->
+      <section id="pi-parity" class="section deferred-section">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-kicker">1-to-1 Subsystem Mapping</span>
+            <h2>OSIsoft / AVEVA PI System Parity Matrix</h2>
+            <p>
+              Every familiar PI System capability—from PI Asset Framework and PI Event Frames to PI Vision LTTB trends and Excel PI DataLink formulas—maps cleanly to an open-source, auditable GxPHistorian subsystem.
+            </p>
+          </div>
+
+          <div class="parity-table-wrap" role="region" aria-label="OSIsoft PI System Parity Matrix" tabindex="0">
+            <table class="parity-table">
+              <thead>
+                <tr>
+                  <th scope="col">Legacy OSIsoft / AVEVA PI Component</th>
+                  <th scope="col">GxPHistorian Open-Source Equivalent</th>
+                  <th scope="col">Key Technical &amp; Regulatory Capabilities</th>
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  parityRows.map((row) => (
+                    <tr>
+                      <td class="td-pi">{row.pi}</td>
+                      <td class="td-gxp">{row.gxp}</td>
+                      <td>{row.capability}</td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section-cta-bar">
+            <span>Want to inspect the container port matrix, repository structure, and REST API endpoints?</span>
+            <div class="cta-bar-buttons">
+              <a href="/docs/getting-started/overview/" class="btn btn-secondary btn-sm">Overview &amp; Parity Guide</a>
+              <a href="/docs/clients-and-api/rest-api-reference/" class="btn btn-primary btn-sm">REST API Reference →</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 21 CFR Part 11 & ALCOA+ Spotlight -->
+      <section id="part11" class="section alt-bg deferred-section">
+        <div class="container part11-grid">
+          <div class="part11-copy">
+            <span class="section-kicker">21 CFR Part 11 • EU GMP Annex 11 • ALCOA+</span>
+            <h2>Cryptographic Data Integrity Enforced at the Database Kernel</h2>
+            <p>
+              Auditors no longer accept "trust the web application" for electronic batch records and excursion investigations. GxPHistorian enforces attribution, immutability, and non-repudiable electronic signatures inside PostgreSQL 16 and ClickHouse.
+            </p>
+            <ul class="part11-list">
+              <li>
+                <strong>Mandatory Session Attribution (<code>§11.10(e)</code>):</strong> Every DML change on <code>asset_templates</code>, <code>assets</code>, <code>tags</code>, and <code>event_frames</code> requires <code>app.actor_id</code> and <code>app.change_reason</code> or raises an immediate kernel exception.
+              </li>
+              <li>
+                <strong>Unconditional WORM Audit Triggers:</strong> <code>trg_worm_part11_audit_log_stmt</code> and <code>trg_worm_part11_audit_log_row</code> block any <code>UPDATE</code>, <code>DELETE</code>, or <code>TRUNCATE</code> on <code>part11_audit_log</code>.
+              </li>
+              <li>
+                <strong>SHA-256 Cryptographic Hash Chain:</strong> Each audit row chains <code>prev_hash || recorded_at || actor_id || operation || new_payload</code> from <code>GENESIS_0000000000000000</code>, verifiable via <code>GET /api/v1/audit-trail/verify</code>.
+              </li>
+              <li>
+                <strong>Dual-Challenge Electronic Signatures (<code>§11.50</code>, <code>§11.70</code>, <code>§11.200</code>):</strong> Verifies bcrypt credentials in <code>users</code> and binds an <code>HMAC-SHA256</code> digest over <code>(event_id, user_id, signature_meaning, signed_at)</code>.
+              </li>
+            </ul>
+            <div class="hero-cta-row">
+              <a href="/docs/architecture/part11-compliance/" class="btn btn-primary">
+                Read 21 CFR Part 11 Specification →
+              </a>
+              <a href="/docs/gxp-validation/06-iq-oq-evidence/" class="btn btn-secondary">
+                View Executed OQ-01..OQ-05 Evidence
+              </a>
+            </div>
+          </div>
+
+          <div class="part11-code-panel">
+            <div class="terminal-card">
+              <div class="terminal-bar">
+                <div class="terminal-dots" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </div>
+                <span class="terminal-title">init-postgres/01_control_plane_part11.sql</span>
+                <span class="terminal-status">WORM ACTIVE</span>
+              </div>
+              <pre class="terminal-body"><code><span class="t-comment">-- Enforce mandatory 21 CFR Part 11 attribution context</span>
+IF v_actor IS NULL OR v_reason IS NULL THEN
+    RAISE EXCEPTION <span class="t-str">'21 CFR Part 11 Violation: app.actor_id and app.change_reason are mandatory'</span>;
+END IF;
+
+<span class="t-comment">-- Compute cryptographic SHA-256 hash chain link</span>
+v_row_hash := encode(
+    digest(
+        v_prev_hash || v_recorded_at::text || v_actor || TG_OP ||
+        COALESCE(v_new_payload::text, <span class="t-str">''</span>),
+        <span class="t-str">'sha256'</span>
+    ),
+    <span class="t-str">'hex'</span>
+);
+
+<span class="t-comment">-- Unconditional WORM immutability (blocks even superusers)</span>
+CREATE TRIGGER trg_worm_part11_audit_log_stmt
+BEFORE UPDATE OR DELETE OR TRUNCATE ON part11_audit_log
+FOR EACH STATEMENT EXECUTE FUNCTION fn_prevent_audit_tampering();</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Biopharma Equipment & Connector Guides Gallery -->
+      <section id="equipment" class="section deferred-section">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-kicker">Visual Field-Engineering Playbooks</span>
+            <h2>35+ Biopharma Instruments &amp; 10 Industrial Protocol Guides</h2>
+            <p>
+              Every integration guide in <code>gxphistorian.com/docs</code> includes photorealistic hardware identification, vector rear-panel port callouts (highlighting internal PLC I/O ports never to unplug), exact gateway part numbers, menu click-paths, and copy-paste tag provisioning commands.
+            </p>
+          </div>
+
+          <div class="equip-grid">
+            {
+              equipmentGuides.map((item) => (
+                <a href={item.href} class="equip-card">
+                  <div class="equip-img-wrap">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      width="640"
+                      height="360"
+                      loading="lazy"
+                    />
+                    <span class="equip-proto-badge">{item.protocol}</span>
+                  </div>
+                  <div class="equip-body">
+                    <span class="equip-category">{item.category}</span>
+                    <h3>{item.title}</h3>
+                    <p class="equip-models">{item.instruments}</p>
+                    <span class="equip-link-text">Open Visual Integration Guide →</span>
+                  </div>
+                </a>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- GAMP 5 & FDA CSA Validation Binder Section -->
+      <section id="validation" class="section alt-bg deferred-section">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-kicker">Turnkey CSV / CSA Qualification Package</span>
+            <h2>8-Document Commercial GMP Validation Binder Included</h2>
+            <p>
+              Generated automatically from <code>urs_risk_catalog.yaml</code>, live Docker container <code>@sha256</code> digests, and executed <code>pytest</code> IQ/OQ evidence logs (<code>oq_execution_results.json</code>). Browse online in <code>/docs</code> or export the single-file print-ready HTML/PDF binder for QA sign-off.
+            </p>
+          </div>
+
+          <div class="binder-grid">
+            {
+              validationDocs.map((doc) => (
+                <a href={doc.href} class="binder-card">
+                  <span class="binder-doc-id">{doc.id}</span>
+                  <strong>{doc.title}</strong>
+                  <span class="binder-arrow">Read Deliverable →</span>
+                </a>
+              ))
+            }
+          </div>
+
+          <div class="binder-cta-banner">
+            <div>
+              <h3>Need the Complete Print-Ready Single-File GMP Validation Binder?</h3>
+              <p>
+                Includes all 8 regulatory documents, bidirectional Requirements Traceability Matrix (RTM), SOUP container SHA-256 digests, and live PostgreSQL WORM audit trail samples formatted for QA archival.
+              </p>
+            </div>
+            <div class="binder-cta-actions">
+              <a href="/binder/COMPLETE_GMP_VALIDATION_BINDER.html" class="btn btn-primary btn-lg">
+                Open Print-Ready HTML/PDF Binder →
+              </a>
+              <a href="/docs/gxp-validation/overview/" class="btn btn-secondary btn-lg">
+                Qualification Suite Guide
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-brand-col">
+            <a href="/" class="brand-lockup">
+              <span class="brand-name">GxPHistorian</span>
+              <span class="brand-tag">gxphistorian.com</span>
+            </a>
+            <p class="footer-desc">
+              A 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 (Second Edition) Qualified 4-Pillar Open-Source Industrial Time-Series Historian &amp; Asset Framework.
+            </p>
+          </div>
+
+          <div class="footer-col">
+            <h4>Getting Started &amp; Core</h4>
+            <ul>
+              <li><a href="/docs/">Documentation Portal (/docs)</a></li>
+              <li><a href="/docs/getting-started/overview/">Overview &amp; PI System Parity</a></li>
+              <li><a href="/docs/getting-started/quickstart/">5-Minute Quickstart</a></li>
+              <li><a href="/docs/architecture/four-pillar-architecture/">4-Pillar Architecture</a></li>
+              <li><a href="/docs/architecture/part11-compliance/">21 CFR Part 11 Controls</a></li>
+              <li><a href="/docs/architecture/hardware-sizing/">Hardware Sizing &amp; BOM</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>Clients &amp; Protocol Connectors</h4>
+            <ul>
+              <li><a href="/docs/clients-and-api/rest-api-reference/">REST API Reference</a></li>
+              <li><a href="/docs/clients-and-api/grafana-vision-hmi/">Grafana Vision Operator HMI</a></li>
+              <li><a href="/docs/clients-and-api/excel-datalink/">Excel DataLink Client</a></li>
+              <li><a href="/docs/connectors/overview/">Connectors Encyclopedia</a></li>
+              <li><a href="/docs/connectors/opc-ua-and-opc-da/">OPC UA &amp; Classic OPC DA</a></li>
+              <li><a href="/docs/connectors/bacnet-ip-and-mstp/">BACnet/IP &amp; MS/TP</a></li>
+              <li><a href="/docs/connectors/modbus-tcp-and-rtu/">Modbus TCP &amp; RTU</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>Biopharma &amp; GMP Validation</h4>
+            <ul>
+              <li><a href="/docs/biopharma-integration/catalog/">Master Biopharma Catalog</a></li>
+              <li><a href="/docs/biopharma-integration/xcellerex-x-platform/">Cytiva Xcellerex X-Platform</a></li>
+              <li><a href="/docs/biopharma-integration/usp-bioreactors/">USP Bioreactors Guide</a></li>
+              <li><a href="/docs/biopharma-integration/dsp-chromatography-tff/">DSP Chromatography &amp; TFF</a></li>
+              <li><a href="/docs/gxp-validation/overview/">GAMP 5 &amp; CSA Binder Overview</a></li>
+              <li><a href="/binder/COMPLETE_GMP_VALIDATION_BINDER.html">Print-Ready Validation Binder</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-legal">
+          <p>
+            <strong>Regulatory &amp; Trademark Notice:</strong> GxPHistorian GxP Industrial Historian is an independent open-source project engineered for 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 (2nd Ed.) compliance. <em>PI System</em>, <em>PI Vision</em>, <em>PI DataLink</em>, <em>PI Asset Framework</em>, <em>PI UFL</em>, <em>OSIsoft</em>, and <em>AVEVA</em> are trademarks of AVEVA Group Limited / OSIsoft, LLC and are referenced strictly for comparative interoperability documentation.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script is:inline>
+      const toggleBtn = document.getElementById('theme-toggle');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          const current = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+          const next = current === 'light' ? 'dark' : 'light';
+          document.documentElement.dataset.theme = next;
+          try {
+            localStorage.setItem('starlight-theme', next);
+          } catch (_) {}
+        });
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  /* Modern Web Guidance: dark-mode & visual-effects
+     Apply color-scheme on :root so viewport scrollbars & native UI adapt automatically,
+     and define progressive enhancement tokens for oklab/oklch gradient interpolation. */
+  :root {
+    color-scheme: light dark;
+    --in-oklab: ;
+    --in-oklch: ;
+
+    /* Dark theme (default industrial control-room palette) */
+    --bg-canvas: #070d19;
+    --bg-surface: #0d1729;
+    --bg-elevated: #132038;
+    --bg-glass: rgba(13, 23, 41, 0.84);
+    --border-subtle: #1e3252;
+    --border-accent: #0284c7;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --accent-primary: #38bdf8;
+    --accent-secondary: #34d399;
+    --accent-strong: #0284c7;
+    --badge-bg: rgba(2, 132, 199, 0.18);
+    --badge-text: #bae6fd;
+    --shadow-card: 0 14px 34px -10px rgba(0, 0, 0, 0.55);
+  }
+
+  @supports (background: linear-gradient(in oklab, white, black)) {
+    :root {
+      --in-oklab: in oklab;
+      --in-oklch: in oklch;
+    }
+  }
+
+  :root[data-theme='light'] {
+    --bg-canvas: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-elevated: #f1f5f9;
+    --bg-glass: rgba(255, 255, 255, 0.88);
+    --border-subtle: #cbd5e1;
+    --border-accent: #0284c7;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #475569;
+    --accent-primary: #0369a1;
+    --accent-secondary: #0f766e;
+    --accent-strong: #0284c7;
+    --badge-bg: #e0f2fe;
+    --badge-text: #0c4a6e;
+    --shadow-card: 0 12px 28px -8px rgba(15, 23, 42, 0.1);
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  /* Modern Web Guidance: typography & improve-text-layout-and-legibility
+     Use unitless line-height, text-align: start, rem/clamp() sizing,
+     text-wrap: balance on headings, and text-wrap: pretty on body copy. */
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    line-height: 1.6;
+    text-align: start;
+    overflow-wrap: break-word;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    line-height: 1.2;
+    margin-block: 0 0.75rem;
+    letter-spacing: -0.02em;
+  }
+
+  p,
+  li {
+    text-wrap: pretty;
+  }
+
+  code,
+  pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  }
+
+  .container {
+    width: min(1240px, 100% - 2.5rem);
+    margin-inline: auto;
+  }
+
+  /* Top Announcement Banner */
+  .top-banner {
+    background: linear-gradient(90deg var(--in-oklab), #0c4a6e, #0f766e);
+    color: #f8fafc;
+    font-size: 0.82rem;
+    padding-block: 0.5rem;
+    border-block-end: 1px solid rgba(56, 189, 248, 0.3);
+  }
+
+  .top-banner-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    text-align: center;
+  }
+
+  .status-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: #34d399;
+    box-shadow: 0 0 8px #34d399;
+  }
+
+  .top-banner-link {
+    color: #bae6fd;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Sticky Header */
+  .site-header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 50;
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    border-block-end: 1px solid var(--border-subtle);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 4.25rem;
+    padding-block: 0.5rem;
+  }
+
+  .brand-lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+    color: var(--text-primary);
+    font-weight: 800;
+    font-size: 1.2rem;
+  }
+
+  /* Modern Web Guidance: visual-effects — use filter: drop-shadow() for non-rectangular SVG logo */
+  .brand-logo {
+    width: 2.25rem;
+    height: 2.25rem;
+    filter: drop-shadow(0 2px 6px rgba(56, 189, 248, 0.35));
+  }
+
+  .brand-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: var(--badge-bg);
+    color: var(--badge-text);
+    border: 1px solid var(--border-accent);
+  }
+
+  .main-nav {
+    display: none;
+    align-items: center;
+    gap: 1.15rem;
+  }
+
+  @media (min-width: 68rem) {
+    .main-nav {
+      display: flex;
+    }
+  }
+
+  .main-nav a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: color 0.15s ease;
+  }
+
+  .main-nav a:hover {
+    color: var(--accent-primary);
+  }
+
+  .nav-docs-pill {
+    padding: 0.25rem 0.65rem;
+    border-radius: 0.375rem;
+    background: var(--badge-bg);
+    color: var(--badge-text) !important;
+    border: 1px solid var(--border-accent);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .theme-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  :root[data-theme='dark'] .theme-icon-dark {
+    display: none;
+  }
+
+  :root[data-theme='light'] .theme-icon-light {
+    display: none;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    cursor: pointer;
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .btn-sm {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.84rem;
+  }
+
+  .btn-lg {
+    padding: 0.78rem 1.35rem;
+    font-size: 0.95rem;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg var(--in-oklab), #0284c7, #0f766e);
+    color: #ffffff;
+    border: 1px solid #38bdf8;
+    box-shadow: 0 6px 20px -4px rgba(2, 132, 199, 0.5);
+  }
+
+  .btn-secondary {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--accent-primary);
+    border: 1px solid var(--border-accent);
+  }
+
+  /* Hero Section */
+  .hero-section {
+    padding-block: clamp(2.75rem, 5vw, 5rem) clamp(2.5rem, 4vw, 4rem);
+    background:
+      radial-gradient(circle at 15% 15%, rgba(2, 132, 199, 0.16), transparent 45%),
+      radial-gradient(circle at 85% 25%, rgba(15, 118, 110, 0.16), transparent 45%);
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  @media (min-width: 64rem) {
+    .hero-grid {
+      grid-template-columns: 1.12fr 0.88fr;
+    }
+  }
+
+  .eyebrow-pill {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    background: var(--badge-bg);
+    color: var(--badge-text);
+    border: 1px solid var(--border-accent);
+    margin-block-end: 1.15rem;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2rem, 1.35rem + 2.4vw, 3.35rem);
+    font-weight: 850;
+  }
+
+  .hero-lead {
+    font-size: clamp(1.02rem, 0.95rem + 0.35vw, 1.18rem);
+    color: var(--text-secondary);
+    max-width: 66ch;
+    margin-block: 1rem 1.75rem;
+  }
+
+  .hero-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-block-end: 1.75rem;
+  }
+
+  .compliance-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .c-badge {
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.28rem 0.7rem;
+    border-radius: 0.375rem;
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+  }
+
+  /* Terminal & Hero Photo Card */
+  .hero-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+  }
+
+  .terminal-card {
+    background: #070c16;
+    color: #e2e8f0;
+    border: 1px solid #1e3a5f;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0.95rem;
+    background: #0f172a;
+    border-block-end: 1px solid #1e293b;
+    font-size: 0.76rem;
+  }
+
+  .terminal-dots {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .terminal-dots span {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: #334155;
+  }
+
+  .terminal-dots span:nth-child(1) {
+    background: #ef4444;
+  }
+  .terminal-dots span:nth-child(2) {
+    background: #f59e0b;
+  }
+  .terminal-dots span:nth-child(3) {
+    background: #10b981;
+  }
+
+  .terminal-title {
+    color: #94a3b8;
+    font-family: ui-monospace, monospace;
+  }
+
+  .terminal-status {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.1rem 0.45rem;
+    border-radius: 0.25rem;
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.4);
+  }
+
+  .terminal-body {
+    margin: 0;
+    padding: 1rem 1.15rem;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    overflow-x: auto;
+  }
+
+  .t-comment {
+    color: #64748b;
+  }
+  .t-prompt {
+    color: #38bdf8;
+    font-weight: 700;
+  }
+  .t-key {
+    color: #7dd3fc;
+  }
+  .t-str {
+    color: #a7f3d0;
+  }
+  .t-bool,
+  .t-num {
+    color: #fcd34d;
+  }
+  .t-pass {
+    color: #34d399;
+    font-weight: 700;
+  }
+
+  .hero-photo-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+
+  .hero-photo-card img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 240px;
+    object-fit: cover;
+  }
+
+  .hero-photo-caption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.82rem;
+  }
+
+  .hero-photo-caption strong {
+    display: block;
+    color: var(--text-primary);
+  }
+
+  .hero-photo-caption span {
+    color: var(--text-muted);
+  }
+
+  .hero-photo-caption a {
+    white-space: nowrap;
+    font-weight: 700;
+    color: var(--accent-primary);
+    text-decoration: none;
+  }
+
+  /* Metrics Strip */
+  .metrics-strip {
+    border-block: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+    padding-block: 1.75rem;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .metric-item {
+    display: flex;
+    flex-direction: column;
+    padding-inline: 0.75rem;
+    border-inline-start: 3px solid var(--accent-strong);
+  }
+
+  .metric-val {
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+    font-weight: 850;
+    color: var(--accent-primary);
+    line-height: 1.15;
+  }
+
+  .metric-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-block-start: 0.2rem;
+  }
+
+  .metric-sub {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  /* Generic Sections & Deferred Rendering */
+  .section {
+    padding-block: clamp(3.25rem, 6vw, 5.5rem);
+  }
+
+  .alt-bg {
+    background: var(--bg-surface);
+    border-block: 1px solid var(--border-subtle);
+  }
+
+  /* Modern Web Guidance: defer-rendering-heavy-content
+     Apply content-visibility: auto paired with contain-intrinsic-size on strictly below-the-fold sections. */
+  .deferred-section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto none auto 680px;
+  }
+
+  .section-header {
+    max-width: 72ch;
+    margin-block-end: 2.5rem;
+  }
+
+  .section-kicker {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent-primary);
+    margin-block-end: 0.5rem;
+  }
+
+  .section-header h2 {
+    font-size: clamp(1.65rem, 1.25rem + 1.5vw, 2.4rem);
+  }
+
+  .section-header p {
+    color: var(--text-secondary);
+    font-size: 1.02rem;
+    margin: 0;
+  }
+
+  /* Differentiator Cards */
+  .diff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .diff-card,
+  .pillar-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.85rem;
+    padding: 1.65rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: var(--shadow-card);
+  }
+
+  .alt-bg .pillar-card {
+    background: var(--bg-canvas);
+  }
+
+  .diff-number {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent-secondary);
+    margin-block-end: 0.6rem;
+    font-family: ui-monospace, monospace;
+  }
+
+  .diff-card h3,
+  .pillar-card h3 {
+    font-size: 1.22rem;
+  }
+
+  .diff-card p,
+  .pillar-card p {
+    color: var(--text-secondary);
+    font-size: 0.94rem;
+    margin-block: 0.5rem 1.25rem;
+  }
+
+  .card-link {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--accent-primary);
+    text-decoration: none;
+    margin-block-start: auto;
+  }
+
+  .card-link:hover {
+    text-decoration: underline;
+  }
+
+  /* 4-Pillar Grid */
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
+    gap: 1.25rem;
+    margin-block-end: 2rem;
+  }
+
+  .pillar-badge {
+    align-self: flex-start;
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: var(--badge-bg);
+    color: var(--badge-text);
+    border: 1px solid var(--border-accent);
+    margin-block-end: 0.75rem;
+  }
+
+  .pillar-tech {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent-secondary);
+    font-family: ui-monospace, monospace;
+    margin-block-end: 0.4rem;
+  }
+
+  .arch-diagram-box {
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.85rem;
+    padding: 1.25rem;
+    box-shadow: var(--shadow-card);
+  }
+
+  .arch-diagram-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-block-end: 1rem;
+  }
+
+  .arch-diagram-header strong {
+    display: block;
+    font-size: 1.05rem;
+  }
+
+  .arch-diagram-header span {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+  }
+
+  .arch-diagram-box img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+  }
+
+  /* Parity Table */
+  .parity-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.75rem;
+    background: var(--bg-surface);
+    box-shadow: var(--shadow-card);
+  }
+
+  .parity-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .parity-table th,
+  .parity-table td {
+    padding: 0.9rem 1.1rem;
+    border-block-end: 1px solid var(--border-subtle);
+    vertical-align: top;
+    text-align: start;
+  }
+
+  .parity-table thead th {
+    background: var(--bg-elevated);
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .parity-table tbody tr:last-child td {
+    border-block-end: none;
+  }
+
+  .td-pi {
+    font-weight: 700;
+    color: var(--text-primary);
+    min-width: 220px;
+  }
+
+  .td-gxp {
+    font-weight: 700;
+    color: var(--accent-primary);
+    font-family: ui-monospace, monospace;
+    font-size: 0.84rem;
+    min-width: 250px;
+  }
+
+  .section-cta-bar {
+    margin-block-start: 1.5rem;
+    padding: 1.15rem 1.4rem;
+    border-radius: 0.75rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font-weight: 600;
+  }
+
+  .cta-bar-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  /* Part 11 Spotlight */
+  .part11-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  @media (min-width: 62rem) {
+    .part11-grid {
+      grid-template-columns: 1.08fr 0.92fr;
+    }
+  }
+
+  .part11-list {
+    padding-inline-start: 1.2rem;
+    margin-block: 1.25rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  /* Equipment Gallery Grid */
+  .equip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .equip-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.85rem;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.18s ease, border-color 0.18s ease;
+  }
+
+  .equip-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-primary);
+  }
+
+  .equip-img-wrap {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #070d19;
+    overflow: hidden;
+  }
+
+  .equip-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .equip-proto-badge {
+    position: absolute;
+    inset-block-end: 0.6rem;
+    inset-inline-start: 0.6rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 0.35rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: rgba(7, 13, 25, 0.88);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.45);
+  }
+
+  .equip-body {
+    padding: 1.25rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .equip-category {
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent-secondary);
+    margin-block-end: 0.35rem;
+  }
+
+  .equip-body h3 {
+    font-size: 1.1rem;
+    margin-block-end: 0.45rem;
+  }
+
+  .equip-models {
+    font-size: 0.84rem;
+    color: var(--text-muted);
+    margin-block: 0 1rem;
+  }
+
+  .equip-link-text {
+    margin-block-start: auto;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent-primary);
+  }
+
+  /* Validation Binder Grid */
+  .binder-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+    gap: 1rem;
+    margin-block-end: 2rem;
+  }
+
+  .binder-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1.2rem 1.3rem;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.75rem;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+
+  .binder-card:hover {
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+  }
+
+  .binder-doc-id {
+    font-size: 0.74rem;
+    font-weight: 700;
+    font-family: ui-monospace, monospace;
+    color: var(--accent-secondary);
+  }
+
+  .binder-arrow {
+    margin-block-start: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent-primary);
+  }
+
+  .binder-cta-banner {
+    padding: 2rem;
+    border-radius: 0.9rem;
+    background: linear-gradient(135deg var(--in-oklab), rgba(2, 132, 199, 0.16), rgba(15, 118, 110, 0.16));
+    border: 1px solid var(--border-accent);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .binder-cta-banner h3 {
+    font-size: 1.35rem;
+    margin-block-end: 0.4rem;
+  }
+
+  .binder-cta-banner p {
+    margin: 0;
+    max-width: 65ch;
+    color: var(--text-secondary);
+  }
+
+  .binder-cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  /* Footer */
+  .site-footer {
+    padding-block: 3.5rem 2.5rem;
+    background: var(--bg-canvas);
+    border-block-start: 1px solid var(--border-subtle);
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 2rem;
+    margin-block-end: 2.5rem;
+  }
+
+  .footer-desc {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin-block-start: 0.75rem;
+  }
+
+  .footer-col h4 {
+    font-size: 0.9rem;
+    margin-block-end: 0.75rem;
+    color: var(--text-primary);
+  }
+
+  .footer-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .footer-col a {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+
+  .footer-col a:hover {
+    color: var(--accent-primary);
+    text-decoration: underline;
+  }
+
+  .footer-legal {
+    padding-block-start: 1.5rem;
+    border-block-start: 1px solid var(--border-subtle);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+</style>

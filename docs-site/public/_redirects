@@ -1,0 +1,6 @@
+/getting-started/* /docs/getting-started/:splat 301
+/architecture/* /docs/architecture/:splat 301
+/clients-and-api/* /docs/clients-and-api/:splat 301
+/connectors/* /docs/connectors/:splat 301
+/biopharma-integration/* /docs/biopharma-integration/:splat 301
+/gxp-validation/* /docs/gxp-validation/:splat 301

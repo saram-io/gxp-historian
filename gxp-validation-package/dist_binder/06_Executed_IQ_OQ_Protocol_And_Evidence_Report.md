@@ -51,6 +51,6 @@
 | `f5aff8cb-2d04-4fc8-b854-ff8c63943e88` | **BR201_TEMP_PV_High_Limit_Excursion** | `Temp_Excursion` | `CRITICAL` | `2026-10-17 12:26:14.459+00` | `qa_approver_01` | Batch Release Approval | `ce044436f26c50818761708b...` |
 | `d74b43a4-3dab-4181-8c51-8c906f92f451` | **BR201_TEMP_PV_High_Limit_Excursion** | `Temp_Excursion` | `CRITICAL` | `2026-10-17 12:26:14.459+00` | `qa_approver_01` | Excursion Investigation Reviewed | `0ab77f66b7de5503633a3213...` |
 | `8217b8ad-b909-4b03-8922-aab83751609f` | **USP_Batch_2026_BR201_001** | `Fermentation_Batch` | `INFO` | `2026-10-17 12:25:32.453+00` | `UNSIGNED` | - | `-...` |
-| `1a1c1256-5b88-46e6-8fa5-56fcea21bd74` | **BR201_TEMP_PV_High_Limit_Excursion** | `Temp_Excursion` | `CRITICAL` | `2026-10-17 18:04:20.551+00` | `UNSIGNED` | - | `-...` |
-| `60657dea-3a52-4317-89fd-82ec7ec12de7` | **BR201_TEMP_PV_High_Limit_Excursion** | `Temp_Excursion` | `CRITICAL` | `2026-10-17 18:03:19.542+00` | `UNSIGNED` | - | `-...` |
-| `369e04fc-8604-4c0b-b26d-f9c2f584a4f5` | **BR201_TEMP_PV_High_Limit_Excursion** | `Temp_Excursion` | `CRITICAL` | `2026-10-17 18:02:19.533+00` | `UNSIGNED` | - | `-...` |
+| `e0ccb802-7296-49d0-a760-c8a649df9fff` | **BR201_TEMP_PV_High_Limit_Excursion** | `Temp_Excursion` | `CRITICAL` | `2026-10-17 18:55:19.012+00` | `UNSIGNED` | - | `-...` |
+| `ab57b967-edfa-4990-8e28-d2b8efc637a8` | **BR201_TEMP_PV_High_Limit_Excursion** | `Temp_Excursion` | `CRITICAL` | `2026-10-17 18:54:18.003+00` | `UNSIGNED` | - | `-...` |
+| `83027676-be2d-4f4f-92c2-69eae2226a2f` | **BR201_TEMP_PV_High_Limit_Excursion** | `Temp_Excursion` | `CRITICAL` | `2026-10-17 18:54:18.003+00` | `UNSIGNED` | - | `-...` |

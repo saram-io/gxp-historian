@@ -47,11 +47,11 @@ Executing `pytest` runs all 15 qualification tests across three test modules and
 
 It outputs all 8 regulatory deliverables into `gxp-validation-package/dist_binder/` (and synced into this documentation portal):
 
-1. **[01 — Validation Master Plan (VMP)](/gxp-validation/01-vmp/)** (`VMP-GXPHISTORIAN-2026-001`)
-2. **[02 — User Requirements Specification (URS)](/gxp-validation/02-urs/)** (`URS-001` through `URS-015`)
-3. **[03 — Functional & Design Specification (FDS)](/gxp-validation/03-fds/)** (4-Pillar Architecture & Schema Spec)
-4. **[04 — CSA Functional Risk Assessment (FRA)](/gxp-validation/04-fra/)** (Patient Safety, Product Quality & Data Integrity Risk Matrix)
-5. **[05 — SOUP / OSS Vendor Qualification Dossier](/gxp-validation/05-soup-dossier/)** (ClickHouse, PostgreSQL, Telegraf, FastAPI, Grafana `@sha256` digests)
-6. **[06 — Executed IQ/OQ Protocol & Evidence Report](/gxp-validation/06-iq-oq-evidence/)** (15/15 Executed Test Results & Live Cryptographic Audit Samples)
-7. **[07 — Requirements Traceability Matrix (RTM)](/gxp-validation/07-rtm/)** (Bidirectional URS $\leftrightarrow$ FRS $\leftrightarrow$ Risk $\leftrightarrow$ Test ID Matrix)
-8. **[08 — Validation Summary Report (VSR)](/gxp-validation/08-vsr/)** (QA Release Certificate for Production GMP Use)
+1. **[01 — Validation Master Plan (VMP)](/docs/gxp-validation/01-vmp/)** (`VMP-GXPHISTORIAN-2026-001`)
+2. **[02 — User Requirements Specification (URS)](/docs/gxp-validation/02-urs/)** (`URS-001` through `URS-015`)
+3. **[03 — Functional & Design Specification (FDS)](/docs/gxp-validation/03-fds/)** (4-Pillar Architecture & Schema Spec)
+4. **[04 — CSA Functional Risk Assessment (FRA)](/docs/gxp-validation/04-fra/)** (Patient Safety, Product Quality & Data Integrity Risk Matrix)
+5. **[05 — SOUP / OSS Vendor Qualification Dossier](/docs/gxp-validation/05-soup-dossier/)** (ClickHouse, PostgreSQL, Telegraf, FastAPI, Grafana `@sha256` digests)
+6. **[06 — Executed IQ/OQ Protocol & Evidence Report](/docs/gxp-validation/06-iq-oq-evidence/)** (15/15 Executed Test Results & Live Cryptographic Audit Samples)
+7. **[07 — Requirements Traceability Matrix (RTM)](/docs/gxp-validation/07-rtm/)** (Bidirectional URS $\leftrightarrow$ FRS $\leftrightarrow$ Risk $\leftrightarrow$ Test ID Matrix)
+8. **[08 — Validation Summary Report (VSR)](/docs/gxp-validation/08-vsr/)** (QA Release Certificate for Production GMP Use)
