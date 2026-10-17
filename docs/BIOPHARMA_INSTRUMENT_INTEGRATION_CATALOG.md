@@ -18,6 +18,8 @@ Historically, life sciences facilities deployed the proprietary **OSIsoft / AVEV
 
 If you are a **bioprocess scientist, lab manager, cleanroom operator, or QA specialist** looking at the back panel of an instrument in your lab or cleanroom, every piece of biopharma equipment connects to **GxPHistorian** using one of **four physical connectors**:
 
+![Industrial Hardware Connectors & DIN-Rail Protocol Gateways Product Photo Guide](images/photos/hardware-connectors-gateways-collage.jpg)
+
 ![Physical Connectors Field Guide for Non-Technical Users](images/instruments/physical-connectors-field-guide.svg)
 
 | What You See on the Back of the Instrument | What Cable / Adapter to Buy | How It Connects to GxPHistorian |

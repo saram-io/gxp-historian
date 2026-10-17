@@ -14,6 +14,8 @@ When connecting laboratory, cleanroom, or utility equipment to **GxPHistorian**,
 1. **The Physical Connector (OSI Layer 1 — "What Plug Is on the Back of the Machine?"):** Is it an 8-pin **RJ45 Ethernet** jack, a circular waterproof **M12 screw-lock** socket, a 9-pin **DB9 RS-232** serial port, or a green **Phoenix screw-terminal** block (`RS-485` / `4–20 mA`)?
 2. **The Software Protocol Connector (OSI Layer 7 — "What Language Does the Machine Speak Over That Wire?"):** Does it speak **OPC UA**, **Classic OPC DA**, **BACnet/IP & MS/TP**, **Modbus TCP/RTU**, **Siemens S7comm**, **Allen-Bradley EtherNet/IP**, **4–20 mA + HART**, **RS-232 ASCII (`MT-SICS` / `ASTM`)**, or **File Watch-Folder (`CSV/XML` UFL)**?
 
+![Industrial Hardware Connectors & DIN-Rail Protocol Gateways Macro Product Photo Guide](/images/photos/hardware-connectors-gateways-collage.jpg)
+
 ![GxPHistorian Connectors Encyclopedia: Physical Plugs & Software Protocols](/images/connectors/connector-encyclopedia-overview.svg)
 
 Also refer to our step-by-step physical connector field guide for non-technical operators and scientists:

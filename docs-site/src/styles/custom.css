@@ -127,9 +127,10 @@
   color: var(--sl-color-gray-3);
 }
 
-/* Instrument & Connector Visual SVG Diagrams */
+/* Instrument, Connector & Product Photography Visuals */
 .sl-markdown-content img[src*="/images/instruments/"],
-.sl-markdown-content img[src*="/images/connectors/"] {
+.sl-markdown-content img[src*="/images/connectors/"],
+.sl-markdown-content img[src*="/images/photos/"] {
   display: block;
   width: 100%;
   max-width: 100%;

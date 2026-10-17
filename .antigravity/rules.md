@@ -22,7 +22,7 @@
 
 5. **Validation Binder & Documentation Site Synchronization Gate:**
    - Whenever modifying `docs/*.md`, `provisioning/grafana/dashboards/`, or `gxp-validation-package/`, always run the full synchronization pipeline before completing the task:
-     1. When adding new `docs/*.md` files or `docs/images/<subdir>/*.svg` diagrams, register them in `docs-site/scripts/sync-docs.mjs` (`DOC_MAPPINGS`, `LINK_REWRITES`, and static asset copy), `docs-site/astro.config.mjs` (sidebar), and `README.md`.
+     1. When adding new `docs/*.md` files, `docs/images/<subdir>/*.svg` diagrams, or `docs/images/photos/*.jpg` product photos, register them in `docs-site/scripts/sync-docs.mjs` (`DOC_MAPPINGS`, `LINK_REWRITES`, and static asset copy), `docs-site/astro.config.mjs` (sidebar), and `README.md`.
      2. If Grafana dashboards changed, restart Grafana (`docker compose restart grafana-vision`) and run `.venv/bin/pytest -v` to update `gxp-validation-package/evidence/oq_execution_results.json`.
      3. Regenerate the 8-document GMP binder and HTML artifact: `.venv/bin/python3 gxp-validation-package/generate_gmp_binder.py`.
      4. Sync and build the Astro Starlight documentation site: `pnpm --dir docs-site build` (which runs `node scripts/sync-docs.mjs && astro build`).
@@ -31,6 +31,6 @@
 
 6. **Instrument & Connector Documentation Standards (`docs/` & `docs-site/`):**
    - Every biopharma instrument tutorial and hardware/software connector guide MUST include:
-     1. **Visual SVG Diagrams (`docs/images/{instruments,connectors}/*.svg`):** Show physical equipment/connector appearance, rear-panel port callouts, pinouts (`RJ45`, `M12 D/X/A-Coded`, `DB9`, `RS-485`, `4–20 mA`), and protocol packet/register anatomy.
+     1. **Photorealistic Product Photo Galleries (`docs/images/photos/*.jpg`) & Visual SVG Wiring Diagrams (`docs/images/{instruments,connectors}/*.svg`):** Show both photorealistic hardware/instrument photography and vector schematic diagrams with rear-panel port callouts, pinouts (`RJ45`, `M12 D/X/A-Coded`, `DB9`, `RS-232`, `RS-485`, `4–20 mA`), and protocol packet/register anatomy.
      2. **Non-Technical Step-by-Step Setup Walkthroughs:** Detail exact cables/gateways to buy, physical ports to plug into (highlighting internal PLC I/O ports never to unplug), touchscreen/software menu click-paths, and 1-line network test commands.
      3. **Direct Official Vendor Product URLs:** Link every mentioned instrument, DCS/SCADA platform, and industrial gateway to its canonical manufacturer URL (never use search redirect URLs).

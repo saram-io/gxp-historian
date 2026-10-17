@@ -15,6 +15,8 @@ Every QC stability lab, cell bank cryostorage room, seed train suite, and steril
 
 **GxPHistorian** unifies all four equipment families into a single 21 CFR Part 11 historian while automatically computing **ICH Q1A Mean Kinetic Temperature ($\text{MKT}$)** and **USP `<1229>` Steam Sterilization Lethality ($F_0$)** directly in ClickHouse SQL.
 
+![GMP Stability Chambers, CO2 Incubators, -80C ULT Freezers & Steam Autoclaves Product Photo Gallery](/images/photos/stability-incubator-ult-autoclave-collage.jpg)
+
 ![GMP Stability Chambers, Incubators, Cold Chain ULT Freezers & Steam Autoclaves Visual Wiring Guide](/images/instruments/stability-chambers-cold-chain-autoclaves.svg)
 
 Also refer to our universal connector diagram if you are unfamiliar with industrial ports:

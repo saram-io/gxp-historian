@@ -17,6 +17,8 @@ In established cGMP biopharmaceutical facilities, critical equipment—steam ste
 | **Allen-Bradley DF1 / PCCC / EtherNet/IP** (PLC-5 / SLC 500) | *PI Interface for Allen-Bradley DF1 / CIP* | Python `pycomm3` (`SLCDriver` / `LogixDriver`) worker $\rightarrow$ `:8080/ingest` | Legacy Millipore TFF skids, Paul Mueller WFI storage & distribution skids, lyophilizer refrigeration skids |
 | **4–20 mA Analog + HART** (Bell 202 FSK) | *PI Interface for HART / Cornerstone* | HART-to-Modbus TCP Multiplexer $\rightarrow$ `[[inputs.modbus]]` | Legacy Rosemount / Endress+Hauser sanitary pressure, level, PT100 RTD, and Micro Motion Coriolis flow transmitters |
 
+![Industrial Hardware Connectors & DIN-Rail Protocol Gateways Macro Product Photo Guide](images/photos/hardware-connectors-gateways-collage.jpg)
+
 ![Legacy Fieldbus, PLC & 4-20mA Analog Wiring Guide for Non-Technical Users](images/instruments/legacy-fieldbus-plc-wiring.svg)
 
 ---

@@ -18,6 +18,8 @@ In modern Upstream and Downstream bioprocessing, online bioreactor probes (Tempe
    - **[Endress+Hauser (Kaiser) Raman Rxn2™ / Rxn4™ Bioprocess Analyzer](https://www.endress.com/en/Field-instruments-overview/Product-finder/Raman-Rxn2-analyzer)** (*in situ* Raman spectroscopy predicting real-time glucose, lactate, VCD, and antibody titer for closed-loop nutrient feeding)
    - **[Hamilton Arc®](https://www.hamiltoncompany.com/process-analytics/arc-sensors) (Incyte® Permittivity/Biomass, VisiFerm™ Optical DO, EasyFerm™ pH) & [Mettler Toledo InPro® / M800 Transmitters](https://www.mt.com/us/en/home/products/Process-Analytics/Multi-parameter-transmitters/M800.html)**
 
+![PAT & Cell Culture Analyzers Product Photo Gallery: Nova BioProfile FLEX2 + Seg-Flow, Beckman Vi-CELL BLU, Roche Cedex Bio HT & Endress+Hauser Raman Rxn2](/images/photos/pat-cell-analyzers-collage.jpg)
+
 ![PAT Cell Analyzers, Metabolite Analyzers & In-Line Raman Spectroscopy Visual Wiring Guide](/images/instruments/pat-analyzers-spectroscopy.svg)
 
 ---

@@ -16,6 +16,8 @@ Cell and Gene Therapy (CAR-T, TCR-T, NK, Viral Vectors) and mRNA-Lipid Nanoparti
 2. **Closed-System Benchtop & Cart Skids:** Unlike 2,000 L stainless bioreactors wired into plant-wide DCS cabinets, CGT instruments are compact benchtop or mobile cart units with rear **RJ45 Ethernet** or **9-pin DB9 RS-232 serial** ports.
 3. **Critical Thermal Inflection Curves (Latent Heat of Fusion):** During cryopreservation in a Controlled-Rate Freezer, cells release latent heat as ice nucleates around $-4\,^\circ\text{C}$ to $-8\,^\circ\text{C}$. QA must verify from the historian curve that liquid nitrogen ($\text{LN}_2$) blast cooling compensated for the phase change without warming the patient bag.
 
+![Cell & Gene Therapy, mRNA-LNP & Controlled-Rate Freezer Product Photo Gallery: Miltenyi CliniMACS Prodigy, Cytiva Sefia/Sepax, NanoAssemblr GMP & CRF](/images/photos/cgt-mrna-lnp-crf-collage.jpg)
+
 ![Cell & Gene Therapy, mRNA-LNP & Controlled-Rate Freezer Visual Wiring Guide](/images/instruments/cgt-mrna-lnp-instruments.svg)
 
 Also refer to our universal connector diagram if you are unfamiliar with industrial ports:

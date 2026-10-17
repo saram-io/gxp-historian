@@ -12,6 +12,8 @@ description: "Integration guide for Cytiva Xcellerex X-Platform single-use biore
 
 By default, the repository’s qualification seed (`init-postgres/01_control_plane_part11.sql`) models a **2000 L Upstream Processing (USP) single-use bioreactor** (`BioCorp.Fremont.USP.Bioreactor_201`) with pre-configured ISA-95 `ltree` asset paths, Stage 1 exception/deadband filtering (`ExcDev` / `ExcMax`), 1-minute ClickHouse rollups, automated ISA-88 Event Frames, and 21 CFR Part 11 cryptographic audit trails.
 
+![Cytiva Xcellerex XDR 2000L Single-Use Bioreactor, Figurate HMI & Rear PLANT LAN / M12 Ports Product Photo](/images/photos/xcellerex-2000l-bioreactor.jpg)
+
 ![Cytiva Xcellerex XDR Bioreactor, XDUO Mixer & Figurate Cabinet Visual Wiring Guide](/images/instruments/xcellerex-x-platform.svg)
 
 ---

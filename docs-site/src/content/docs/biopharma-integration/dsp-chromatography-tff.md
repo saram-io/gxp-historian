@@ -12,6 +12,8 @@ Downstream Processing (DSP)—Protein A affinity capture, ion-exchange polishing
 
 GxPHistorian GxP Industrial Historian is pre-seeded with a chromatography UV 280 nm tag (`Tag 401: CHROM_UV280_PV` in `init-postgres/01_control_plane_part11.sql`) and includes a production Windows localhost OPC DA forwarder (`edge-collector/scripts/opcda_windows_forwarder.py`) specifically designed for chromatography skid workstations.
 
+![Downstream Purification Equipment Product Photo Gallery: Cytiva ÄKTA Chromatography System & Tangential Flow Filtration (TFF) Skid](/images/photos/dsp-chromatography-tff-collage.jpg)
+
 ![Downstream Chromatography, TFF Filtration & LTTB UV280 Peak Preservation Visual Wiring Guide](/images/instruments/dsp-chromatography-tff.svg)
 
 ---

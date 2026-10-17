@@ -204,8 +204,8 @@ function transformMarkdown(raw, defaultDescription) {
     body = body.replace(linkRegex, (_, hash) => `](${item.slug}${hash || ''})`);
   }
 
-  // Rewrite relative instrument & connector SVG image links to root-relative /images/...
-  body = body.replace(/\]\((?:docs\/)?images\/(instruments|connectors)\//g, '](/images/$1/');
+  // Rewrite relative instrument, connector & product photo image links to root-relative /images/...
+  body = body.replace(/\]\((?:docs\/)?images\/(instruments|connectors|photos)\//g, '](/images/$1/');
 
   const frontmatter = [
     '---',
@@ -232,15 +232,21 @@ function syncAll() {
     fs.writeFileSync(destPath, output, 'utf8');
   }
 
-  // Copy docs/images/{instruments,connectors}/*.svg into public/images/{instruments,connectors}/
+  // Copy docs/images/{instruments,connectors,photos}/*.{svg,png,jpg,webp} into public/images/{instruments,connectors,photos}/
   let copiedImages = 0;
-  for (const subDir of ['instruments', 'connectors']) {
+  for (const subDir of ['instruments', 'connectors', 'photos']) {
     const imgSrcDir = path.join(repoRoot, 'docs/images', subDir);
     const imgDestDir = path.join(siteRoot, 'public/images', subDir);
     if (fs.existsSync(imgSrcDir)) {
       fs.mkdirSync(imgDestDir, { recursive: true });
       for (const file of fs.readdirSync(imgSrcDir)) {
-        if (file.endsWith('.svg') || file.endsWith('.png')) {
+        if (
+          file.endsWith('.svg') ||
+          file.endsWith('.png') ||
+          file.endsWith('.jpg') ||
+          file.endsWith('.jpeg') ||
+          file.endsWith('.webp')
+        ) {
           fs.copyFileSync(path.join(imgSrcDir, file), path.join(imgDestDir, file));
           copiedImages++;
         }

@@ -13,6 +13,8 @@ Under **EU GMP Annex 1 (2022 Revision)** and **FDA 21 CFR 211**, sterile Drug Pr
 3. **Cleanroom Environmental Monitoring Systems (EMS) & Airborne Particle Counters ([Particle Measuring Systems LasAir® III / Pro & Airnet® II](https://www.pmeasuring.com/products/lasair-pro-airborne-particle-counter/), Lighthouse Solair, [Beckman MET ONE](https://www.beckman.com/particle-counters/air), Siemens Desigo CC / Honeywell EBI / JCI Metasys):** Continuous Grade A / ISO 5 and Grade B/C / ISO 7 differential pressure (`Pa`), temperature, relative humidity, and $0.5\,\mu\text{m}$ / $5.0\,\mu\text{m}$ non-viable particle counts via **BACnet/IP** and **Modbus TCP**.
 4. **Compendial Water Loops (WFI, PW, Pure Steam) & Analytical Transmitters ([Veolia Sievers® M9 / M9e TOC](https://www.watertechnologies.com/products/sievers-m9-laboratory-toc-analyzer) & [Mettler Toledo Thornton M800 Conductivity](https://www.mt.com/us/en/home/products/Process-Analytics/Multi-parameter-transmitters/M800.html)):** Real-time USP <643> Total Organic Carbon (`ppb`) and USP <645> conductivity ($\mu\text{S/cm}$), return loop temperature ($> 80\,^\circ\text{C}$ sanitization), and ozone concentration.
 
+![Sterile Drug Product & Cleanroom Utilities Product Photo Gallery: GMP Freeze Dryer, SKAN Aseptic Isolator, PMS LasAir III / Airnet II & Veolia Sievers M9 TOC](images/photos/aseptic-lyo-isolator-ems-toc-collage.jpg)
+
 ![Aseptic Fill-Finish, Lyophilization & EU Annex 1 GMP Utilities Visual Wiring Guide](images/instruments/aseptic-fill-lyo-utilities.svg)
 
 ---

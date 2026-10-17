@@ -17,6 +17,8 @@ In a traditional OSIsoft / AVEVA PI System, these instruments are ingested using
 
 **GxPHistorian GxP Industrial Historian** replaces *PI UFL* with deterministic Python edge workers that parse serial TCP streams and watched directories, enforce **ALCOA+ data integrity** (preserving the instrument's native measurement timestamp, operator/sample ID, and file SHA-256 hash), spool locally during network outages, and post normalized JSON batches to `http://edge-collector:8080/ingest`.
 
+![GMP QC Lab Equipment & Serial Gateway Product Photo Gallery: Mettler XPR / Sartorius Cubis II Balances, OsmoTECH XT, Sartocheck 5 / Palltronic Flowstar & Moxa NPort 5150](/images/photos/qc-balances-osmometer-filter-moxa-collage.jpg)
+
 ![Benchtop RS-232 Serial Instruments & CSV/XML Watch-Folder (PI UFL Replacement) Visual Guide](/images/instruments/serial-rs232-ufl-watchfolder.svg)
 
 ---

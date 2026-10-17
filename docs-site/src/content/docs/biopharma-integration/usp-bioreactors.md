@@ -17,6 +17,8 @@ Upstream Processing (USP) seed trains, Process Development (PD) high-throughput 
 3. **[Thermo Fisher Scientific HyPerforma™ S.U.B. / S.U.F. (50 L – 5000 L)](https://www.thermofisher.com/us/en/home/industrial/bioproduction/single-use-systems.html):** Powered by **[TruBio™ DV](https://www.thermofisher.com/us/en/home/industrial/bioproduction/bioproduction-automation-software/trubio-bioprocess-control-software.html)** software built natively on **[Emerson DeltaV™ DCS](https://www.emerson.com/en-us/automation/control-and-safety-systems/distributed-control-systems-dcs/deltav-distributed-control-system)**, exposing **OPC UA** (DeltaV PK / Application Station) and legacy **OPC DA**.
 4. **[Eppendorf BioFlo® 320 / 720 & DASGIP® Parallel Bioreactors](https://www.eppendorf.com/PM-EN/Bioprocess-Controllers-Bioreactor-Systems-84594):** Equipped with **[DASware® connect](https://www.eppendorf.com/PM-EN/Bioprocess-Controllers-Bioreactor-Systems-84594)**, which provides an integrated **OPC UA** and **OPC DA** server for seamless historian and DoE integration.
 
+![Upstream Bioreactor Platforms Product Photo Gallery: Sartorius Biostat STR, Sartorius Ambr 250, Thermo HyPerforma S.U.B. & Eppendorf BioFlo 320](/images/photos/usp-bioreactors-collage.jpg)
+
 ![Sartorius Biostat STR, Sartorius Ambr 250/15, Thermo HyPerforma & Eppendorf BioFlo Visual Wiring Guide](/images/instruments/usp-bioreactors-sartorius-ambr.svg)
 
 ---

@@ -121,6 +121,7 @@ clickhouse-historian/
 │       ├── dashboards.yml                            # Dashboard provider configuration
 │       └── gxphistorian_bioreactor_hmi.json          # Asset-relative Bioreactor & Cleanroom HMI dashboard
 ├── docs/
+│   ├── images/photos/                                # 9 high-res photorealistic instrument & connector product galleries
 │   ├── images/instruments/                           # 10 SVG visual equipment, rear-panel connector & wiring guides
 │   ├── images/connectors/                            # 6 SVG physical pinout, protocol packet & state-machine diagrams
 │   ├── CONNECTORS_AND_PROTOCOLS_ENCYCLOPEDIA.md      # Visual Encyclopedia of Physical Hardware & Software Connectors
