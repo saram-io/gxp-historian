@@ -1,6 +1,6 @@
 # Legacy RS-232 Serial, MT-SICS, ASTM & Flat-File Instruments Integration Guide (PI UFL Replacement)
 
-**Replacing the OSIsoft / AVEVA PI Interface for Universal File and Stream Loading (PI UFL) to Connect Standalone Analytical Balances, Osmometers, Filter Integrity Testers, and Legacy Benchtop Analyzers to OpenPI GxP Industrial Historian**
+**Replacing the OSIsoft / AVEVA PI Interface for Universal File and Stream Loading (PI UFL) to Connect Standalone Analytical Balances, Osmometers, Filter Integrity Testers, and Legacy Benchtop Analyzers to OpenHistorian GxP Industrial Historian**
 
 ---
 
@@ -13,11 +13,11 @@ Across media preparation suites, buffer kitchens, In-Process Control (IPC) labor
 
 In a traditional OSIsoft / AVEVA PI System, these instruments are ingested using the **PI Interface for Universal File and Stream Loading (PI UFL)** configured via complex `.ini` regex files.
 
-**OpenPI GxP Industrial Historian** replaces *PI UFL* with deterministic Python edge workers that parse serial TCP streams and watched directories, enforce **ALCOA+ data integrity** (preserving the instrument's native measurement timestamp, operator/sample ID, and file SHA-256 hash), spool locally during network outages, and post normalized JSON batches to `http://edge-collector:8080/ingest`.
+**OpenHistorian GxP Industrial Historian** replaces *PI UFL* with deterministic Python edge workers that parse serial TCP streams and watched directories, enforce **ALCOA+ data integrity** (preserving the instrument's native measurement timestamp, operator/sample ID, and file SHA-256 hash), spool locally during network outages, and post normalized JSON batches to `http://edge-collector:8080/ingest`.
 
 ---
 
-## 2. Architecture: Replacing OSIsoft PI UFL with OpenPI Edge Workers
+## 2. Architecture: Replacing OSIsoft PI UFL with OpenHistorian Edge Workers
 
 ```mermaid
 flowchart LR
@@ -41,7 +41,7 @@ flowchart LR
     ING --> WAL
   end
 
-  subgraph Core["OpenPI GxP Historian"]
+  subgraph Core["OpenHistorian GxP Historian"]
     CH["ClickHouse 24.8 Archive\n(pi_historian.sensor_data)"]
     PG["PostgreSQL 16 Control Plane\n(is_step_tag=true, exc_dev=0.0)"]
   end
@@ -57,7 +57,7 @@ flowchart LR
 
 ## 3. Target Legacy Serial & Flat-File Biopharma Instruments
 
-| Instrument Category | Common Models in GMP Biopharma | Output Interface & Format | Key Parameters Archived in OpenPI | Recommended Tag Settings |
+| Instrument Category | Common Models in GMP Biopharma | Output Interface & Format | Key Parameters Archived in OpenHistorian | Recommended Tag Settings |
 | :--- | :--- | :--- | :--- | :--- |
 | **Analytical & Floor Balances** | Mettler Toledo Excellence (XPR/XSR), ICS429/689; Sartorius Cubis® II / Combics | RS-232 / TCP `MT-SICS` (`S S    125.42 g`) or multi-line GLP print ticket | Net Dispensed Weight (`g` or `kg`), Tare Weight, Lot/Material ID (`str_val`) | `is_step_tag = true` (`LOCF`), `exc_dev = 0.0` |
 | **Freezing-Point Osmometers** | Advanced Instruments OsmoTECH®, OsmoPRO®,Osmo1, Fiske® 210; Gonotec Osmomat | RS-232 ASCII ticket, ASTM E1394, or CSV export | Osmolality (`mOsm/kg H2O`), Sample ID (`str_val`) | `is_step_tag = true` (`LOCF`), `exc_dev = 0.0` |
@@ -81,7 +81,7 @@ Standard `MT-SICS` responses follow a strict status grammar:
 ```python
 #!/usr/bin/env python3
 """
-OpenPI Replacement for OSIsoft PI UFL (Serial / Moxa NPort TCP Stream Mode).
+OpenHistorian Replacement for OSIsoft PI UFL (Serial / Moxa NPort TCP Stream Mode).
 Parses Mettler Toledo MT-SICS balance frames and Advanced Instruments Osmometer
 RS-232 tickets, maps stability flags to OPC quality (192/64/0), and posts to :8080/ingest.
 """
@@ -167,7 +167,7 @@ When a **Sartorius Sartocheck® 4 Plus** or **Pall Palltronic® Flowstar IV** co
 ```python
 #!/usr/bin/env python3
 """
-OpenPI Replacement for OSIsoft PI UFL (Flat-File Watchfolder Mode).
+OpenHistorian Replacement for OSIsoft PI UFL (Flat-File Watchfolder Mode).
 Monitors a directory for Filter Integrity Tester (Sartocheck / Palltronic) and
 benchtop analyzer CSV files, computes SHA-256 file hashes for ALCOA+ auditability,
 extracts explicit test completion timestamps, and posts to :8080/ingest.
@@ -181,7 +181,7 @@ import pathlib
 import shutil
 import httpx
 
-# Map (Equipment_ID, Parameter_Name) -> OpenPI tag_id
+# Map (Equipment_ID, Parameter_Name) -> OpenHistorian tag_id
 UFL_TAG_CATALOG = {
     ("FIT_01", "BUBBLE_POINT_MBAR"): 851,
     ("FIT_01", "DIFFUSION_ML_MIN"):  852,
@@ -242,7 +242,7 @@ Because serial balance check-weights, osmolality readings, and filter integrity 
 curl -s -X POST http://localhost:8020/api/v1/tags \
   -H "Content-Type: application/json" \
   -H "X-Actor-Id: operator_01" \
-  -H "X-Change-Reason: Provision Sartocheck 4 Plus Bubble Point tag via OpenPI UFL Watchfolder" \
+  -H "X-Change-Reason: Provision Sartocheck 4 Plus Bubble Point tag via OpenHistorian UFL Watchfolder" \
   -d '{
     "tag_id": 851,
     "tag_name": "DSP_FIT01_BUBBLE_PT_PV",
@@ -255,10 +255,10 @@ curl -s -X POST http://localhost:8020/api/v1/tags \
     "high_limit": 5000.0,
     "source_protocol": "PI_UFL_CSV",
     "source_config": {
-      "watch_dir": "/var/spool/openpi/fit_drop",
+      "watch_dir": "/var/spool/openhistorian/fit_drop",
       "equipment_id": "FIT_01",
       "parameter": "BUBBLE_POINT_MBAR"
     }
   }' | jq .
 ```
-If a post-use filter integrity test reports a Bubble Point below `low_limit: 3200.0 mbar` (e.g., `2850.0 mbar`), OpenPI’s Event Frame engine (`POST /api/v1/event-frames/evaluate`) automatically opens a `CRITICAL` excursion Event Frame on the batch, requiring formal QA investigation and a dual-challenge **21 CFR Part 11 electronic signature** (`POST /api/v1/event-frames/{event_id}/sign`).
+If a post-use filter integrity test reports a Bubble Point below `low_limit: 3200.0 mbar` (e.g., `2850.0 mbar`), OpenHistorian’s Event Frame engine (`POST /api/v1/event-frames/evaluate`) automatically opens a `CRITICAL` excursion Event Frame on the batch, requiring formal QA investigation and a dual-challenge **21 CFR Part 11 electronic signature** (`POST /api/v1/event-frames/{event_id}/sign`).

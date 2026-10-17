@@ -1,6 +1,6 @@
 # PAT, At-Line Cell/Metabolite Analyzers & In-Line Spectroscopy Integration Guide
 
-**Connecting Nova Biomedical BioProfile® FLEX2, Beckman Coulter Vi-CELL™ BLU, Roche Cedex® Bio HT, Endress+Hauser Raman Rxn2™/Rxn4™, and Hamilton Arc® / Mettler Toledo Sensors to OpenPI GxP Industrial Historian**
+**Connecting Nova Biomedical BioProfile® FLEX2, Beckman Coulter Vi-CELL™ BLU, Roche Cedex® Bio HT, Endress+Hauser Raman Rxn2™/Rxn4™, and Hamilton Arc® / Mettler Toledo Sensors to OpenHistorian GxP Industrial Historian**
 
 ---
 
@@ -40,7 +40,7 @@ flowchart LR
     WATCH --> WAL
   end
 
-  subgraph Core["OpenPI GxP Historian"]
+  subgraph Core["OpenHistorian GxP Historian"]
     CH["ClickHouse 24.8 Archive\n(pi_historian.sensor_data)"]
     PG["PostgreSQL 16 Control Plane\n(is_step_tag=true for Sparse Assays)"]
     API["FastAPI Control Plane\n(DataLink LOCF + Event Frames)"]
@@ -58,7 +58,7 @@ flowchart LR
 
 ---
 
-## 3. Golden Rules for Sparse At-Line Analytical Samples in OpenPI
+## 3. Golden Rules for Sparse At-Line Analytical Samples in OpenHistorian
 
 Unlike a 1 Hz thermocouple, an at-line **BioProfile® FLEX2**, **Vi-CELL™ BLU**, or **Cedex® Bio HT** produces a discrete analytical result vector once every 1 to 12 hours per bioreactor vessel. To prevent data loss or interpolation distortion:
 
@@ -86,8 +86,8 @@ Configure `edge-collector/telegraf-clickhouse.conf` to subscribe to the FLEX2 / 
   endpoint = "opc.tcp://10.20.50.10:4840/BioProfileOPC"
   security_policy = "Basic256Sha256"
   security_mode = "SignAndEncrypt"
-  certificate = "/etc/telegraf/certs/openpi_client_cert.pem"
-  private_key = "/etc/telegraf/certs/openpi_client_key.pem"
+  certificate = "/etc/telegraf/certs/openhistorian_client_cert.pem"
+  private_key = "/etc/telegraf/certs/openhistorian_client_key.pem"
 
   nodes = [
     { name = "val", namespace = "2", identifier_type = "s", identifier = "FLEX2.BR201.Gluc",      default_tags = { tag_id = "501" } },

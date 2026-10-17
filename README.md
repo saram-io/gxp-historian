@@ -1,21 +1,21 @@
-# OpenPI GxP Industrial Historian
+# OpenHistorian GxP Industrial Historian
 
 **A 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 Qualified Open-Source Industrial Time-Series Historian & Asset Framework**
 
-OpenPI GxP Industrial Historian is a production-ready, 4-Pillar open-source replacement for the proprietary **OSIsoft / AVEVA PI System** engineered for pharmaceutical, biotech, and regulated manufacturing environments. It combines **ClickHouse 24.8 LTS** (lossless `DoubleDelta` + `Gorilla` telemetry archive and LTTB visual downsampling), **PostgreSQL 16** (`ltree` ISA-95 Asset Framework, ISA-88 Event Frames, and cryptographic SHA-256 WORM 21 CFR Part 11 audit trail), **InfluxData Telegraf 1.32 + Python Multi-Protocol Edge Workers** (Stage 1 Exception/Deadband filtering and disk-backed store-and-forward WAL), **FastAPI**, **Grafana OSS**, and an **Excel PI DataLink Client** (`xlwings` UDFs + native Power Query CSV).
+OpenHistorian GxP Industrial Historian is a production-ready, 4-Pillar open-source replacement for the proprietary **OSIsoft / AVEVA PI System** engineered for pharmaceutical, biotech, and regulated manufacturing environments. It combines **ClickHouse 24.8 LTS** (lossless `DoubleDelta` + `Gorilla` telemetry archive and LTTB visual downsampling), **PostgreSQL 16** (`ltree` ISA-95 Asset Framework, ISA-88 Event Frames, and cryptographic SHA-256 WORM 21 CFR Part 11 audit trail), **InfluxData Telegraf 1.32 + Python Multi-Protocol Edge Workers** (Stage 1 Exception/Deadband filtering and disk-backed store-and-forward WAL), **FastAPI**, **Grafana OSS**, and an **OpenHistorian DataLink Client for Excel** (`xlwings` UDFs + native Power Query CSV).
 
 ---
 
 ## 1. OSIsoft / AVEVA PI System Parity Matrix
 
-| Legacy OSIsoft / AVEVA PI Component | OpenPI GxP Historian Equivalent | Key Technical Capabilities |
+| Legacy OSIsoft / AVEVA PI Component | OpenHistorian GxP Historian Equivalent | Key Technical Capabilities |
 | :--- | :--- | :--- |
 | **PI Data Archive** (Swinging Door / Archive Subsystem) | **ClickHouse 24.8 LTS (`pi_historian.sensor_data`)** | `MergeTree` partitioned by month (`toYYYYMM(ts)`) with lossless `Delta`, `DoubleDelta`, `Gorilla`, and `T64` codecs layered with `ZSTD(1)` + real-time 1-minute `AggregatingMergeTree` rollups (`sensor_rollup_1m`). |
 | **PI Asset Framework (PI AF)** | **PostgreSQL 16 `ltree` + ClickHouse `FLAT` Dictionary** | ISA-95 hierarchical asset paths (`Enterprise.Site.Area.Unit`) indexed via PostgreSQL `GiST` and synchronized into ClickHouse RAM (`pi_historian.pg_asset_tags`) with 5–15s refresh lifetime. |
 | **PI Event Frames (EF)** | **PostgreSQL `event_frames` + FastAPI State Machine** | Automated ISA-88 batch & excursion detection (`BR201_TEMP_PV > 38.0°C`), ClickHouse `quality >= 192` KPI capture (`peak_val`, `avg_val`, `min_val`, `sample_count`), and 21 CFR Part 11 electronic signatures. |
 | **PI Interface Node & PI Buffer Subsystem** | **Telegraf 1.32 Disk WAL + Python Edge Workers** | Stage 1 Exception/Deadband filtering (`ExcDev` & `ExcMax`) in memory + disk-backed Write-Ahead Log (`/var/lib/telegraf/buffer`, 1M metric capacity) for zero-data-loss store-and-forward across OPC UA, BACnet/IP, Siemens S7, Modbus, and Windows OPC DA. |
 | **PI Vision** (`PlotValues` Trends & EF Overlays) | **Grafana OSS 11.2 + ClickHouse `largestTriangleThreeBuckets`** | Asset-relative dashboard (`${asset_path}`) with native ClickHouse LTTB visual peak preservation, 1-minute rollup bands, Event Frame shaded region annotations, and live Part 11 audit trail inspection. |
-| **PI DataLink** (Excel `PISampDat`, `PIAdvCalcDat`) | **FastAPI `/api/v1/datalink/sampled` + `xlwings` UDF / Power Query** | Drop-in `=PI_SAMPLED_DATA()`, `=PI_SUMMARY_DATA()`, and `=PI_EVENT_FRAMES()` Excel functions plus zero-macro Power Query CSV streams respecting continuous (`LINEAR`) vs. discrete (`LOCF` step) tag metadata. |
+| **PI DataLink** (Excel `PISampDat`, `PIAdvCalcDat`) | **FastAPI `/api/v1/datalink/sampled` + `xlwings` UDF / Power Query** | Drop-in `=OPENHISTORIAN_SAMPLED()`, `=OPENHISTORIAN_PLOT_VALUES()`, and `=OPENHISTORIAN_EVENT_SUMMARY()` Excel functions plus zero-macro Power Query CSV streams respecting continuous (`LINEAR`) vs. discrete (`LOCF` step) tag metadata. |
 | **PI Integrator for Business Analytics** | **FastAPI + PyArrow Zero-ETL Lakehouse Exporter** | One-call (`POST /api/v1/lakehouse/export-parquet`) Snappy-compressed Apache Parquet export enriched with ISA-95 asset hierarchy and engineering units. |
 
 ---
@@ -119,7 +119,7 @@ clickhouse-historian/
 │   ├── datasources/datasources.yml                   # Auto-provisioned ClickHouse & PostgreSQL datasources
 │   └── dashboards/
 │       ├── dashboards.yml                            # Dashboard provider configuration
-│       └── openpi_bioreactor_hmi.json                # Asset-relative Bioreactor & Cleanroom HMI dashboard
+│       └── openhistorian_bioreactor_hmi.json         # Asset-relative Bioreactor & Cleanroom HMI dashboard
 ├── docs/
 │   ├── BIOPHARMA_INSTRUMENT_INTEGRATION_CATALOG.md   # Master matrix & signal archetypes for 20+ biopharma instruments
 │   ├── XCELLEREX_X_PLATFORM_INTEGRATION.md           # Cytiva Xcellerex X-Platform & Figurate integration guide
@@ -130,7 +130,7 @@ clickhouse-historian/
 │   ├── LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md    # Legacy BACnet MS/TP & IP, COM OPC DA, Modbus RTU/TCP, S7comm & HART
 │   └── LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md # RS-232 / Moxa NPort (MT-SICS balances, osmometers) & PI UFL watchfolders
 ├── excel-datalink-client/
-│   ├── openpi_datalink_udf.py                        # xlwings UDFs (=PI_SAMPLED_DATA, =PI_SUMMARY_DATA, etc.)
+│   ├── openhistorian_datalink_udf.py                 # xlwings UDFs (=OPENHISTORIAN_SAMPLED, =OPENHISTORIAN_PLOT_VALUES, etc.)
 │   └── README_EXCEL_SETUP.md                         # Power Query (zero-macro) & xlwings setup guide
 └── gxp-validation-package/
     ├── generate_gmp_binder.py                        # Automated 8-Document GMP Validation Binder generator
@@ -301,10 +301,10 @@ curl -s -X POST http://localhost:8020/api/v1/lakehouse/export-parquet \
 
 ---
 
-## 7. Operator HMI (Grafana Vision) & Excel PI DataLink Client
+## 7. Operator HMI (Grafana Vision) & OpenHistorian DataLink Client
 
 ### Grafana Operator HMI (`http://localhost:3020`)
-- **URL:** `http://localhost:3020/d/openpi-bioreactor-hmi`
+- **URL:** `http://localhost:3020/d/openhistorian-gxp-bioreactor-hmi`
 - **Credentials:** `admin` / `GxP_Grafana_2026!` (configured in `.env`)
 - **Features:**
   - Dynamic `$asset_path` template selector querying PostgreSQL `assets`.
@@ -314,10 +314,10 @@ curl -s -X POST http://localhost:8020/api/v1/lakehouse/export-parquet \
   - **Panel 3:** Active & Signed ISA-88 Event Frames Table with HMAC-SHA256 verification status.
   - **Panel 4:** Live 21 CFR Part 11 WORM Audit Trail Inspector (`part11_audit_log`).
 
-### Excel PI DataLink Client (`excel-datalink-client/`)
+### OpenHistorian DataLink Client for Excel (`excel-datalink-client/`)
 See [excel-datalink-client/README_EXCEL_SETUP.md](file:///home/d3lee/my-repos/clickhouse-historian/excel-datalink-client/README_EXCEL_SETUP.md) for full instructions on:
 1. **Zero-Plugin Native Excel Power Query (`Data -> From Web`)** using `/api/v1/datalink/sampled?format=csv`.
-2. **`xlwings` User-Defined Functions (`=PI_SAMPLED_DATA()`, `=PI_SUMMARY_DATA()`, `=PI_EVENT_FRAMES()`)** and CLI CSV export via [excel-datalink-client/openpi_datalink_udf.py](file:///home/d3lee/my-repos/clickhouse-historian/excel-datalink-client/openpi_datalink_udf.py).
+2. **`xlwings` User-Defined Functions (`=OPENHISTORIAN_SAMPLED()`, `=OPENHISTORIAN_PLOT_VALUES()`, `=OPENHISTORIAN_EVENT_SUMMARY()`)** and CLI CSV export via [excel-datalink-client/openhistorian_datalink_udf.py](file:///home/d3lee/my-repos/clickhouse-historian/excel-datalink-client/openhistorian_datalink_udf.py).
 
 ---
 
@@ -347,3 +347,7 @@ This script combines `urs_risk_catalog.yaml`, `oq_execution_results.json`, live 
 7. `07_Requirements_Traceability_Matrix_RTM.md`
 8. `08_Validation_Summary_Report_VSR.md`
 9. `COMPLETE_GMP_VALIDATION_BINDER.html` (single-file, print-ready HTML/PDF validation binder)
+
+---
+
+> **Trademark Notice:** *PI System*, *PI Vision*, *PI DataLink*, *PI Asset Framework*, *PI UFL*, *OSIsoft*, and *AVEVA* are registered trademarks or trademarks of AVEVA Group Limited / OSIsoft, LLC. All references to third-party trademarks and instrument models in this repository are strictly for comparative architectural and interoperability documentation purposes (nominative fair use); OpenHistorian is an independent open-source project and is not affiliated with or endorsed by AVEVA or OSIsoft.

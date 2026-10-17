@@ -1,6 +1,6 @@
 # Biopharma & Life Sciences Instrument Integration Catalog
 
-**Comprehensive Research & Engineering Reference for Connecting Upstream, Downstream, PAT, Aseptic Fill-Finish, and GMP Utility Instruments to the OpenPI GxP Industrial Historian**
+**Comprehensive Research & Engineering Reference for Connecting Upstream, Downstream, PAT, Aseptic Fill-Finish, and GMP Utility Instruments to the OpenHistorian GxP Industrial Historian**
 
 ---
 
@@ -10,15 +10,15 @@ In cGMP biopharmaceutical manufacturing (monoclonal antibodies, viral vectors, m
 
 Historically, life sciences facilities deployed the proprietary **OSIsoft / AVEVA PI System** (using *PI Interface for OPC DA*, *PI Connector for OPC UA*, *PI Interface for Modbus/BACnet*, and *PI Batch / Event Frames*) to aggregate data from islands of automation on the cleanroom floor.
 
-**OpenPI GxP Industrial Historian** provides a drop-in, open-source 4-Pillar replacement that connects to every major bioprocess skid, Process Analytical Technology (PAT) analyzer, chromatography workstation, lyophilizer, and cleanroom Environmental Monitoring System (EMS) using standardized industrial protocols while enforcing cryptographic 21 CFR Part 11 data integrity.
+**OpenHistorian GxP Industrial Historian** provides a drop-in, open-source 4-Pillar replacement that connects to every major bioprocess skid, Process Analytical Technology (PAT) analyzer, chromatography workstation, lyophilizer, and cleanroom Environmental Monitoring System (EMS) using standardized industrial protocols while enforcing cryptographic 21 CFR Part 11 data integrity.
 
 ---
 
 ## 2. Master Biopharma Instrument & Protocol Matrix
 
-The matrix below catalogs the most common life sciences instruments connected to PI Historians in commercial GMP and Process Development (PD) facilities, their native vendor software/control layers, protocols, and corresponding OpenPI GxP integration pathways:
+The matrix below catalogs the most common life sciences instruments connected to PI Historians in commercial GMP and Process Development (PD) facilities, their native vendor software/control layers, protocols, and corresponding OpenHistorian GxP integration pathways:
 
-| Process Area | Manufacturer & Instrument Family | Control / Software Platform | Primary Protocols | Data Cadence & Interpolation | OpenPI GxP Ingestion Pathway | Detailed Guide |
+| Process Area | Manufacturer & Instrument Family | Control / Software Platform | Primary Protocols | Data Cadence & Interpolation | OpenHistorian GxP Ingestion Pathway | Detailed Guide |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **USP Bioreactors (Single-Use)** | **Cytiva Xcellerex™ X-Platform & XDR (50–2000 L)** | Figurate™ (Emerson DeltaV™ or Rockwell PlantPAx®) | OPC UA, OPC DA, EtherNet/IP | Continuous (`1 s`, `LINEAR`) + Phase (`LOCF`) | `[[inputs.opcua]]` or `opcda_windows_forwarder.py` | [XCELLEREX_X_PLATFORM_INTEGRATION.md](XCELLEREX_X_PLATFORM_INTEGRATION.md) |
 | **USP Bioreactors & High-Throughput** | **Sartorius Biostat® STR (Gen 3) & Biostat® B-DCU** | BioPAT® MFCS 4 / Biobrain / Siemens S7-1500 | OPC UA, S7comm | Continuous (`1 s`, `LINEAR`) + Phase (`LOCF`) | `[[inputs.opcua]]` or `[[inputs.s7comm]]` | [USP_BIOREACTORS_SARTORIUS_THERMO_EPPENDORF.md](USP_BIOREACTORS_SARTORIUS_THERMO_EPPENDORF.md) |
@@ -84,5 +84,5 @@ In a qualified GMP facility, instruments reside in **Purdue Level 1/2 (Cell/Area
 - **[DSP_CHROMATOGRAPHY_TFF_FILTRATION.md](DSP_CHROMATOGRAPHY_TFF_FILTRATION.md):** Cytiva ÄKTA™ (UNICORN™ 7), Sartorius Sartoflow® / Resolute®, and MilliporeSigma Mobius® / Cogent® chromatography & TFF skids.
 - **[ASEPTIC_FILL_FINISH_LYO_AND_GMP_UTILITIES.md](ASEPTIC_FILL_FINISH_LYO_AND_GMP_UTILITIES.md):** GMP Lyophilizers, Aseptic Filling Lines & SKAN Isolators, Cleanroom EMS / Particle Counters (BACnet/IP & Modbus), and Veolia Sievers® M9 TOC / WFI loops.
 - **[LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md](LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md):** Deep-dive legacy fieldbus & PLC protocols (`BACnet/IP & MS/TP` BBMD routing, Windows COM/DCOM `OPC DA 2.05a`, `Modbus RTU/TCP` word-swapping, Siemens `S7comm` autoclaves, and `4–20 mA HART` multiplexers).
-- **[LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md](LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md):** OpenPI replacement for *OSIsoft PI UFL* covering RS-232 / Moxa NPort serial streams (`MT-SICS` analytical balances, freezing-point osmometers) and flat-file watchfolders (Sartocheck® / Palltronic® filter integrity testers).
+- **[LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md](LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md):** OpenHistorian replacement for *OSIsoft PI UFL* covering RS-232 / Moxa NPort serial streams (`MT-SICS` analytical balances, freezing-point osmometers) and flat-file watchfolders (Sartocheck® / Palltronic® filter integrity testers).
 

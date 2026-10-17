@@ -1,6 +1,6 @@
 # Upstream Bioreactors & Parallel Microbioreactors Integration Guide
 
-**Connecting Sartorius Biostat® STR, Sartorius Ambr® 15/250, Thermo Fisher HyPerforma™ (TruBio® DV), and Eppendorf BioFlo® / DASGIP® Systems to OpenPI GxP Industrial Historian**
+**Connecting Sartorius Biostat® STR, Sartorius Ambr® 15/250, Thermo Fisher HyPerforma™ (TruBio® DV), and Eppendorf BioFlo® / DASGIP® Systems to OpenHistorian GxP Industrial Historian**
 
 > For **Cytiva Xcellerex™ X-Platform** bioreactors, see the dedicated guide: [XCELLEREX_X_PLATFORM_INTEGRATION.md](XCELLEREX_X_PLATFORM_INTEGRATION.md).
 
@@ -36,7 +36,7 @@ flowchart LR
     S7 --> WAL
   end
 
-  subgraph Core["OpenPI GxP Historian"]
+  subgraph Core["OpenHistorian GxP Historian"]
     CH["ClickHouse 24.8 Archive\n(pi_historian.sensor_data)"]
     PG["PostgreSQL 16 Control Plane\n(ltree ISA-95 + Event Frames)"]
   end
@@ -64,8 +64,8 @@ Sartorius **BioPAT® MFCS 4** acts as the supervisory SCADA and batch server for
   endpoint = "opc.tcp://10.20.40.15:4840"
   security_policy = "Basic256Sha256"
   security_mode = "SignAndEncrypt"
-  certificate = "/etc/telegraf/certs/openpi_client_cert.pem"
-  private_key = "/etc/telegraf/certs/openpi_client_key.pem"
+  certificate = "/etc/telegraf/certs/openhistorian_client_cert.pem"
+  private_key = "/etc/telegraf/certs/openhistorian_client_key.pem"
   auth_method = "UserName"
   username = "${MFCS_OPCUA_USER}"
   password = "${MFCS_OPCUA_PASSWORD}"
@@ -82,7 +82,7 @@ Sartorius **BioPAT® MFCS 4** acts as the supervisory SCADA and batch server for
 ```
 
 #### Option 2: Direct Siemens S7-1500 (`S7COMM`) Polling
-For discrete safety interlocks, agitator drive status words, or jacket valve states stored in non-optimized S7-1500 Data Blocks (`DB`), OpenPI natively supports `S7COMM` metadata in `tags.source_config` (matching seeded Tag `103` in `init-postgres/01_control_plane_part11.sql`):
+For discrete safety interlocks, agitator drive status words, or jacket valve states stored in non-optimized S7-1500 Data Blocks (`DB`), OpenHistorian natively supports `S7COMM` metadata in `tags.source_config` (matching seeded Tag `103` in `init-postgres/01_control_plane_part11.sql`):
 ```json
 {
   "plc_ip": "10.20.40.16",
@@ -99,7 +99,7 @@ For discrete safety interlocks, agitator drive status words, or jacket valve sta
 ### 3.2 Sartorius Ambr® 250 High Throughput & Ambr® 15 (Multi-Vessel Array Pattern)
 An **Ambr® 250** (12 or 24 vessels) or **Ambr® 15** (24 or 48 vessels) generates hundreds of tags across parallel mini-bioreactors running Design of Experiments (DoE) clone selection or media optimization studies.
 
-Because OpenPI GxP Historian models its Asset Framework in PostgreSQL using `ltree` (`assets.asset_path`) and `asset_templates`, you can instantiate all 24 or 48 Ambr vessels from a single template in one audited SQL transaction:
+Because OpenHistorian GxP Historian models its Asset Framework in PostgreSQL using `ltree` (`assets.asset_path`) and `asset_templates`, you can instantiate all 24 or 48 Ambr vessels from a single template in one audited SQL transaction:
 
 ```sql
 BEGIN;
@@ -130,7 +130,7 @@ ON CONFLICT (asset_path) DO NOTHING;
 COMMIT;
 ```
 
-In Grafana (`openpi_bioreactor_hmi.json`), changing the `$asset_path` dropdown or querying `asset_path <@ 'BioCorp.Fremont.PD_USP.Ambr250_01'` in ClickHouse via `dictGet('pi_historian.pg_asset_tags', 'asset_path', toUInt64(tag_id))` lets scientists overlay all 24 vessels or export the entire 24-vessel DoE dataset into a single Apache Parquet file (`POST /api/v1/lakehouse/export-parquet` with `"asset_path": "BioCorp.Fremont.PD_USP.Ambr250_01"`).
+In Grafana (`openhistorian_bioreactor_hmi.json`), changing the `$asset_path` dropdown or querying `asset_path <@ 'BioCorp.Fremont.PD_USP.Ambr250_01'` in ClickHouse via `dictGet('pi_historian.pg_asset_tags', 'asset_path', toUInt64(tag_id))` lets scientists overlay all 24 vessels or export the entire 24-vessel DoE dataset into a single Apache Parquet file (`POST /api/v1/lakehouse/export-parquet` with `"asset_path": "BioCorp.Fremont.PD_USP.Ambr250_01"`).
 
 ---
 

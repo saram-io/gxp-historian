@@ -1,12 +1,12 @@
 # Cytiva Xcellerex™ X-Platform Bioreactor Integration Guide
 
-**Connecting Cytiva Xcellerex™ X-Platform Single-Use Bioreactors (50 L – 2000 L) and Figurate™ Automation to the OpenPI GxP Industrial Historian**
+**Connecting Cytiva Xcellerex™ X-Platform Single-Use Bioreactors (50 L – 2000 L) and Figurate™ Automation to the OpenHistorian GxP Industrial Historian**
 
 ---
 
 ## 1. Overview
 
-**OpenPI GxP Industrial Historian** integrates directly with **Cytiva Xcellerex™ X-Platform** single-use bioreactors (supporting batch, fed-batch, and perfusion upstream workflows from 50 L to 2000 L) via their **Figurate™ automation solutions** layer—whether deployed on **Emerson DeltaV™ DCS**, **Rockwell Automation PlantPAx® (ControlLogix / FactoryTalk)**, or legacy supervisory stations.
+**OpenHistorian GxP Industrial Historian** integrates directly with **Cytiva Xcellerex™ X-Platform** single-use bioreactors (supporting batch, fed-batch, and perfusion upstream workflows from 50 L to 2000 L) via their **Figurate™ automation solutions** layer—whether deployed on **Emerson DeltaV™ DCS**, **Rockwell Automation PlantPAx® (ControlLogix / FactoryTalk)**, or legacy supervisory stations.
 
 By default, the repository’s qualification seed (`init-postgres/01_control_plane_part11.sql`) models a **2000 L Upstream Processing (USP) single-use bioreactor** (`BioCorp.Fremont.USP.Bioreactor_201`) with pre-configured ISA-95 `ltree` asset paths, Stage 1 exception/deadband filtering (`ExcDev` / `ExcMax`), 1-minute ClickHouse rollups, automated ISA-88 Event Frames, and 21 CFR Part 11 cryptographic audit trails.
 
@@ -31,7 +31,7 @@ flowchart LR
     OPCDA -->|"JSON Batch + Local Spool"| ING --> WAL
   end
 
-  subgraph Core["Pillars 2–4: OpenPI GxP Historian"]
+  subgraph Core["Pillars 2–4: OpenHistorian GxP Historian"]
     CH["ClickHouse 24.8 Archive\n(pi_historian.sensor_data & 1m Rollups)"]
     PG["PostgreSQL 16 Control Plane\n(ltree ISA-95, ISA-88 Event Frames, Part 11 WORM)"]
     API["FastAPI Control Plane\n(historian-api :8020)"]
@@ -67,8 +67,8 @@ Both **Figurate™ for Emerson DeltaV** (via DeltaV PK Controller or Application
      request_timeout = "5s"
      security_policy = "Basic256Sha256"
      security_mode = "SignAndEncrypt"
-     certificate = "/etc/telegraf/certs/openpi_client_cert.pem"
-     private_key = "/etc/telegraf/certs/openpi_client_key.pem"
+     certificate = "/etc/telegraf/certs/openhistorian_client_cert.pem"
+     private_key = "/etc/telegraf/certs/openhistorian_client_key.pem"
      auth_method = "UserName"
      username = "${FIGURATE_OPCUA_USER}"
      password = "${FIGURATE_OPCUA_PASSWORD}"
@@ -94,7 +94,7 @@ When direct controller polling is required alongside DCS supervisory links (e.g.
 
 ## 4. Standard Xcellerex™ X-Platform / Figurate™ Tag Mapping
 
-The table below outlines standard Xcellerex X-Platform parameters and how their interpolation and deadband behaviors should be configured in OpenPI GxP Historian:
+The table below outlines standard Xcellerex X-Platform parameters and how their interpolation and deadband behaviors should be configured in OpenHistorian GxP Historian:
 
 | Tag ID | Tag Name | Figurate™ Parameter Description | Eng Units | `is_step_tag` (Interpolation) | `exc_dev` (Deadband) | Typical USP Limits (`Low` / `High`) | Protocol |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -166,7 +166,7 @@ Within **5–15 seconds**, ClickHouse automatically refreshes its in-memory `FLA
 
 ### Step 4: Automated ISA-88 Batch Event Frames & 21 CFR Part 11 Electronic Signatures
 1. **Batch & Excursion Detection:** Calling `POST /api/v1/event-frames/evaluate` (or running the background evaluation loop in `app/main.py`) automatically opens/updates the parent `Fermentation_Batch` Event Frame on `Bioreactor_201` and detects parameter excursions (such as `BR201_TEMP_PV > 38.0 °C`), capturing summary metrics (`peak_val`, `avg_val`, `min_val`, `sample_count`, `duration_sec`).
-2. **Operator HMI Visualization:** Open `http://localhost:3020/d/openpi-bioreactor-hmi` in Grafana to view high-speed LTTB vessel trends (`largestTriangleThreeBuckets`), 1-minute rollup envelopes, shaded Event Frame excursion overlays, and the live 21 CFR Part 11 WORM audit trail.
+2. **Operator HMI Visualization:** Open `http://localhost:3020/d/openhistorian-gxp-bioreactor-hmi` in Grafana to view high-speed LTTB vessel trends (`largestTriangleThreeBuckets`), 1-minute rollup envelopes, shaded Event Frame excursion overlays, and the live 21 CFR Part 11 WORM audit trail.
 3. **QA Disposition & Electronic Signature (`§11.50`, `§11.70`, `§11.200`):**
    ```bash
    curl -s -X POST "http://localhost:8020/api/v1/event-frames/<EVENT_UUID>/sign" \

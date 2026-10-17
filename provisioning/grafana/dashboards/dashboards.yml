@@ -1,7 +1,7 @@
 apiVersion: 1
 
 providers:
-  - name: OpenPI Vision GxP Dashboards
+  - name: OpenHistorian Vision GxP Dashboards
     orgId: 1
     folder: GxP Manufacturing HMI
     type: file

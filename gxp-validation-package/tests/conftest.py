@@ -174,7 +174,7 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     failed_count = sum(1 for r in records if r.get("status") != "PASS")
 
     payload = {
-        "qualification_suite": "OpenPI GxP Industrial Historian IQ/OQ/PQ Automated Qualification Suite",
+        "qualification_suite": "OpenHistorian GxP Industrial Historian IQ/OQ/PQ Automated Qualification Suite",
         "regulatory_standard": "21 CFR Part 11 / EU GMP Annex 11 / ISPE GAMP 5 / FDA CSA",
         "execution_environment": {
             "hostname": platform.node(),

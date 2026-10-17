@@ -50,7 +50,7 @@ def test_iq_01_services_and_non_default_credentials(
     assert gf_resp.status_code == 200
     dashboards = gf_resp.json()
     hmi_titles = [d.get("title", "") for d in dashboards]
-    assert any("OpenPI Vision" in t for t in hmi_titles)
+    assert any("OpenHistorian Vision" in t for t in hmi_titles)
 
     # Verify non-default passwords are enforced
     insecure_defaults = {"postgres", "password", "admin", "default", "", "clickhouse"}

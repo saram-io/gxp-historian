@@ -1,6 +1,6 @@
 # Aseptic Fill-Finish, Lyophilization, Cleanroom EMS & GMP Utilities Integration Guide
 
-**Connecting GMP Freeze Dryers (Lyophilizers), Aseptic Filling Isolators, Cleanroom Environmental Monitoring Systems (EMS / Particle Counters), and WFI / Veolia Sievers® M9 TOC Analyzers to OpenPI GxP Industrial Historian**
+**Connecting GMP Freeze Dryers (Lyophilizers), Aseptic Filling Isolators, Cleanroom Environmental Monitoring Systems (EMS / Particle Counters), and WFI / Veolia Sievers® M9 TOC Analyzers to OpenHistorian GxP Industrial Historian**
 
 ---
 
@@ -37,7 +37,7 @@ flowchart LR
     OPCUA --> WAL
   end
 
-  subgraph Core["OpenPI GxP Historian"]
+  subgraph Core["OpenHistorian GxP Historian"]
     CH["ClickHouse 24.8 Archive\n(pi_historian.sensor_data)"]
     PG["PostgreSQL 16 Control Plane\n(Room DP & TOC Excursion Event Frames)"]
   end
@@ -57,7 +57,7 @@ flowchart LR
 ### 3.1 Cleanroom EMS via BACnet/IP (`bacnet_cov_worker.py`)
 Cleanroom differential pressure cascades (e.g., Grade B/C corridor at `+30 Pa` $\rightarrow$ Grade C Bioreactor Suite at `+18.5 Pa` $\rightarrow$ Airlock at `+12.5 Pa`), HVAC supply/exhaust airflows, and room temperature/humidity are managed by **BACnet/IP** controllers.
 
-OpenPI GxP Historian includes a production-ready asynchronous BACnet/IP worker at `edge-collector/scripts/bacnet_cov_worker.py` (`AsyncBacnetTelemetryWorker`) and seeds `Tag 301: CR_ISO7_DP_PV` under `BioCorp.Fremont.Facilities.Cleanroom_ISO7`.
+OpenHistorian GxP Historian includes a production-ready asynchronous BACnet/IP worker at `edge-collector/scripts/bacnet_cov_worker.py` (`AsyncBacnetTelemetryWorker`) and seeds `Tag 301: CR_ISO7_DP_PV` under `BioCorp.Fremont.Facilities.Cleanroom_ISO7`.
 
 #### How IEEE/ASHRAE BACnet `Status_Flags` Map to GxP OPC Quality
 In `bacnet_cov_worker.py`, `status_flags_to_quality()` reads both the `presentValue` and the 4-bit `statusFlags` array (`[in_alarm, fault, overridden, out_of_service]`) from each BACnet `analog-input` object:

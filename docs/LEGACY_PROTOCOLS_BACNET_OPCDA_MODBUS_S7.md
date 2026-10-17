@@ -1,6 +1,6 @@
 # Legacy Fieldbus, BMS & PLC Protocols Integration Guide
 
-**Connecting Legacy BACnet/IP & MS/TP, Windows COM/DCOM OPC DA 2.05a, Modbus RTU/TCP, Siemens S7comm (S7-300/400), Allen-Bradley DF1/PCCC, and 4–20 mA HART Instruments to OpenPI GxP Industrial Historian**
+**Connecting Legacy BACnet/IP & MS/TP, Windows COM/DCOM OPC DA 2.05a, Modbus RTU/TCP, Siemens S7comm (S7-300/400), Allen-Bradley DF1/PCCC, and 4–20 mA HART Instruments to OpenHistorian GxP Industrial Historian**
 
 ---
 
@@ -8,7 +8,7 @@
 
 In established cGMP biopharmaceutical facilities, critical equipment—steam sterilizers (autoclaves), Clean-in-Place (CIP) skids, chromatography workstations, cleanroom HVAC/EMS controllers, WFI loops, and stability chambers—often predates OPC UA by 10 to 25 years. Historically, connecting these systems required purchasing and maintaining separate proprietary **OSIsoft / AVEVA PI Interfaces**:
 
-| Legacy Protocol / Physical Layer | Traditional OSIsoft / AVEVA PI Interface | OpenPI GxP Historian Equivalent (`edge-collector`) | Typical Biopharma Equipment |
+| Legacy Protocol / Physical Layer | Traditional OSIsoft / AVEVA PI Interface | OpenHistorian GxP Historian Equivalent (`edge-collector`) | Typical Biopharma Equipment |
 | :--- | :--- | :--- | :--- |
 | **BACnet/IP & BACnet MS/TP** (UDP `:47808` / RS-485) | *PI Interface for BACnet* | `edge-collector/scripts/bacnet_cov_worker.py` (`bacpypes3`) | Cleanroom EMS differential pressure cascades, HVAC AHUs, walk-in stability & cold rooms ($2\text{–}8\,^\circ\text{C}$, $-80\,^\circ\text{C}$) |
 | **Classic OPC DA 2.05a / 3.0** (Windows COM/DCOM) | *PI Interface for OPC DA* + *PI Buffer Subsystem* | `edge-collector/scripts/opcda_windows_forwarder.py` (`OpenOPC` + `LocalSpoolBuffer`) | Cytiva UNICORN™ 5/6/7, Emerson DeltaV™ OPC Mirror, Rockwell RSLinx Classic, Sartorius MFCS/win 3 |
@@ -49,7 +49,7 @@ flowchart LR
     MOD_IN --> WAL
   end
 
-  subgraph Core["OpenPI GxP Historian (Purdue Level 3)"]
+  subgraph Core["OpenHistorian GxP Historian (Purdue Level 3)"]
     CH["ClickHouse 24.8 Archive\n(pi_historian.sensor_data)"]
     PG["PostgreSQL 16 Control Plane\n(Part 11 Audit + Event Frames)"]
   end
@@ -120,7 +120,7 @@ Legacy **OPC DA 2.05a** relies on Microsoft **DCOM (Distributed Component Object
 2. Requires matching Windows NTLM workgroup credentials or bidirectional Active Directory trust between the Level 2 skid PC and the Level 3 historian node.
 3. Microsoft hardened DCOM authentication (`KB5004442` packet integrity enforcement), breaking legacy anonymous/unencrypted DCOM connections to older Windows 7 / Windows 10 LTSC skid workstations.
 
-#### The OpenPI Zero-DCOM Solution
+#### The OpenHistorian Zero-DCOM Solution
 Run `edge-collector/scripts/opcda_windows_forwarder.py` directly on the Windows OPC DA workstation as a local Windows service (using a 32-bit Python environment if the vendor OPC server is a 32-bit COM DLL/EXE registered under `HKLM\SOFTWARE\WOW6432Node\Classes`):
 - **Localhost COM Only:** `self._opc_client.connect(self.prog_id, "localhost")` communicates strictly within the local Windows kernel via LRPC (Local RPC)—zero inbound firewall ports are opened on the skid PC.
 - **Quality Normalization:** `map_opcda_quality()` converts COM quality strings (`"Good"`, `"Good: Local Override"`, `"Uncertain"`, `"Bad: Sensor Failure"`) to standard integer OPC quality codes (`192`, `64`, `0`).
@@ -196,7 +196,7 @@ When connecting legacy **Modbus RTU** (2-wire RS-485 via a Moxa NPort serial dev
 
 Many validated **Fedegari** and **Getinge** GMP steam sterilizers (autoclaves), **Syntegon (Bosch)** vial washers/depyrogenation tunnels, and **CIP skids** run on legacy **Siemens SIMATIC S7-300 (`Rack 0, Slot 2`)** or **S7-400 (`Rack 0, Slot 3`)** PLCs that do not have an onboard OPC UA server. Instead, they communicate via **Siemens `S7comm` (`RFC 1006` ISO-on-TCP over port `102`)**, reading absolute Data Block (`DB`) addresses.
 
-OpenPI GxP Historian seeds `Tag 103: BR201_AGIT_STATE` with `source_protocol = 'S7COMM'` and `source_config = '{"rack": 0, "slot": 1, "db": 10, "offset": 0}'` in `init-postgres/01_control_plane_part11.sql`.
+OpenHistorian GxP Historian seeds `Tag 103: BR201_AGIT_STATE` with `source_protocol = 'S7COMM'` and `source_config = '{"rack": 0, "slot": 1, "db": 10, "offset": 0}'` in `init-postgres/01_control_plane_part11.sql`.
 
 #### Production Python `S7comm` Edge Worker Example (`snap7` $\rightarrow$ `:8080/ingest`)
 Below is a complete reference worker for polling a legacy **Siemens S7-300 GMP Steam Autoclave** (chamber temperature, coldest drain temperature, chamber pressure, accumulated $F_0$ sterilization lethality, and sterilization phase state) with Stage 1 deadband filtering:

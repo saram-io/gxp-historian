@@ -1,6 +1,6 @@
 # Document 02 — User Requirements Specification (URS)
 
-**Document ID:** `URS-OPENPI-2026-002` | **Generated (UTC):** `2026-10-17T12:46:56Z` | **Total Requirements:** `15`
+**Document ID:** `URS-OPENHISTORIAN-2026-002` | **Generated (UTC):** `2026-10-17T13:35:22Z` | **Total Requirements:** `15`
 
 ## 1. Formal User Requirements Catalog (URS-001 to URS-015)
 

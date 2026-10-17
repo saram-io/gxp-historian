@@ -1,6 +1,6 @@
 # Downstream Processing (DSP): Chromatography, TFF/UF/DF & Viral Filtration Integration Guide
 
-**Connecting Cytiva ÄKTA™ (UNICORN™ 7), Sartorius Sartoflow® / Resolute®, and MilliporeSigma Mobius® / Cogent® Skids to OpenPI GxP Industrial Historian**
+**Connecting Cytiva ÄKTA™ (UNICORN™ 7), Sartorius Sartoflow® / Resolute®, and MilliporeSigma Mobius® / Cogent® Skids to OpenHistorian GxP Industrial Historian**
 
 ---
 
@@ -8,7 +8,7 @@
 
 Downstream Processing (DSP)—Protein A affinity capture, ion-exchange polishing, viral inactivation, ultrafiltration/diafiltration (UF/DF / TFF), and nanofiltration—requires **high-frequency, lossless signal capture** (`0.5 s` to `1 s` scan rates) with **LTTB peak preservation**. Unlike slow upstream temperature trends, a chromatography UV 280 nm elution peak or transmembrane pressure (TMP) spike occurs over seconds, and peak height/area (AUC) directly governs pooling gates and yield calculations.
 
-OpenPI GxP Industrial Historian is pre-seeded with a chromatography UV 280 nm tag (`Tag 401: CHROM_UV280_PV` in `init-postgres/01_control_plane_part11.sql`) and includes a production Windows localhost OPC DA forwarder (`edge-collector/scripts/opcda_windows_forwarder.py`) specifically designed for chromatography skid workstations.
+OpenHistorian GxP Industrial Historian is pre-seeded with a chromatography UV 280 nm tag (`Tag 401: CHROM_UV280_PV` in `init-postgres/01_control_plane_part11.sql`) and includes a production Windows localhost OPC DA forwarder (`edge-collector/scripts/opcda_windows_forwarder.py`) specifically designed for chromatography skid workstations.
 
 ---
 
@@ -31,7 +31,7 @@ flowchart LR
     OPCUA --> WAL
   end
 
-  subgraph Core["OpenPI GxP Historian"]
+  subgraph Core["OpenHistorian GxP Historian"]
     CH["ClickHouse 24.8 Archive\n(Gorilla Float64 + LTTB Peak Preservation)"]
     PG["PostgreSQL 16 Control Plane\n(Elution Peak & Viral Inactivation Event Frames)"]
   end
@@ -122,5 +122,5 @@ MilliporeSigma’s **Mobius®** single-use chromatography systems and **Cogent®
 
 Standard time-bucket averaging (`GROUP BY toStartOfMinute(ts)`) flattens sharp chromatography UV 280 nm elution peaks and hides transient column over-pressure spikes.
 
-OpenPI GxP Historian’s `/api/v1/trends/plot-values` endpoint (`app/main.py`) uses ClickHouse’s native **`largestTriangleThreeBuckets(N)` (LTTB)** algorithm over raw `quality >= 192` samples:
-- Whether an operator views a 6-hour chromatography run across 200 screen pixels in Grafana (`openpi_bioreactor_hmi.json`) or exports plot values for batch review, LTTB mathematically preserves the **exact maximum apex (`mAU`) and inflection shoulders** of every elution peak (verified by automated qualification test `test_oq_09_lttb_peak_preservation` in `gxp-validation-package/tests/test_03_oq_historian_core.py`).
+OpenHistorian GxP Historian’s `/api/v1/trends/plot-values` endpoint (`app/main.py`) uses ClickHouse’s native **`largestTriangleThreeBuckets(N)` (LTTB)** algorithm over raw `quality >= 192` samples:
+- Whether an operator views a 6-hour chromatography run across 200 screen pixels in Grafana (`openhistorian_bioreactor_hmi.json`) or exports plot values for batch review, LTTB mathematically preserves the **exact maximum apex (`mAU`) and inflection shoulders** of every elution peak (verified by automated qualification test `test_oq_09_lttb_peak_preservation` in `gxp-validation-package/tests/test_03_oq_historian_core.py`).

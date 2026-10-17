@@ -259,7 +259,7 @@
   ],
   "refresh": "5s",
   "schemaVersion": 39,
-  "tags": ["gxp", "openpi", "part11", "isa95", "bioreactor"],
+  "tags": ["gxp", "openhistorian", "part11", "isa95", "bioreactor"],
   "templating": {
     "list": [
       {
@@ -293,7 +293,7 @@
     "to": "now"
   },
   "timezone": "utc",
-  "title": "OpenPI Vision — GxP Bioreactor & Cleanroom HMI",
-  "uid": "openpi-gxp-bioreactor-hmi",
+  "title": "OpenHistorian Vision — GxP Bioreactor & Cleanroom HMI",
+  "uid": "openhistorian-gxp-bioreactor-hmi",
   "version": 1
 }

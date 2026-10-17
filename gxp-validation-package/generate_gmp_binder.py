@@ -180,13 +180,13 @@ def build_01_vmp(urs_data: Dict[str, Any], oq_data: Dict[str, Any], gen_ts: str)
 
 | Document ID | Version | Effective Date (UTC) | System Name | Regulatory Scope | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `VMP-OPENPI-2026-001` | `1.0` | `{gen_ts}` | {meta['system_name']} | 21 CFR Part 11, EU GMP Annex 11, ISPE GAMP 5 (2nd Ed.), FDA CSA | **APPROVED** |
+| `VMP-OPENHISTORIAN-2026-001` | `1.0` | `{gen_ts}` | {meta['system_name']} | 21 CFR Part 11, EU GMP Annex 11, ISPE GAMP 5 (2nd Ed.), FDA CSA | **APPROVED** |
 
 ---
 
 ## 1. Purpose & Regulatory Scope
 
-This **Validation Master Plan (VMP)** establishes the Computerized System Validation (CSV) and Computer Software Assurance (CSA) governance framework for the **OpenPI GxP Industrial Historian** deployed at BioCorp Fremont Biomanufacturing Operations. The platform replaces legacy proprietary OSIsoft PI System components with a 4-Pillar open-source architecture engineered for **21 CFR Part 11**, **EU EudraLex Volume 4 Annex 11**, and **ALCOA+** data integrity compliance.
+This **Validation Master Plan (VMP)** establishes the Computerized System Validation (CSV) and Computer Software Assurance (CSA) governance framework for the **OpenHistorian GxP Industrial Historian** deployed at BioCorp Fremont Biomanufacturing Operations. The platform replaces legacy proprietary OSIsoft PI System components with a 4-Pillar open-source architecture engineered for **21 CFR Part 11**, **EU EudraLex Volume 4 Annex 11**, and **ALCOA+** data integrity compliance.
 
 ## 2. System Classification (ISPE GAMP 5 Second Edition)
 
@@ -240,7 +240,7 @@ def build_02_urs(urs_data: Dict[str, Any], gen_ts: str) -> str:
     lines = [
         "# Document 02 — User Requirements Specification (URS)",
         "",
-        f"**Document ID:** `URS-OPENPI-2026-002` | **Generated (UTC):** `{gen_ts}` | **Total Requirements:** `{len(urs_data['requirements'])}`",
+        f"**Document ID:** `URS-OPENHISTORIAN-2026-002` | **Generated (UTC):** `{gen_ts}` | **Total Requirements:** `{len(urs_data['requirements'])}`",
         "",
         "## 1. Formal User Requirements Catalog (URS-001 to URS-015)",
         "",
@@ -260,7 +260,7 @@ def build_02_urs(urs_data: Dict[str, Any], gen_ts: str) -> str:
 def build_03_fds(gen_ts: str) -> str:
     return f"""# Document 03 — Functional & Design Specification (FDS)
 
-**Document ID:** `FDS-OPENPI-2026-003` | **Effective Date (UTC):** `{gen_ts}`
+**Document ID:** `FDS-OPENHISTORIAN-2026-003` | **Effective Date (UTC):** `{gen_ts}`
 
 ---
 
@@ -287,8 +287,8 @@ def build_03_fds(gen_ts: str) -> str:
    - Trigger `fn_enforce_part11_audit()` enforces `current_setting('app.actor_id', true)` and `current_setting('app.change_reason', true)` and computes `row_hash = encode(digest(prev_hash || recorded_at::text || actor_id || operation || coalesce(new_payload::text, ''), 'sha256'), 'hex')`.
    - Trigger `fn_prevent_audit_tampering()` blocks `UPDATE`, `DELETE`, and `TRUNCATE` on `part11_audit_log`.
 4. **Pillar 4 — Operator HMI & Excel DataLink (`grafana-vision` + `excel-datalink-client`):**
-   - Grafana OSS 11.2.0 pre-provisioned with `clickhouse_core` and `postgres_control` datasources and the asset-relative dashboard `OpenPI Vision — GxP Bioreactor & Cleanroom HMI`.
-   - Excel DataLink UDF module (`openpi_datalink_udf.py`) and native Power Query CSV endpoint (`/api/v1/datalink/sampled?format=csv`).
+   - Grafana OSS 11.2.0 pre-provisioned with `clickhouse_core` and `postgres_control` datasources and the asset-relative dashboard `OpenHistorian Vision — GxP Bioreactor & Cleanroom HMI`.
+   - Excel DataLink UDF module (`openhistorian_datalink_udf.py`) and native Power Query CSV endpoint (`/api/v1/datalink/sampled?format=csv`).
 """
 
 
@@ -313,7 +313,7 @@ def build_04_fra(urs_data: Dict[str, Any], gen_ts: str) -> str:
     lines = [
         "# Document 04 — FDA CSA Functional Risk Assessment (FRA)",
         "",
-        f"**Document ID:** `FRA-OPENPI-2026-004` | **Generated (UTC):** `{gen_ts}` | **Methodology:** ISPE GAMP 5 & FDA Computer Software Assurance (CSA)",
+        f"**Document ID:** `FRA-OPENHISTORIAN-2026-004` | **Generated (UTC):** `{gen_ts}` | **Methodology:** ISPE GAMP 5 & FDA Computer Software Assurance (CSA)",
         "",
         "## 1. Functional Risk Assessment Matrix",
         "",
@@ -334,7 +334,7 @@ def build_05_soup(soup_items: List[Dict[str, str]], gen_ts: str) -> str:
     lines = [
         "# Document 05 — SOUP / Open-Source Software (OSS) Vendor Qualification Dossier",
         "",
-        f"**Document ID:** `SOUP-OPENPI-2026-005` | **Generated (UTC):** `{gen_ts}` | **Standard:** GAMP 5 Category 3/4 & ISO/IEC 62304 SOUP Qualification",
+        f"**Document ID:** `SOUP-OPENHISTORIAN-2026-005` | **Generated (UTC):** `{gen_ts}` | **Standard:** GAMP 5 Category 3/4 & ISO/IEC 62304 SOUP Qualification",
         "",
         "## 1. Qualified Open-Source Software & Live Container SHA-256 Digest Matrix",
         "",
@@ -359,7 +359,7 @@ def build_06_executed_protocol(
     lines = [
         "# Document 06 — Executed IQ/OQ Protocol & Cryptographic Evidence Report",
         "",
-        f"**Document ID:** `EPR-OPENPI-2026-006` | **Session Start (UTC):** `{oq_data['session_start_utc']}` | **Session End (UTC):** `{oq_data['session_end_utc']}` | **Verdict:** **{oq_data['overall_status']} ({summary['passed']}/{summary['total_tests']} Passed, {summary['pass_rate_pct']}%)**",
+        f"**Document ID:** `EPR-OPENHISTORIAN-2026-006` | **Session Start (UTC):** `{oq_data['session_start_utc']}` | **Session End (UTC):** `{oq_data['session_end_utc']}` | **Verdict:** **{oq_data['overall_status']} ({summary['passed']}/{summary['total_tests']} Passed, {summary['pass_rate_pct']}%)**",
         "",
         "## 1. Executed Automated IQ/OQ Test Results (`oq_execution_results.json`)",
         "",
@@ -410,7 +410,7 @@ def build_07_rtm(urs_data: Dict[str, Any], oq_data: Dict[str, Any], gen_ts: str)
     lines = [
         "# Document 07 — Bidirectional Requirements Traceability Matrix (RTM)",
         "",
-        f"**Document ID:** `RTM-OPENPI-2026-007` | **Generated (UTC):** `{gen_ts}` | **Coverage:** `100.0% (15/15 URS Verified, 0 Gaps)`",
+        f"**Document ID:** `RTM-OPENHISTORIAN-2026-007` | **Generated (UTC):** `{gen_ts}` | **Coverage:** `100.0% (15/15 URS Verified, 0 Gaps)`",
         "",
         "| URS ID | Requirement Title | FRS / Design Spec | GAMP Cat. | CSA Risk | Automated Pytest Node ID | Executed Timestamp (UTC) | Verdict |",
         "| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |",
@@ -439,13 +439,13 @@ def build_08_vsr(
     head_hash = live_db["audit_rows"][-1]["row_hash"] if live_db["audit_rows"] else "GENESIS_0000000000000000"
     return f"""# Document 08 — Validation Summary Report (VSR) & Release Certificate
 
-**Document ID:** `VSR-OPENPI-2026-008` | **Release Date (UTC):** `{gen_ts}` | **System Release Status:** **QUALIFIED FOR GxP PRODUCTION USE**
+**Document ID:** `VSR-OPENHISTORIAN-2026-008` | **Release Date (UTC):** `{gen_ts}` | **System Release Status:** **QUALIFIED FOR GxP PRODUCTION USE**
 
 ---
 
 ## 1. Executive Qualification Summary
 
-The **OpenPI GxP Industrial Historian** (ClickHouse 24.8 Telemetry Archive, PostgreSQL 16 Part 11 Control Plane, Telegraf 1.32 Edge Collector, FastAPI Control Plane, and Grafana 11.2 HMI) has completed all Installation Qualification (IQ), Operational Qualification (OQ), and Performance Qualification (PQ) activities in accordance with `VMP-OPENPI-2026-001`.
+The **OpenHistorian GxP Industrial Historian** (ClickHouse 24.8 Telemetry Archive, PostgreSQL 16 Part 11 Control Plane, Telegraf 1.32 Edge Collector, FastAPI Control Plane, and Grafana 11.2 HMI) has completed all Installation Qualification (IQ), Operational Qualification (OQ), and Performance Qualification (PQ) activities in accordance with `VMP-OPENHISTORIAN-2026-001`.
 
 | Metric | Target Acceptance Criterion | Actual Executed Result | Status |
 | :--- | :--- | :--- | :--- |
@@ -462,7 +462,7 @@ The **OpenPI GxP Industrial Historian** (ClickHouse 24.8 Telemetry Archive, Post
 
 ## 3. Statement of Fitness for Intended GxP Use
 
-Based on the objective cryptographic evidence captured in `oq_execution_results.json` and the unbroken SHA-256 WORM audit trail in `part11_audit_log`, the OpenPI GxP Industrial Historian is hereby declared **fit for its intended GxP manufacturing use** under FDA 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 (Second Edition).
+Based on the objective cryptographic evidence captured in `oq_execution_results.json` and the unbroken SHA-256 WORM audit trail in `part11_audit_log`, the OpenHistorian GxP Industrial Historian is hereby declared **fit for its intended GxP manufacturing use** under FDA 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 (Second Edition).
 
 ## 4. 21 CFR Part 11 §11.50 Electronic Release Signatures
 
@@ -592,7 +592,7 @@ def build_complete_html_binder(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>OpenPI GxP Industrial Historian — Complete 21 CFR Part 11 Validation Binder</title>
+  <title>OpenHistorian GxP Industrial Historian — Complete 21 CFR Part 11 Validation Binder</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <style>
     * {{ box-sizing: border-box; }}
@@ -776,7 +776,7 @@ def build_complete_html_binder(
 </head>
 <body>
   <header class="exec-banner">
-    <h1>OpenPI GxP Industrial Historian — Commercial 21 CFR Part 11 Validation Binder</h1>
+    <h1>OpenHistorian GxP Industrial Historian — Commercial 21 CFR Part 11 Validation Binder</h1>
     <p>FDA 21 CFR Part 11 &bull; EU EudraLex Annex 11 &bull; ISPE GAMP 5 (2nd Ed.) &bull; FDA Computer Software Assurance (CSA) &bull; Generated: {html.escape(gen_ts)}</p>
     <div class="metrics-ribbon">
       <div class="metric-tile">

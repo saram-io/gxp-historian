@@ -2,13 +2,13 @@
 
 | Document ID | Version | Effective Date (UTC) | System Name | Regulatory Scope | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `VMP-OPENPI-2026-001` | `1.0` | `2026-10-17T12:46:56Z` | OpenPI GxP Industrial Historian (ClickHouse + PostgreSQL Part 11 Control Plane) | 21 CFR Part 11, EU GMP Annex 11, ISPE GAMP 5 (2nd Ed.), FDA CSA | **APPROVED** |
+| `VMP-OPENHISTORIAN-2026-001` | `1.0` | `2026-10-17T13:35:22Z` | OpenHistorian GxP Industrial Historian (ClickHouse + PostgreSQL Part 11 Control Plane) | 21 CFR Part 11, EU GMP Annex 11, ISPE GAMP 5 (2nd Ed.), FDA CSA | **APPROVED** |
 
 ---
 
 ## 1. Purpose & Regulatory Scope
 
-This **Validation Master Plan (VMP)** establishes the Computerized System Validation (CSV) and Computer Software Assurance (CSA) governance framework for the **OpenPI GxP Industrial Historian** deployed at BioCorp Fremont Biomanufacturing Operations. The platform replaces legacy proprietary OSIsoft PI System components with a 4-Pillar open-source architecture engineered for **21 CFR Part 11**, **EU EudraLex Volume 4 Annex 11**, and **ALCOA+** data integrity compliance.
+This **Validation Master Plan (VMP)** establishes the Computerized System Validation (CSV) and Computer Software Assurance (CSA) governance framework for the **OpenHistorian GxP Industrial Historian** deployed at BioCorp Fremont Biomanufacturing Operations. The platform replaces legacy proprietary OSIsoft PI System components with a 4-Pillar open-source architecture engineered for **21 CFR Part 11**, **EU EudraLex Volume 4 Annex 11**, and **ALCOA+** data integrity compliance.
 
 ## 2. System Classification (ISPE GAMP 5 Second Edition)
 

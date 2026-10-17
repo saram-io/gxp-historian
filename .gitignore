@@ -1,5 +1,5 @@
 # ==============================================================================
-# OpenPI GxP Industrial Historian — .gitignore
+# OpenHistorian GxP Industrial Historian — .gitignore
 # ==============================================================================
 
 # Environment & Secrets (keep .env.example tracked)
