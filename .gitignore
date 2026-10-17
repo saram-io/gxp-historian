@@ -1,0 +1,53 @@
+# ==============================================================================
+# OpenPI GxP Industrial Historian — .gitignore
+# ==============================================================================
+
+# Environment & Secrets (keep .env.example tracked)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Python Virtual Environments & Bytecode
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.eggs/
+/build/
+/dist/
+
+# Pytest, Coverage & Linter Caches
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Runtime Lakehouse Exports & Local Volume Data
+exports/*.parquet
+exports/*.csv
+pg_data/
+ch_data/
+telegraf_buffer/
+grafana_data/
+
+# Microsoft Excel Temporary / Lock Files (PI DataLink Client)
+~$*.xlsx
+~$*.xlsm
+~$*.xls
+*.tmp
+
+# Logs & OS / Editor Artifacts
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo

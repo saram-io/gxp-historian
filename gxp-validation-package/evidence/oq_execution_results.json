@@ -1,0 +1,585 @@
+{
+  "qualification_suite": "OpenPI GxP Industrial Historian IQ/OQ/PQ Automated Qualification Suite",
+  "regulatory_standard": "21 CFR Part 11 / EU GMP Annex 11 / ISPE GAMP 5 / FDA CSA",
+  "execution_environment": {
+    "hostname": "duk-ubuntu",
+    "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+    "python_version": "3.14.4",
+    "postgres_endpoint": "localhost:5435/pi_control_plane",
+    "clickhouse_endpoint": "localhost:8125/pi_historian",
+    "historian_api_url": "http://localhost:8020",
+    "grafana_url": "http://localhost:3020"
+  },
+  "session_start_utc": "2026-10-17T12:40:50.333926+00:00",
+  "session_end_utc": "2026-10-17T12:40:52.371107+00:00",
+  "overall_status": "PASS",
+  "summary": {
+    "total_tests": 15,
+    "passed": 15,
+    "failed": 0,
+    "pass_rate_pct": 100.0
+  },
+  "test_results": [
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_01_iq_infrastructure.py::test_iq_01_services_and_non_default_credentials",
+      "test_name": "test_iq_01_services_and_non_default_credentials",
+      "module": "test_01_iq_infrastructure",
+      "docstring": "URS-001: Verify container health and absence of insecure default credentials.",
+      "start_utc": "2026-10-17T12:40:50.741981+00:00",
+      "end_utc": "2026-10-17T12:40:50.782253+00:00",
+      "duration_seconds": 0.0403,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified PostgreSQL, ClickHouse, FastAPI, and Grafana health with non-default GxP secrets."
+      ],
+      "input_payload": {
+        "endpoints": [
+          "/api/v1/health",
+          "http://localhost:3020/api/search"
+        ]
+      },
+      "output_payload": {
+        "api_health": {
+          "status": "healthy",
+          "postgres": {
+            "connected": true,
+            "database": "pi_control_plane",
+            "tag_count": 5
+          },
+          "clickhouse": {
+            "connected": true,
+            "database": "pi_historian",
+            "version": "24.8.14.39",
+            "sensor_data_rows": 2511
+          }
+        },
+        "grafana_dashboards": [
+          "GxP Manufacturing HMI",
+          "OpenPI Vision \u2014 GxP Bioreactor & Cleanroom HMI"
+        ]
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_01_iq_infrastructure.py::test_iq_02_postgres_extensions_and_schema",
+      "test_name": "test_iq_02_postgres_extensions_and_schema",
+      "module": "test_01_iq_infrastructure",
+      "docstring": "URS-002: Verify PostgreSQL extensions (ltree, btree_gist, pgcrypto) and core tables.",
+      "start_utc": "2026-10-17T12:40:50.792756+00:00",
+      "end_utc": "2026-10-17T12:40:50.801417+00:00",
+      "duration_seconds": 0.0087,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified PostgreSQL 16 extensions (btree_gist, ltree, pgcrypto), 6 GxP tables, and seeded Part 11 users."
+      ],
+      "input_payload": {
+        "expected_extensions": [
+          "btree_gist",
+          "ltree",
+          "pgcrypto"
+        ]
+      },
+      "output_payload": {
+        "installed_extensions": [
+          "btree_gist",
+          "ltree",
+          "pgcrypto"
+        ],
+        "tables": [
+          "asset_templates",
+          "assets",
+          "event_frames",
+          "part11_audit_log",
+          "tags",
+          "users"
+        ],
+        "users": [
+          {
+            "user_id": "operator_01",
+            "role": "OPERATOR",
+            "is_active": true
+          },
+          {
+            "user_id": "qa_approver_01",
+            "role": "QA_APPROVER",
+            "is_active": true
+          }
+        ]
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_01_iq_infrastructure.py::test_iq_03_clickhouse_compression_codecs",
+      "test_name": "test_iq_03_clickhouse_compression_codecs",
+      "module": "test_01_iq_infrastructure",
+      "docstring": "URS-003: Verify ClickHouse sensor_data lossless compression codecs (Delta, DoubleDelta, Gorilla, T64).",
+      "start_utc": "2026-10-17T12:40:50.812238+00:00",
+      "end_utc": "2026-10-17T12:40:50.815347+00:00",
+      "duration_seconds": 0.0031,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified ClickHouse pi_historian.sensor_data column codecs (Delta, DoubleDelta, Gorilla, T64 + ZSTD(1))."
+      ],
+      "input_payload": {
+        "database": "pi_historian",
+        "table": "sensor_data"
+      },
+      "output_payload": {
+        "column_codecs": {
+          "tag_id": "CODEC(Delta(4), ZSTD(1))",
+          "ts": "CODEC(DoubleDelta, ZSTD(1))",
+          "val": "CODEC(Gorilla, ZSTD(1))",
+          "str_val": "CODEC(ZSTD(1))",
+          "quality": "CODEC(T64, ZSTD(1))",
+          "status_code": "CODEC(T64, ZSTD(1))"
+        }
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_01_iq_infrastructure.py::test_iq_04_clickhouse_postgres_dictionary_sync",
+      "test_name": "test_iq_04_clickhouse_postgres_dictionary_sync",
+      "module": "test_01_iq_infrastructure",
+      "docstring": "URS-004: Verify ISA-95 ltree asset hierarchy resolution via ClickHouse pg_asset_tags dictionary.",
+      "start_utc": "2026-10-17T12:40:50.822429+00:00",
+      "end_utc": "2026-10-17T12:40:50.825802+00:00",
+      "duration_seconds": 0.0034,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified all 5 seeded GxP tags and ISA-95 ltree paths resolve in ClickHouse pg_asset_tags dictionary."
+      ],
+      "input_payload": {
+        "expected_tag_ids": [
+          101,
+          102,
+          103,
+          301,
+          401
+        ]
+      },
+      "output_payload": {
+        "dictionary_rows": [
+          {
+            "tag_id": 101,
+            "tag_name": "BR201_TEMP_PV",
+            "asset_path": "BioCorp.Fremont.USP.Bioreactor_201",
+            "eng_units": "degC",
+            "is_step_tag": 0
+          },
+          {
+            "tag_id": 102,
+            "tag_name": "BR201_PH_PV",
+            "asset_path": "BioCorp.Fremont.USP.Bioreactor_201",
+            "eng_units": "pH",
+            "is_step_tag": 0
+          },
+          {
+            "tag_id": 103,
+            "tag_name": "BR201_AGIT_STATE",
+            "asset_path": "BioCorp.Fremont.USP.Bioreactor_201",
+            "eng_units": "state",
+            "is_step_tag": 1
+          },
+          {
+            "tag_id": 301,
+            "tag_name": "CR_ISO7_DP_PV",
+            "asset_path": "BioCorp.Fremont.Facilities.Cleanroom_ISO7",
+            "eng_units": "Pa",
+            "is_step_tag": 0
+          },
+          {
+            "tag_id": 401,
+            "tag_name": "CHROM_UV280_PV",
+            "asset_path": "BioCorp.Fremont.USP.Bioreactor_201",
+            "eng_units": "mAU",
+            "is_step_tag": 0
+          }
+        ]
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_01_iq_infrastructure.py::test_iq_05_edge_collector_wal_and_deadband",
+      "test_name": "test_iq_05_edge_collector_wal_and_deadband",
+      "module": "test_01_iq_infrastructure",
+      "docstring": "URS-005: Verify Telegraf disk WAL config and Stage 1 Exception/Deadband filter behavior.",
+      "start_utc": "2026-10-17T12:40:50.826742+00:00",
+      "end_utc": "2026-10-17T12:40:50.829461+00:00",
+      "duration_seconds": 0.0027,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified disk-backed WAL buffer configuration and Stage 1 ExceptionDeadbandFilter suppression/emission rules."
+      ],
+      "input_payload": {
+        "exc_dev": 0.05,
+        "exc_max": 10.0,
+        "buffer_strategy": "disk"
+      },
+      "output_payload": {
+        "initial_emit": true,
+        "sub_deadband_suppressed": true,
+        "exc_dev_triggered": true,
+        "quality_change_triggered": true
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_02_oq_part11_compliance.py::test_oq_01_reject_mutations_without_actor_or_reason",
+      "test_name": "test_oq_01_reject_mutations_without_actor_or_reason",
+      "module": "test_02_oq_part11_compliance",
+      "docstring": "URS-006: Verify mutating tags or assets without app.actor_id / app.change_reason is rejected.",
+      "start_utc": "2026-10-17T12:40:50.842793+00:00",
+      "end_utc": "2026-10-17T12:40:50.858256+00:00",
+      "duration_seconds": 0.0155,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Confirmed both PostgreSQL PL/pgSQL trigger and FastAPI reject unattributed mutations."
+      ],
+      "input_payload": {
+        "sql": "UPDATE tags SET exc_dev = 0.08 WHERE tag_id = 101 (no session context)"
+      },
+      "output_payload": {
+        "postgres_exception": "21 CFR Part 11 Violation: app.actor_id and app.change_reason are mandatory\nCONTEXT:  PL/pgSQL function fn_enforce_part11_audit() line 17 at RAISE",
+        "api_status_code": 400
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_02_oq_part11_compliance.py::test_oq_02_worm_audit_log_immutability",
+      "test_name": "test_oq_02_worm_audit_log_immutability",
+      "module": "test_02_oq_part11_compliance",
+      "docstring": "URS-007: Verify UPDATE, DELETE, and TRUNCATE on part11_audit_log raise WORM exception.",
+      "start_utc": "2026-10-17T12:40:50.866722+00:00",
+      "end_utc": "2026-10-17T12:40:50.869945+00:00",
+      "duration_seconds": 0.0032,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified UPDATE, DELETE, and TRUNCATE on part11_audit_log unconditionally raise 21 CFR Part 11 WORM Violation."
+      ],
+      "input_payload": {
+        "attempted_operations": [
+          "UPDATE",
+          "DELETE",
+          "TRUNCATE"
+        ]
+      },
+      "output_payload": {
+        "worm_exceptions": {
+          "UPDATE": "21 CFR Part 11 WORM Violation: Audit trail records are immutable\nCONTEXT:  PL/pgSQL function fn_prevent_audit_tampering() line 3 at RAISE",
+          "DELETE": "21 CFR Part 11 WORM Violation: Audit trail records are immutable\nCONTEXT:  PL/pgSQL function fn_prevent_audit_tampering() line 3 at RAISE",
+          "TRUNCATE": "21 CFR Part 11 WORM Violation: Audit trail records are immutable\nCONTEXT:  PL/pgSQL function fn_prevent_audit_tampering() line 3 at RAISE"
+        }
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_02_oq_part11_compliance.py::test_oq_03_electronic_signature_rejects_invalid_credentials",
+      "test_name": "test_oq_03_electronic_signature_rejects_invalid_credentials",
+      "module": "test_02_oq_part11_compliance",
+      "docstring": "URS-008: Verify signing an Event Frame with wrong password returns HTTP 401.",
+      "start_utc": "2026-10-17T12:40:50.875984+00:00",
+      "end_utc": "2026-10-17T12:40:50.955444+00:00",
+      "duration_seconds": 0.0795,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified POST /api/v1/event-frames/{id}/sign rejects invalid password with HTTP 401."
+      ],
+      "input_payload": {
+        "event_id": "f5aff8cb-2d04-4fc8-b854-ff8c63943e88",
+        "user_id": "qa_approver_01",
+        "password": "REDACTED_INVALID"
+      },
+      "output_payload": {
+        "status_code": 401,
+        "response": {
+          "detail": "21 CFR Part 11 Electronic Signature Authentication Failed: Invalid user_id or password"
+        }
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_02_oq_part11_compliance.py::test_oq_04_electronic_signature_approval_and_hmac",
+      "test_name": "test_oq_04_electronic_signature_approval_and_hmac",
+      "module": "test_02_oq_part11_compliance",
+      "docstring": "URS-009: Verify valid Electronic Signature execution, HMAC-SHA256 binding, and audit log increment.",
+      "start_utc": "2026-10-17T12:40:50.962325+00:00",
+      "end_utc": "2026-10-17T12:40:51.022568+00:00",
+      "duration_seconds": 0.0602,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified dual-challenge electronic signature execution, HMAC-SHA256 binding, and audit trail logging."
+      ],
+      "input_payload": {
+        "event_id": "f5aff8cb-2d04-4fc8-b854-ff8c63943e88",
+        "user_id": "qa_approver_01",
+        "signature_meaning": "Batch Release Approval"
+      },
+      "output_payload": {
+        "signed_event_frame": {
+          "event_id": "f5aff8cb-2d04-4fc8-b854-ff8c63943e88",
+          "event_name": "BR201_TEMP_PV_High_Limit_Excursion",
+          "event_template": "Temp_Excursion",
+          "signed_by": "qa_approver_01",
+          "signature_meaning": "Batch Release Approval",
+          "signed_at": "2026-10-17T12:40:51.001488Z",
+          "signature_hash": "ce044436f26c50818761708b36465f69e1a3d7e8439bcd0ec1367a20125ef7ad"
+        },
+        "hmac_verified": true,
+        "audit_records_after": 134
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_02_oq_part11_compliance.py::test_oq_05_cryptographic_hash_chain_verification",
+      "test_name": "test_oq_05_cryptographic_hash_chain_verification",
+      "module": "test_02_oq_part11_compliance",
+      "docstring": "URS-010: Verify end-to-end SHA-256 hash chain from GENESIS_0000000000000000.",
+      "start_utc": "2026-10-17T12:40:51.028688+00:00",
+      "end_utc": "2026-10-17T12:40:51.041831+00:00",
+      "duration_seconds": 0.0131,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified 100% of part11_audit_log records form an unbroken SHA-256 hash chain from GENESIS_0000000000000000."
+      ],
+      "input_payload": {
+        "endpoint": "/api/v1/audit-trail/verify"
+      },
+      "output_payload": {
+        "chain_valid": true,
+        "total_records": 134,
+        "verified_hashes": 134,
+        "genesis_anchor": "GENESIS_0000000000000000",
+        "head_row_hash": "8110a037b782ac1d61e8eb83a0787bcd801b916d4af7e890191c1f19f72df591",
+        "broken_at_audit_id": null
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_03_oq_historian_core.py::test_oq_06_multi_protocol_telemetry_ingestion",
+      "test_name": "test_oq_06_multi_protocol_telemetry_ingestion",
+      "module": "test_03_oq_historian_core",
+      "docstring": "URS-011: Verify all 5 multi-protocol tags (101, 102, 103, 301, 401) actively populate sensor_data.",
+      "start_utc": "2026-10-17T12:40:51.050921+00:00",
+      "end_utc": "2026-10-17T12:40:51.055514+00:00",
+      "duration_seconds": 0.0046,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified active telemetry ingestion across all 5 multi-protocol tags (101, 102, 103, 301, 401)."
+      ],
+      "input_payload": {
+        "tag_ids": [
+          101,
+          102,
+          103,
+          301,
+          401
+        ]
+      },
+      "output_payload": {
+        "tag_counts": [
+          {
+            "tag_id": 101,
+            "tag_name": "BR201_TEMP_PV",
+            "row_count": 411
+          },
+          {
+            "tag_id": 102,
+            "tag_name": "BR201_PH_PV",
+            "row_count": 507
+          },
+          {
+            "tag_id": 103,
+            "tag_name": "BR201_AGIT_STATE",
+            "row_count": 185
+          },
+          {
+            "tag_id": 301,
+            "tag_name": "CR_ISO7_DP_PV",
+            "row_count": 506
+          },
+          {
+            "tag_id": 401,
+            "tag_name": "CHROM_UV280_PV",
+            "row_count": 902
+          }
+        ]
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_03_oq_historian_core.py::test_oq_07_bad_quality_exclusion_in_rollup",
+      "test_name": "test_oq_07_bad_quality_exclusion_in_rollup",
+      "module": "test_03_oq_historian_core",
+      "docstring": "URS-012: Verify sensor_rollup_1m completely excludes quality=0 fault spike of 9999.0.",
+      "start_utc": "2026-10-17T12:40:51.062917+00:00",
+      "end_utc": "2026-10-17T12:40:52.121901+00:00",
+      "duration_seconds": 1.059,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Proved mv_sensor_rollup_1m excludes quality=0 fault spike (9999.0), computing exact GMP rollup avg=37.5, max=38.0."
+      ],
+      "input_payload": {
+        "injected_points": [
+          {
+            "val": 37.0,
+            "quality": 192
+          },
+          {
+            "val": 38.0,
+            "quality": 192
+          },
+          {
+            "val": 9999.0,
+            "quality": 0
+          }
+        ]
+      },
+      "output_payload": {
+        "raw_table": {
+          "raw_total": 3,
+          "bad_count": 1,
+          "raw_max": 9999.0
+        },
+        "rollup_1m_table": {
+          "good_count": 2,
+          "rollup_min": 37.0,
+          "rollup_avg": 37.5,
+          "rollup_max": 38.0
+        }
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_03_oq_historian_core.py::test_oq_08_datalink_linear_and_locf_step_interpolation",
+      "test_name": "test_oq_08_datalink_linear_and_locf_step_interpolation",
+      "module": "test_03_oq_historian_core",
+      "docstring": "URS-013: Verify /api/v1/datalink/sampled linear midpoints for analog tags and integer LOCF for step tags.",
+      "start_utc": "2026-10-17T12:40:52.135760+00:00",
+      "end_utc": "2026-10-17T12:40:52.218561+00:00",
+      "duration_seconds": 0.0828,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified exact linear midpoint (37.0) on BR201_TEMP_PV and integer LOCF ([1, 1, 2]) on BR201_AGIT_STATE."
+      ],
+      "input_payload": {
+        "window": "2026-01-15T11:00:00Z..11:02:00Z",
+        "step_seconds": 60
+      },
+      "output_payload": {
+        "linear_points": [
+          {
+            "ts": "2026-01-15T11:00:00Z",
+            "val": 36.0
+          },
+          {
+            "ts": "",
+            "val": 37.0
+          },
+          {
+            "ts": "2026-01-15T11:02:00Z",
+            "val": 38.0
+          }
+        ],
+        "locf_step_points": [
+          {
+            "ts": "2026-01-15T11:00:00Z",
+            "val": 1,
+            "str_val": "LOW"
+          },
+          {
+            "ts": "",
+            "val": 1,
+            "str_val": "LOW"
+          },
+          {
+            "ts": "2026-01-15T11:02:00Z",
+            "val": 2,
+            "str_val": "HIGH_RUN"
+          }
+        ]
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_03_oq_historian_core.py::test_oq_09_lttb_downsampling_preserves_local_peak",
+      "test_name": "test_oq_09_lttb_downsampling_preserves_local_peak",
+      "module": "test_03_oq_historian_core",
+      "docstring": "URS-014: Verify /api/v1/trends/plot-values (LTTB) preserves the exact timestamp and magnitude of local peaks.",
+      "start_utc": "2026-10-17T12:40:52.231651+00:00",
+      "end_utc": "2026-10-17T12:40:52.255112+00:00",
+      "duration_seconds": 0.0235,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified ClickHouse LTTB 10x downsampling (100 -> 10 points) preserved exact peak magnitude (845.75 mAU) and timestamp (12:00:50Z)."
+      ],
+      "input_payload": {
+        "tag_id": 401,
+        "raw_points": 100,
+        "target_intervals": 10,
+        "injected_peak": {
+          "ts": "2026-01-15T12:00:50Z",
+          "val": 845.75
+        }
+      },
+      "output_payload": {
+        "preserved_peak": {
+          "ts": "2026-01-15T12:00:50.000Z",
+          "val": 845.75
+        },
+        "downsampled_point_count": 10
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_03_oq_historian_core.py::test_oq_10_event_frame_excursion_and_parquet_lakehouse_export",
+      "test_name": "test_oq_10_event_frame_excursion_and_parquet_lakehouse_export",
+      "module": "test_03_oq_historian_core",
+      "docstring": "URS-015: Verify Event Frame excursion capture and Parquet lakehouse export integrity via pyarrow.",
+      "start_utc": "2026-10-17T12:40:52.261622+00:00",
+      "end_utc": "2026-10-17T12:40:52.369985+00:00",
+      "duration_seconds": 0.1084,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified Event Frame evaluation and Apache Parquet export with 100% row/value fidelity via pyarrow."
+      ],
+      "input_payload": {
+        "asset_path": "BioCorp.Fremont.USP.Bioreactor_201",
+        "window": "2026-01-15T11:00:00Z..11:02:00Z"
+      },
+      "output_payload": {
+        "export_metadata": {
+          "status": "exported",
+          "file_path": "/app/exports/oq_qualification_verify_20261017T124052Z.parquet",
+          "row_count": 4,
+          "file_size_bytes": 7153,
+          "columns": [
+            "asset_path",
+            "asset_name",
+            "tag_id",
+            "tag_name",
+            "attribute_name",
+            "eng_units",
+            "ts",
+            "val",
+            "str_val",
+            "quality"
+          ]
+        },
+        "parquet_columns": [
+          "asset_path",
+          "asset_name",
+          "tag_id",
+          "tag_name",
+          "attribute_name",
+          "eng_units",
+          "ts",
+          "val",
+          "str_val",
+          "quality"
+        ],
+        "verified_rows": 4
+      }
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+apiVersion: 1
+
+datasources:
+  - name: ClickHouse Telemetry Archive
+    type: grafana-clickhouse-datasource
+    uid: clickhouse_core
+    access: proxy
+    isDefault: true
+    editable: false
+    jsonData:
+      defaultDatabase: pi_historian
+      port: 9000
+      server: clickhouse-archive
+      username: historian_admin
+      protocol: native
+      tlsSkipVerify: true
+    secureJsonData:
+      password: GxP_Ch_Secret_2026!
+
+  - name: PostgreSQL Part 11 Control Plane
+    type: postgres
+    uid: postgres_control
+    url: postgres-control:5432
+    user: historian_admin
+    access: proxy
+    isDefault: false
+    editable: false
+    jsonData:
+      database: pi_control_plane
+      sslmode: disable
+      postgresVersion: 1600
+      timescaledb: false
+    secureJsonData:
+      password: GxP_Pg_Secret_2026!

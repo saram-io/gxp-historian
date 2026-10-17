@@ -1,0 +1,139 @@
+services:
+  postgres-control:
+    image: postgres:16-alpine
+    container_name: postgres-control
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${PG_USER:-historian_admin}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-GxP_Pg_Secret_2026!}
+      POSTGRES_DB: ${PG_DB:-pi_control_plane}
+    ports:
+      - "${PG_PORT:-5435}:5432"
+    volumes:
+      - ./init-postgres:/docker-entrypoint-initdb.d:ro
+      - pg_control_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-historian_admin} -d ${PG_DB:-pi_control_plane}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - historian-net
+
+  clickhouse-archive:
+    image: clickhouse/clickhouse-server:24.8-alpine
+    container_name: clickhouse-archive
+    restart: unless-stopped
+    depends_on:
+      postgres-control:
+        condition: service_healthy
+    environment:
+      CLICKHOUSE_USER: ${CH_USER:-historian_admin}
+      CLICKHOUSE_PASSWORD: ${CH_PASSWORD:-GxP_Ch_Secret_2026!}
+      CLICKHOUSE_DB: ${CH_DB:-pi_historian}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    ports:
+      - "${CH_HTTP_PORT:-8125}:8123"
+      - "${CH_NATIVE_PORT:-9005}:9000"
+    volumes:
+      - ./init-clickhouse:/docker-entrypoint-initdb.d:ro
+      - ch_archive_data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --user ${CH_USER:-historian_admin} --password ${CH_PASSWORD:-GxP_Ch_Secret_2026!} --query 'SELECT 1'"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    networks:
+      - historian-net
+
+  edge-collector:
+    build:
+      context: ./edge-collector
+      dockerfile: Dockerfile
+    container_name: edge-collector
+    restart: unless-stopped
+    depends_on:
+      clickhouse-archive:
+        condition: service_healthy
+    environment:
+      CH_USER: ${CH_USER:-historian_admin}
+      CH_PASSWORD: ${CH_PASSWORD:-GxP_Ch_Secret_2026!}
+      CH_DB: ${CH_DB:-pi_historian}
+    ports:
+      - "${EDGE_INGEST_PORT:-8080}:8080"
+    volumes:
+      - telegraf_wal:/var/lib/telegraf/buffer
+    networks:
+      - historian-net
+
+  historian-api:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: historian-api
+    restart: unless-stopped
+    depends_on:
+      postgres-control:
+        condition: service_healthy
+      clickhouse-archive:
+        condition: service_healthy
+    environment:
+      PG_HOST: postgres-control
+      PG_PORT_INTERNAL: 5432
+      PG_USER: ${PG_USER:-historian_admin}
+      PG_PASSWORD: ${PG_PASSWORD:-GxP_Pg_Secret_2026!}
+      PG_DB: ${PG_DB:-pi_control_plane}
+      CH_HOST: clickhouse-archive
+      CH_PORT_INTERNAL: 8123
+      CH_USER: ${CH_USER:-historian_admin}
+      CH_PASSWORD: ${CH_PASSWORD:-GxP_Ch_Secret_2026!}
+      CH_DB: ${CH_DB:-pi_historian}
+      ESIG_SECRET_KEY: ${ESIG_SECRET_KEY:-Part11_Hmac_Key_2026!}
+      EXPORT_DIR: /app/exports
+    ports:
+      - "${API_PORT:-8020}:8000"
+    volumes:
+      - ./exports:/app/exports
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/api/v1/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - historian-net
+
+  grafana-vision:
+    image: grafana/grafana:11.2.0
+    container_name: grafana-vision
+    restart: unless-stopped
+    depends_on:
+      postgres-control:
+        condition: service_healthy
+      clickhouse-archive:
+        condition: service_healthy
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-GxP_Grafana_2026!}
+      GF_INSTALL_PLUGINS: grafana-clickhouse-datasource
+    ports:
+      - "${GRAFANA_PORT:-3020}:3000"
+    volumes:
+      - ./provisioning/grafana:/etc/grafana/provisioning:ro
+      - grafana_data:/var/lib/grafana
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3000/api/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    networks:
+      - historian-net
+
+volumes:
+  pg_control_data:
+  ch_archive_data:
+  telegraf_wal:
+  grafana_data:
+
+networks:
+  historian-net:
+    driver: bridge

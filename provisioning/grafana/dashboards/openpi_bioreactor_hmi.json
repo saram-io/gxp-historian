@@ -1,0 +1,299 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "postgres",
+          "uid": "postgres_control"
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "name": "ISA-88 Event Frames & Excursions",
+        "rawQuery": "SELECT start_time AS time, COALESCE(end_time, NOW()) AS timeend, event_name || ' (' || severity || ')' AS text FROM event_frames",
+        "target": {
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres_control"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT start_time AS time, COALESCE(end_time, NOW()) AS timeend, event_name || ' (' || severity || ')' AS text FROM event_frames",
+          "refId": "Anno"
+        }
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "clickhouse_core"
+      },
+      "description": "High-speed LTTB downsampled telemetry trend enriched with ISA-95 asset hierarchy via ClickHouse PostgreSQL dictionary.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "showPoints": "auto",
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": ["min", "mean", "max", "lastNotNull"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "clickhouse_core"
+          },
+          "editorType": "sql",
+          "format": 0,
+          "queryType": "timeseries",
+          "rawSql": "SELECT pt.1 AS time, dictGet('pi_historian.pg_asset_tags', 'tag_name', toUInt64(tag_id)) AS metric, pt.2 AS value FROM (SELECT tag_id, arrayJoin(largestTriangleThreeBuckets(500)(ts, val)) AS pt FROM pi_historian.sensor_data WHERE quality >= 192 AND dictGet('pi_historian.pg_asset_tags', 'asset_path', toUInt64(tag_id)) = '${asset_path}' AND $__timeFilter(ts) GROUP BY tag_id) ORDER BY time ASC",
+          "refId": "A"
+        }
+      ],
+      "title": "Panel 1: High-Speed LTTB Downsampled Process Trend (${asset_path})",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "clickhouse_core"
+      },
+      "description": "1-Minute real-time AggregatingMergeTree rollups (minMerge, avgMerge, maxMerge) filtered strictly on good OPC quality (>= 192).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "showPoints": "always"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": ["min", "mean", "max"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "clickhouse_core"
+          },
+          "editorType": "sql",
+          "format": 0,
+          "queryType": "timeseries",
+          "rawSql": "SELECT bucket_1m AS time, dictGet('pi_historian.pg_asset_tags', 'tag_name', toUInt64(tag_id)) AS tag_name, round(minMerge(min_val), 3) AS min_val, round(avgMerge(avg_val), 3) AS avg_val, round(maxMerge(max_val), 3) AS max_val FROM pi_historian.sensor_rollup_1m WHERE dictGet('pi_historian.pg_asset_tags', 'asset_path', toUInt64(tag_id)) = '${asset_path}' AND $__timeFilter(bucket_1m) GROUP BY tag_id, bucket_1m ORDER BY time ASC",
+          "refId": "A"
+        }
+      ],
+      "title": "Panel 2: 1-Minute Real-Time Rollup Band (minMerge / avgMerge / maxMerge)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres_control"
+      },
+      "description": "ISA-88 Batch & Excursion Event Frames with captured summary metrics and 21 CFR Part 11 Electronic Signatures.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": true
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
+      "id": 3,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "start_time"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres_control"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ef.event_name, ef.event_template, ef.severity, ef.start_time, ef.end_time, ef.captured_metrics::text AS captured_metrics, COALESCE(ef.signed_by, 'UNSIGNED') AS signed_by, COALESCE(ef.signature_meaning, '-') AS signature_meaning, ef.signed_at, left(COALESCE(ef.signature_hash, ''), 16) AS signature_hash_prefix FROM event_frames ef JOIN assets a ON ef.asset_id = a.asset_id WHERE a.asset_path::text = '${asset_path}' ORDER BY ef.start_time DESC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Panel 3: Active & Signed Event Frames Table (21 CFR Part 11 §11.50)",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres_control"
+      },
+      "description": "Immutable WORM 21 CFR Part 11 Audit Trail with SHA-256 cryptographic hash chaining.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": true
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 10
+      },
+      "id": 4,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "audit_id"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres_control"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT audit_id, recorded_at, actor_id, change_reason, target_table, record_pk, operation, left(prev_hash, 16) AS prev_hash_prefix, left(row_hash, 16) AS row_hash_prefix FROM part11_audit_log ORDER BY audit_id DESC LIMIT 100;",
+          "refId": "A"
+        }
+      ],
+      "title": "Panel 4: Live 21 CFR Part 11 Audit Log Inspector (WORM Hash Chain)",
+      "type": "table"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["gxp", "openpi", "part11", "isa95", "bioreactor"],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "BioCorp.Fremont.USP.Bioreactor_201",
+          "value": "BioCorp.Fremont.USP.Bioreactor_201"
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "postgres_control"
+        },
+        "definition": "SELECT asset_path::text FROM assets ORDER BY 1",
+        "hide": 0,
+        "includeAll": false,
+        "label": "ISA-95 Asset Path",
+        "multi": false,
+        "name": "asset_path",
+        "options": [],
+        "query": "SELECT asset_path::text FROM assets ORDER BY 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timezone": "utc",
+  "title": "OpenPI Vision — GxP Bioreactor & Cleanroom HMI",
+  "uid": "openpi-gxp-bioreactor-hmi",
+  "version": 1
+}
