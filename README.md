@@ -325,6 +325,9 @@ curl -s -X POST http://localhost:8020/api/v1/lakehouse/export-parquet \
 ## 7. Operator HMI (Grafana Vision) & GxPHistorian DataLink Client
 
 ### Grafana Operator HMI (`http://localhost:3020`)
+
+![GxPHistorian Vision — GxP Bioreactor & Cleanroom HMI Dashboard](docs/images/photos/grafana-vision-hmi-dashboard.png)
+
 - **URL:** `http://localhost:3020/d/gxphistorian-gxp-bioreactor-hmi`
 - **Credentials:** `admin` / `GxP_Grafana_2026!` (configured in `.env`)
 - **Features:**

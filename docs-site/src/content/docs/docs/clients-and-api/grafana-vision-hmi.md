@@ -5,6 +5,8 @@ description: Pre-provisioned Grafana OSS 11.2 Operator HMI replacing OSIsoft PI 
 
 **Grafana Vision (`grafana-vision`)** is Pillar 4's browser-based Operator HMI, pre-provisioned via `provisioning/grafana/` to replace **OSIsoft / AVEVA PI Vision** without per-seat client licensing.
 
+![GxPHistorian Vision — GxP Bioreactor & Cleanroom HMI Dashboard](/images/photos/grafana-vision-hmi-dashboard.png)
+
 ---
 
 ## 1. Accessing the Operator HMI

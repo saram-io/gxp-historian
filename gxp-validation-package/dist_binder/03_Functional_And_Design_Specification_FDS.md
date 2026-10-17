@@ -1,6 +1,6 @@
 # Document 03 — Functional & Design Specification (FDS)
 
-**Document ID:** `FDS-GXPHISTORIAN-2026-003` | **Effective Date (UTC):** `2026-10-17T20:07:04Z`
+**Document ID:** `FDS-GXPHISTORIAN-2026-003` | **Effective Date (UTC):** `2026-10-17T20:21:45Z`
 
 ---
 

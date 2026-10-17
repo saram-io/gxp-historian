@@ -346,6 +346,33 @@ const validationDocs = [
             </div>
           </div>
         </div>
+
+        <div class="container hero-hmi-showcase">
+          <div class="hmi-window-bar">
+            <div class="terminal-dots" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </div>
+            <span class="hmi-window-url">
+              http://localhost:3020/d/gxphistorian-gxp-bioreactor-hmi — GxPHistorian Vision (GxP Bioreactor &amp; Cleanroom HMI)
+            </span>
+            <a href="/docs/clients-and-api/grafana-vision-hmi/" class="hmi-window-cta">
+              Operator HMI Docs →
+            </a>
+          </div>
+          <img
+            src="/images/photos/grafana-vision-hmi-dashboard.png"
+            alt="GxPHistorian Vision — GxP Bioreactor & Cleanroom HMI dashboard showing High-Speed LTTB Downsampled Process Trend with ISA-88 Event Frame excursion overlays, 1-Minute Real-Time Rollup Band (minMerge/avgMerge/maxMerge), Active & Signed Event Frames Table, and Live 21 CFR Part 11 WORM Audit Log Inspector"
+            width="1024"
+            height="436"
+            class="hmi-window-img"
+          />
+          <div class="hmi-window-footer">
+            <span><strong>Panel 1:</strong> ClickHouse LTTB Peak-Preserving Trend + ISA-88 Excursion Overlays</span>
+            <span><strong>Panel 2:</strong> 1-Minute <code>AggregatingMergeTree</code> Rollup Band (<code>minMerge</code> / <code>avgMerge</code> / <code>maxMerge</code>)</span>
+            <span><strong>Panel 3:</strong> §11.50 Signed Event Frames</span>
+            <span><strong>Panel 4:</strong> Live 21 CFR Part 11 SHA-256 WORM Audit Trail</span>
+          </div>
+        </div>
       </section>
 
       <!-- Executive Metrics Strip -->
@@ -1221,6 +1248,61 @@ FOR EACH STATEMENT EXECUTE FUNCTION fn_prevent_audit_tampering();</code></pre>
     font-weight: 700;
     color: var(--accent-primary);
     text-decoration: none;
+  }
+
+  /* Hero Full-Width Operator HMI Showcase Window */
+  .hero-hmi-showcase {
+    margin-block-start: 2.25rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-accent);
+    border-radius: 0.85rem;
+    overflow: hidden;
+    box-shadow: 0 20px 45px -12px rgba(2, 132, 199, 0.32);
+  }
+
+  .hmi-window-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.65rem 1.1rem;
+    background: #0f172a;
+    border-block-end: 1px solid #1e293b;
+  }
+
+  .hmi-window-url {
+    font-size: 0.78rem;
+    color: #cbd5e1;
+    font-family: ui-monospace, monospace;
+  }
+
+  .hmi-window-cta {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #38bdf8;
+    text-decoration: none;
+  }
+
+  .hmi-window-cta:hover {
+    text-decoration: underline;
+  }
+
+  .hmi-window-img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .hmi-window-footer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.75rem;
+    padding: 0.85rem 1.15rem;
+    background: var(--bg-elevated);
+    border-block-start: 1px solid var(--border-subtle);
+    font-size: 0.78rem;
+    color: var(--text-secondary);
   }
 
   /* Metrics Strip */
