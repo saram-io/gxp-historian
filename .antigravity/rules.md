@@ -22,15 +22,16 @@
 
 5. **Validation Binder & Documentation Site Synchronization Gate:**
    - Whenever modifying `docs/*.md`, `provisioning/grafana/dashboards/`, or `gxp-validation-package/`, always run the full synchronization pipeline before completing the task:
-     1. When adding new `docs/*.md` files, `docs/images/<subdir>/*.svg` diagrams, or `docs/images/photos/*.jpg` product photos, register them in `docs-site/scripts/sync-docs.mjs` (`DOC_MAPPINGS`, `LINK_REWRITES`, and static asset copy), `docs-site/astro.config.mjs` (sidebar), and `README.md`.
-     2. If Grafana dashboards changed, restart Grafana (`docker compose restart grafana-vision`) and run `.venv/bin/pytest -v` to update `gxp-validation-package/evidence/oq_execution_results.json`.
-     3. Regenerate the 8-document GMP binder and HTML artifact: `.venv/bin/python3 gxp-validation-package/generate_gmp_binder.py`.
-     4. Sync and build the Astro Starlight documentation site: `pnpm --dir docs-site build` (which runs `node scripts/sync-docs.mjs && astro build`).
-     5. When deploying the documentation site to Cloudflare Workers (`https://gxphistorian-docs.cloud-expert1666.workers.dev`), run `npx wrangler deploy` inside `docs-site/`.
+     1. Preserve the split site routing: `https://gxphistorian.com/` is the custom Astro marketing homepage (`docs-site/src/pages/index.astro`), and `https://gxphistorian.com/docs/` is the Starlight documentation portal (`docs-site/src/content/docs/docs/`).
+     2. When adding new `docs/*.md` files, `docs/images/<subdir>/*.svg` diagrams, or `docs/images/photos/*.{jpg,png}` product/HMI visuals, register them in `docs-site/scripts/sync-docs.mjs` (`DOC_MAPPINGS` under `docs/...`, `LINK_REWRITES` with `/docs/...` prefixes, and static asset copy), `docs-site/astro.config.mjs` (`/docs/...` sidebar slugs), `docs-site/public/_redirects` (if migrating paths), and `README.md`.
+     3. If Grafana dashboards changed, restart Grafana (`docker compose restart grafana-vision`) and run `.venv/bin/pytest -v` to update `gxp-validation-package/evidence/oq_execution_results.json`.
+     4. Regenerate the 8-document GMP binder and HTML artifact: `.venv/bin/python3 gxp-validation-package/generate_gmp_binder.py`.
+     5. Sync and build the Astro Starlight documentation site: `pnpm --dir docs-site build` (which runs `node scripts/sync-docs.mjs && astro build`).
+     6. When deploying to Cloudflare Workers (`https://gxphistorian.com`, `https://www.gxphistorian.com`, and `https://gxphistorian-docs.cloud-expert1666.workers.dev`), run `npx wrangler deploy` inside `docs-site/`.
    - Never mark a phase complete until all terminal verification commands succeed with zero errors.
 
 6. **Instrument & Connector Documentation Standards (`docs/` & `docs-site/`):**
    - Every biopharma instrument tutorial and hardware/software connector guide MUST include:
-     1. **Photorealistic Product Photo Galleries (`docs/images/photos/*.jpg`) & Visual SVG Wiring Diagrams (`docs/images/{instruments,connectors}/*.svg`):** Show both photorealistic hardware/instrument photography and vector schematic diagrams with rear-panel port callouts, pinouts (`RJ45`, `M12 D/X/A-Coded`, `DB9`, `RS-232`, `RS-485`, `4–20 mA`), and protocol packet/register anatomy.
+     1. **Photorealistic Product Photo Galleries (`docs/images/photos/*.{jpg,png}`) & Visual SVG Wiring Diagrams (`docs/images/{instruments,connectors}/*.svg`):** Show both photorealistic hardware/instrument photography and vector schematic diagrams with rear-panel port callouts, pinouts (`RJ45`, `M12 D/X/A-Coded`, `DB9`, `RS-232`, `RS-485`, `4–20 mA`), and protocol packet/register anatomy.
      2. **Non-Technical Step-by-Step Setup Walkthroughs:** Detail exact cables/gateways to buy, physical ports to plug into (highlighting internal PLC I/O ports never to unplug), touchscreen/software menu click-paths, and 1-line network test commands.
-     3. **Direct Official Vendor Product URLs:** Link every mentioned instrument, DCS/SCADA platform, and industrial gateway to its canonical manufacturer URL (never use search redirect URLs).
+     3. **Verified Direct Official Vendor Product URLs:** Link every mentioned instrument, DCS/SCADA platform, and industrial gateway to its exact, live manufacturer product/model page (never use search redirect URLs, generic manufacturer homepages, or unverified/guessed URLs). Always verify that every new or updated external vendor URL resolves (`HTTP 200`) to the actual product page (and does not 404 or redirect to a generic homepage) using `search_web` / `read_url_content` or `curl -L` before committing.
