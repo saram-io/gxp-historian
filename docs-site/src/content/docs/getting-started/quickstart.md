@@ -1,6 +1,6 @@
 ---
 title: Quickstart & Deployment
-description: Deploy the 5-service OpenHistorian GxP stack via Docker Compose, inspect seeded ISA-95 assets and Part 11 users, and verify system health.
+description: Deploy the 5-service GxPHistorian GxP stack via Docker Compose, inspect seeded ISA-95 assets and Part 11 users, and verify system health.
 ---
 
 ## Prerequisites
@@ -79,7 +79,7 @@ On initial startup, `init-postgres/01_control_plane_part11.sql` seeds the ISA-95
 1. **Swagger / OpenAPI Interactive REST Docs:**
    - Open `http://localhost:8020/docs` in your browser.
 2. **Grafana Vision Operator HMI:**
-   - Open `http://localhost:3020/d/openhistorian-gxp-bioreactor-hmi`
+   - Open `http://localhost:3020/d/gxphistorian-gxp-bioreactor-hmi`
    - Login with **`admin`** / **`GxP_Grafana_2026!`**
 3. **Verify 21 CFR Part 11 Audit Hash Chain:**
    ```bash

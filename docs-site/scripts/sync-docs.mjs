@@ -13,7 +13,7 @@ const biopharmaFiles = [
     slug: '/biopharma-integration/catalog/',
     fileName: 'BIOPHARMA_INSTRUMENT_INTEGRATION_CATALOG.md',
     description:
-      'Master catalog and signal archetypes for connecting 20+ upstream, downstream, PAT, fill-finish, and GMP utility instruments to OpenHistorian.',
+      'Master catalog and signal archetypes for connecting 20+ upstream, downstream, PAT, fill-finish, and GMP utility instruments to GxPHistorian.',
   },
   {
     src: 'docs/XCELLEREX_X_PLATFORM_INTEGRATION.md',
@@ -48,12 +48,28 @@ const biopharmaFiles = [
       'Downstream purification chromatography and TFF filtration skids: Cytiva ÄKTA (UNICORN 7), Sartorius Sartoflow / Resolute, and MilliporeSigma Mobius / Cogent.',
   },
   {
+    src: 'docs/CELL_GENE_THERAPY_AND_MRNA_LNP_INSTRUMENTS.md',
+    dest: 'src/content/docs/biopharma-integration/cgt-mrna-lnp-instruments.md',
+    slug: '/biopharma-integration/cgt-mrna-lnp-instruments/',
+    fileName: 'CELL_GENE_THERAPY_AND_MRNA_LNP_INSTRUMENTS.md',
+    description:
+      'Visual end-to-end integration guide for Miltenyi CliniMACS Prodigy, Cytiva Sefia S-2000 & Sepax C-Pro, NanoAssemblr GMP mRNA-LNP skids, and Planer Kryo 560 / Thermo CryoMed Controlled-Rate Freezers.',
+  },
+  {
     src: 'docs/ASEPTIC_FILL_FINISH_LYO_AND_GMP_UTILITIES.md',
     dest: 'src/content/docs/biopharma-integration/aseptic-fill-finish-lyo-utilities.md',
     slug: '/biopharma-integration/aseptic-fill-finish-lyo-utilities/',
     fileName: 'ASEPTIC_FILL_FINISH_LYO_AND_GMP_UTILITIES.md',
     description:
       'GMP lyophilizers, SKAN isolators, aseptic filling lines, LasAir III / Airnet II particle counters, BACnet/IP EMS, and Veolia Sievers M9 TOC / WFI utilities.',
+  },
+  {
+    src: 'docs/GMP_STABILITY_CHAMBERS_COLD_CHAIN_AND_AUTOCLAVES.md',
+    dest: 'src/content/docs/biopharma-integration/stability-chambers-cold-chain-autoclaves.md',
+    slug: '/biopharma-integration/stability-chambers-cold-chain-autoclaves/',
+    fileName: 'GMP_STABILITY_CHAMBERS_COLD_CHAIN_AND_AUTOCLAVES.md',
+    description:
+      'Visual end-to-end guide for Binder KBF / Weiss ICH Q1A Stability Chambers (with Mean Kinetic Temperature SQL), Infors / Heracell CO2 Incubators, -80°C ULT Freezers, and Fedegari / Getinge Steam Autoclaves (F0 lethality).',
   },
   {
     src: 'docs/LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md',
@@ -79,18 +95,58 @@ const biopharmaFiles = [
     description:
       'Hardware sizing, compression math, 10k–25k tag clinical/pilot GMP reference Bill of Materials (BOM), 10-year NVMe + 15-year S3 WORM tiering, and Level 2.5 Industrial Edge IPC specs.',
   },
+  {
+    src: 'docs/CONNECTORS_AND_PROTOCOLS_ENCYCLOPEDIA.md',
+    dest: 'src/content/docs/connectors/overview.md',
+    slug: '/connectors/overview/',
+    fileName: 'CONNECTORS_AND_PROTOCOLS_ENCYCLOPEDIA.md',
+    description:
+      'Master visual encyclopedia of all physical hardware connectors (RJ45, M12 D/X/A-Coded, DB9 RS-232, Phoenix RS-485 & 4–20 mA terminals) and 10 software protocol connectors in GxPHistorian.',
+  },
+  {
+    src: 'docs/CONNECTOR_GUIDE_OPC_UA_AND_OPC_DA.md',
+    dest: 'src/content/docs/connectors/opc-ua-and-opc-da.md',
+    slug: '/connectors/opc-ua-and-opc-da/',
+    fileName: 'CONNECTOR_GUIDE_OPC_UA_AND_OPC_DA.md',
+    description:
+      'How OPC UA (TCP :4840) and Classic Windows OPC DA 2.05a (COM/DCOM) connectors work: NodeId trees, MonitoredItem subscriptions, X.509 certificates, and Zero-DCOM localhost bridging.',
+  },
+  {
+    src: 'docs/CONNECTOR_GUIDE_BACNET_IP_AND_MSTP.md',
+    dest: 'src/content/docs/connectors/bacnet-ip-and-mstp.md',
+    slug: '/connectors/bacnet-ip-and-mstp/',
+    fileName: 'CONNECTOR_GUIDE_BACNET_IP_AND_MSTP.md',
+    description:
+      'How BACnet/IP (UDP :47808) and BACnet MS/TP (RS-485) connectors work: ASHRAE 135 objects, SubscribeCOV, BBMD Foreign Device routing, DIP switches, and 4-bit Status_Flags quality mapping.',
+  },
+  {
+    src: 'docs/CONNECTOR_GUIDE_MODBUS_TCP_AND_RTU.md',
+    dest: 'src/content/docs/connectors/modbus-tcp-and-rtu.md',
+    slug: '/connectors/modbus-tcp-and-rtu/',
+    fileName: 'CONNECTOR_GUIDE_MODBUS_TCP_AND_RTU.md',
+    description:
+      'How Modbus TCP (:502) and Modbus RTU (RS-485) connectors work: the 4 register tables (0x/1x/3x/4x), 1-based vs 0-based offsets, and 32-bit IEEE-754 Float endianness (ABCD vs CDAB).',
+  },
+  {
+    src: 'docs/CONNECTOR_GUIDE_PLC_S7_ETHERNETIP_HART_SERIAL_UFL.md',
+    dest: 'src/content/docs/connectors/plc-s7-ethernetip-hart-serial-ufl.md',
+    slug: '/connectors/plc-s7-ethernetip-hart-serial-ufl/',
+    fileName: 'CONNECTOR_GUIDE_PLC_S7_ETHERNETIP_HART_SERIAL_UFL.md',
+    description:
+      'How Siemens S7comm (:102), Allen-Bradley EtherNet/IP (:44818), 4–20 mA HART loops, RS-232 DB9 serial (MT-SICS), and SMB File Watch-Folder (PI UFL) connectors work.',
+  },
 ];
 
 const validationFiles = [
   {
     src: 'gxp-validation-package/dist_binder/01_Validation_Master_Plan_VMP.md',
     dest: 'src/content/docs/gxp-validation/01-vmp.md',
-    description: 'Document 01 — Validation Master Plan (VMP-OPENHISTORIAN-2026-001) governing CSV/CSA qualification.',
+    description: 'Document 01 — Validation Master Plan (VMP-GXPHISTORIAN-2026-001) governing CSV/CSA qualification.',
   },
   {
     src: 'gxp-validation-package/dist_binder/02_User_Requirements_Specification_URS.md',
     dest: 'src/content/docs/gxp-validation/02-urs.md',
-    description: 'Document 02 — User Requirements Specification (URS-001 through URS-015) for OpenHistorian GxP.',
+    description: 'Document 02 — User Requirements Specification (URS-001 through URS-015) for GxPHistorian GxP.',
   },
   {
     src: 'gxp-validation-package/dist_binder/03_Functional_And_Design_Specification_FDS.md',
@@ -126,7 +182,7 @@ const validationFiles = [
 
 function transformMarkdown(raw, defaultDescription) {
   const lines = raw.split(/\r?\n/);
-  let title = 'OpenHistorian Documentation';
+  let title = 'GxPHistorian Documentation';
   let bodyStartIndex = 0;
 
   for (let i = 0; i < lines.length; i++) {
@@ -140,13 +196,16 @@ function transformMarkdown(raw, defaultDescription) {
 
   let body = lines.slice(bodyStartIndex).join('\n').trimStart();
 
-  // Rewrite relative links to biopharma integration guides
+  // Rewrite relative links to biopharma & connector integration guides
   for (const item of biopharmaFiles) {
     const escapedFile = item.fileName.replace(/\./g, '\\.');
     // Match both (docs/FILENAME.md) and (FILENAME.md)
     const linkRegex = new RegExp(`\\]\\((?:docs\\/)?${escapedFile}(#[^)]+)?\\)`, 'g');
     body = body.replace(linkRegex, (_, hash) => `](${item.slug}${hash || ''})`);
   }
+
+  // Rewrite relative instrument & connector SVG image links to root-relative /images/...
+  body = body.replace(/\]\((?:docs\/)?images\/(instruments|connectors)\//g, '](/images/$1/');
 
   const frontmatter = [
     '---',
@@ -173,6 +232,22 @@ function syncAll() {
     fs.writeFileSync(destPath, output, 'utf8');
   }
 
+  // Copy docs/images/{instruments,connectors}/*.svg into public/images/{instruments,connectors}/
+  let copiedImages = 0;
+  for (const subDir of ['instruments', 'connectors']) {
+    const imgSrcDir = path.join(repoRoot, 'docs/images', subDir);
+    const imgDestDir = path.join(siteRoot, 'public/images', subDir);
+    if (fs.existsSync(imgSrcDir)) {
+      fs.mkdirSync(imgDestDir, { recursive: true });
+      for (const file of fs.readdirSync(imgSrcDir)) {
+        if (file.endsWith('.svg') || file.endsWith('.png')) {
+          fs.copyFileSync(path.join(imgSrcDir, file), path.join(imgDestDir, file));
+          copiedImages++;
+        }
+      }
+    }
+  }
+
   // Copy COMPLETE_GMP_VALIDATION_BINDER.html into public/binder/
   const htmlBinderSrc = path.join(
     repoRoot,
@@ -188,7 +263,7 @@ function syncAll() {
   }
 
   console.log(
-    `[sync-docs] Synced ${biopharmaFiles.length} Biopharma guides, ${validationFiles.length} GMP Validation Binder docs, and COMPLETE_GMP_VALIDATION_BINDER.html.`
+    `[sync-docs] Synced ${biopharmaFiles.length} Biopharma & Connector guides, ${copiedImages} SVG visuals, ${validationFiles.length} GMP Validation Binder docs, and COMPLETE_GMP_VALIDATION_BINDER.html.`
   );
 }
 

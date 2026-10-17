@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 650" width="100%" height="100%" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg-mod" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <marker id="arr-m-amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#f59e0b"/>
+    </marker>
+    <marker id="arr-m-cyan" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="650" rx="16" fill="url(#bg-mod)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Header -->
+  <text x="35" y="40" fill="#f8fafc" font-size="21" font-weight="800" letter-spacing="0.3">HOW MODBUS TCP (`TCP :502`) &amp; MODBUS RTU (`RS-485`) WORK UNDER THE HOOD</text>
+  <text x="35" y="62" fill="#94a3b8" font-size="13">4 Memory Register Tables (`0x/1x/3x/4x`) • 1-Based vs 0-Based Offset Rule • 32-Bit Float Byte/Word Endianness (`ABCD` vs `CDAB`)</text>
+
+  <!-- TOP HALF: THE 4 MODBUS REGISTER TABLES & MBAP / RTU PACKET STRUCTURE -->
+  <g transform="translate(30, 82)">
+    <rect width="1040" height="265" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+    <rect width="1040" height="34" rx="12" fill="#78350f"/>
+    <text x="520" y="22" text-anchor="middle" fill="#fef3c7" font-size="13" font-weight="700">1. THE 4 MODBUS MEMORY TABLES &amp; THE "OFF-BY-ONE" (`40001` vs `0`) ADDRESSING RULE</text>
+
+    <!-- Left: The 4 Register Banks -->
+    <g transform="translate(18, 46)">
+      <rect width="610" height="204" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+      <text x="305" y="20" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="700">MODBUS MEMORY MAP INSIDE EVERY INSTRUMENT / PLC</text>
+
+      <!-- Table Header -->
+      <rect x="14" y="30" width="582" height="24" rx="4" fill="#1e293b"/>
+      <text x="24" y="46" fill="#94a3b8" font-size="9" font-weight="700">Table Name</text>
+      <text x="165" y="46" fill="#94a3b8" font-size="9" font-weight="700">Doc Range</text>
+      <text x="265" y="46" fill="#94a3b8" font-size="9" font-weight="700">Func Code</text>
+      <text x="355" y="46" fill="#94a3b8" font-size="9" font-weight="700">Data Width &amp; Access</text>
+      <text x="485" y="46" fill="#94a3b8" font-size="9" font-weight="700">Biopharma Example</text>
+
+      <!-- Row 1: Coils -->
+      <rect x="14" y="58" width="582" height="30" rx="4" fill="#1e293b" opacity="0.5"/>
+      <text x="24" y="77" fill="#f8fafc" font-size="9.5" font-weight="700">1. Coils</text>
+      <text x="165" y="77" fill="#fbbf24" font-size="9.5">`00001–09999`</text>
+      <text x="265" y="77" fill="#38bdf8" font-size="9.5">`FC 01`</text>
+      <text x="355" y="77" fill="#cbd5e1" font-size="9">1-Bit Boolean (Read/Write)</text>
+      <text x="485" y="77" fill="#94a3b8" font-size="9">Pump Run / Valve Cmd</text>
+
+      <!-- Row 2: Discrete Inputs -->
+      <rect x="14" y="92" width="582" height="30" rx="4" fill="#1e293b" opacity="0.8"/>
+      <text x="24" y="111" fill="#f8fafc" font-size="9.5" font-weight="700">2. Discrete Inputs</text>
+      <text x="165" y="111" fill="#fbbf24" font-size="9.5">`10001–19999`</text>
+      <text x="265" y="111" fill="#38bdf8" font-size="9.5">`FC 02`</text>
+      <text x="355" y="111" fill="#cbd5e1" font-size="9">1-Bit Boolean (Read-Only)</text>
+      <text x="485" y="111" fill="#94a3b8" font-size="9">Door Open Switch</text>
+
+      <!-- Row 3: Input Registers -->
+      <rect x="14" y="126" width="582" height="32" rx="4" fill="#064e3b" stroke="#10b981" stroke-width="1"/>
+      <text x="24" y="146" fill="#d1fae5" font-size="9.5" font-weight="700">3. Input Registers</text>
+      <text x="165" y="146" fill="#34d399" font-size="9.5" font-weight="700">`30001–39999`</text>
+      <text x="265" y="146" fill="#38bdf8" font-size="9.5" font-weight="700">`FC 04`</text>
+      <text x="355" y="146" fill="#d1fae5" font-size="9">16-Bit Word (Read-Only)</text>
+      <text x="485" y="146" fill="#6ee7b7" font-size="9" font-weight="700">LasAir Particle Counts</text>
+
+      <!-- Row 4: Holding Registers -->
+      <rect x="14" y="162" width="582" height="32" rx="4" fill="#082f49" stroke="#38bdf8" stroke-width="1"/>
+      <text x="24" y="182" fill="#e0f2fe" font-size="9.5" font-weight="700">4. Holding Registers</text>
+      <text x="165" y="182" fill="#38bdf8" font-size="9.5" font-weight="700">`40001–49999`</text>
+      <text x="265" y="182" fill="#38bdf8" font-size="9.5" font-weight="700">`FC 03`</text>
+      <text x="355" y="182" fill="#e0f2fe" font-size="9">16-Bit Word (Read/Write)</text>
+      <text x="485" y="182" fill="#7dd3fc" font-size="9" font-weight="700">Sievers M9 / Hamilton Arc</text>
+    </g>
+
+    <!-- Right: Off-By-One & Packet Framing Box -->
+    <g transform="translate(644, 46)">
+      <rect width="378" height="204" rx="8" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="189" y="20" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="700">THE "OFF-BY-ONE" MANUAL TRAP SOLVED</text>
+
+      <rect x="14" y="32" width="350" height="78" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="1"/>
+      <text x="24" y="50" fill="#fde68a" font-size="9.5" font-weight="700">When Vendor Manual Says "Register 40101":</text>
+      <text x="24" y="66" fill="#cbd5e1" font-size="9">• The leading `4` means "Table 4: Holding Registers (`FC 03`)"</text>
+      <text x="24" y="81" fill="#cbd5e1" font-size="9">• `0101` is 1-based human numbering (`40001` = Wire Offset `0`)</text>
+      <text x="24" y="98" fill="#34d399" font-size="9.5" font-weight="700">• Formula: `Wire_Address = 40101 - 40001 = 100`!</text>
+
+      <rect x="14" y="118" width="350" height="74" rx="6" fill="#082f49" stroke="#38bdf8" stroke-width="1"/>
+      <text x="24" y="135" fill="#7dd3fc" font-size="9.5" font-weight="700">Modbus TCP (`:502`) vs Modbus RTU (`RS-485`) Frame:</text>
+      <text x="24" y="151" fill="#cbd5e1" font-size="9">• Modbus RTU: `[SlaveID][FC][Addr][Count][CRC-16]`</text>
+      <text x="24" y="166" fill="#cbd5e1" font-size="9">• Modbus TCP: Prepends 7-byte `MBAP Header` (`TxID`, `Len`,</text>
+      <text x="24" y="180" fill="#cbd5e1" font-size="9">  `UnitID`) and drops `CRC-16` (TCP checksum handles errors).</text>
+    </g>
+  </g>
+
+  <!-- BOTTOM HALF: 32-BIT IEEE-754 FLOAT ENDIANNESS DECODING VISUALIZER -->
+  <g transform="translate(30, 365)">
+    <rect width="1040" height="258" rx="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+    <rect width="1040" height="34" rx="12" fill="#0c4a6e"/>
+    <text x="520" y="22" text-anchor="middle" fill="#e0f2fe" font-size="13" font-weight="700">2. WHY 32-BIT FLOATS READ AS GARBAGE (`1.42e-38`) UNLESS BYTE/WORD ORDER MATCHES (`ABCD` vs `CDAB`)</text>
+
+    <!-- Explanation Banner -->
+    <g transform="translate(18, 44)">
+      <rect width="1004" height="54" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+      <text x="20" y="22" fill="#f8fafc" font-size="10.5" font-weight="700">Example: Bioreactor Temperature = `37.00 °C` → IEEE-754 32-Bit Hex = `0x42140000` (`Byte A=0x42`, `Byte B=0x14`, `Byte C=0x00`, `Byte D=0x00`)</text>
+      <text x="20" y="41" fill="#94a3b8" font-size="9.5">Because each Modbus register is only **16 bits (2 bytes)** wide, a 32-bit `FLOAT32` must span **two consecutive registers (`address = [100, 101]`)**. Vendors order those 4 bytes in 4 ways:</text>
+    </g>
+
+    <!-- 4 Endianness Cards -->
+    <!-- Card 1: ABCD (Big-Endian) -->
+    <g transform="translate(18, 108)">
+      <rect width="240" height="134" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="2"/>
+      <text x="120" y="20" text-anchor="middle" fill="#34d399" font-size="11" font-weight="800">1. `ABCD` (Big-Endian)</text>
+      <rect x="16" y="30" width="98" height="36" rx="4" fill="#064e3b" stroke="#10b981" stroke-width="1"/>
+      <text x="65" y="44" text-anchor="middle" fill="#a7f3d0" font-size="8.5" font-weight="700">Reg N (`[100]`)</text>
+      <text x="65" y="59" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="800">0x42  0x14</text>
+      <rect x="126" y="30" width="98" height="36" rx="4" fill="#064e3b" stroke="#10b981" stroke-width="1"/>
+      <text x="175" y="44" text-anchor="middle" fill="#a7f3d0" font-size="8.5" font-weight="700">Reg N+1 (`[101]`)</text>
+      <text x="175" y="59" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="800">0x00  0x00</text>
+      <text x="16" y="84" fill="#cbd5e1" font-size="9">• High Word first, High Byte first</text>
+      <text x="16" y="100" fill="#cbd5e1" font-size="9">• Used by: **Veolia Sievers M9**,</text>
+      <text x="16" y="114" fill="#34d399" font-size="9" font-weight="700">  **Binder KBF**, **Siemens S7**</text>
+    </g>
+
+    <!-- Card 2: CDAB (Word-Swapped) -->
+    <g transform="translate(272, 108)">
+      <rect width="240" height="134" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+      <text x="120" y="20" text-anchor="middle" fill="#38bdf8" font-size="11" font-weight="800">2. `CDAB` (Word-Swapped)</text>
+      <rect x="16" y="30" width="98" height="36" rx="4" fill="#082f49" stroke="#38bdf8" stroke-width="1"/>
+      <text x="65" y="44" text-anchor="middle" fill="#7dd3fc" font-size="8.5" font-weight="700">Reg N (`[100]`)</text>
+      <text x="65" y="59" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="800">0x00  0x00</text>
+      <rect x="126" y="30" width="98" height="36" rx="4" fill="#082f49" stroke="#38bdf8" stroke-width="1"/>
+      <text x="175" y="44" text-anchor="middle" fill="#7dd3fc" font-size="8.5" font-weight="700">Reg N+1 (`[101]`)</text>
+      <text x="175" y="59" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="800">0x42  0x14</text>
+      <text x="16" y="84" fill="#cbd5e1" font-size="9">• Low Word first, Big-Endian bytes</text>
+      <text x="16" y="100" fill="#cbd5e1" font-size="9">• Used by: **Hamilton Arc Probes**,</text>
+      <text x="16" y="114" fill="#38bdf8" font-size="9" font-weight="700">  **PMS LasAir III**, **Modicon**</text>
+    </g>
+
+    <!-- Card 3: BADC (Byte-Swapped) -->
+    <g transform="translate(526, 108)">
+      <rect width="240" height="134" rx="8" fill="#0f172a" stroke="#f59e0b" stroke-width="2"/>
+      <text x="120" y="20" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="800">3. `BADC` (Byte-Swapped)</text>
+      <rect x="16" y="30" width="98" height="36" rx="4" fill="#78350f" stroke="#f59e0b" stroke-width="1"/>
+      <text x="65" y="44" text-anchor="middle" fill="#fde68a" font-size="8.5" font-weight="700">Reg N (`[100]`)</text>
+      <text x="65" y="59" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="800">0x14  0x42</text>
+      <rect x="126" y="30" width="98" height="36" rx="4" fill="#78350f" stroke="#f59e0b" stroke-width="1"/>
+      <text x="175" y="44" text-anchor="middle" fill="#fde68a" font-size="8.5" font-weight="700">Reg N+1 (`[101]`)</text>
+      <text x="175" y="59" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="800">0x00  0x00</text>
+      <text x="16" y="84" fill="#cbd5e1" font-size="9">• High Word first, swapped bytes</text>
+      <text x="16" y="100" fill="#cbd5e1" font-size="9">• Used by: Legacy **Yokogawa**,</text>
+      <text x="16" y="114" fill="#fbbf24" font-size="9" font-weight="700">  select **Rosemount** transmitters</text>
+    </g>
+
+    <!-- Card 4: DCBA (Little-Endian) -->
+    <g transform="translate(780, 108)">
+      <rect width="242" height="134" rx="8" fill="#0f172a" stroke="#a855f7" stroke-width="2"/>
+      <text x="121" y="20" text-anchor="middle" fill="#c084fc" font-size="11" font-weight="800">4. `DCBA` (Little-Endian)</text>
+      <rect x="16" y="30" width="98" height="36" rx="4" fill="#4c1d95" stroke="#a855f7" stroke-width="1"/>
+      <text x="65" y="44" text-anchor="middle" fill="#e9d5ff" font-size="8.5" font-weight="700">Reg N (`[100]`)</text>
+      <text x="65" y="59" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="800">0x00  0x00</text>
+      <rect x="126" y="30" width="98" height="36" rx="4" fill="#4c1d95" stroke="#a855f7" stroke-width="1"/>
+      <text x="175" y="44" text-anchor="middle" fill="#e9d5ff" font-size="8.5" font-weight="700">Reg N+1 (`[101]`)</text>
+      <text x="175" y="59" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="800">0x14  0x42</text>
+      <text x="16" y="84" fill="#cbd5e1" font-size="9">• Pure x86 / ARM Little-Endian</text>
+      <text x="16" y="100" fill="#cbd5e1" font-size="9">• Fix in Telegraf with 1 setting:</text>
+      <text x="16" y="114" fill="#c084fc" font-size="9" font-weight="700">  `byte_order = "ABCD" | "CDAB"`</text>
+    </g>
+  </g>
+</svg>

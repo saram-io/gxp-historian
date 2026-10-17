@@ -9,13 +9,13 @@ description: Pre-provisioned Grafana OSS 11.2 Operator HMI replacing OSIsoft PI 
 
 ## 1. Accessing the Operator HMI
 
-- **Dashboard URL:** `http://localhost:3020/d/openhistorian-gxp-bioreactor-hmi`
+- **Dashboard URL:** `http://localhost:3020/d/gxphistorian-gxp-bioreactor-hmi`
 - **Default Credentials (`.env`):**
   - **Username:** `admin`
   - **Password:** `GxP_Grafana_2026!`
 - **Provisioned Definition Files:**
   - Datasources: `provisioning/grafana/datasources/datasources.yml`
-  - Dashboard JSON: `provisioning/grafana/dashboards/openhistorian_bioreactor_hmi.json`
+  - Dashboard JSON: `provisioning/grafana/dashboards/gxphistorian_bioreactor_hmi.json`
 
 ---
 

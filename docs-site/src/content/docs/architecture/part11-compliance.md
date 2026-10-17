@@ -1,9 +1,9 @@
 ---
 title: 21 CFR Part 11, EU Annex 11 & ALCOA+ Controls
-description: Technical specification of OpenHistorian's 21 CFR Part 11 WORM audit triggers, SHA-256 cryptographic hash chain, §11.200 electronic signatures, and OPC signal quality rules.
+description: Technical specification of GxPHistorian's 21 CFR Part 11 WORM audit triggers, SHA-256 cryptographic hash chain, §11.200 electronic signatures, and OPC signal quality rules.
 ---
 
-OpenHistorian implements regulatory data integrity controls directly inside the database kernel (**PostgreSQL 16 PL/pgSQL triggers & `pgcrypto`**) and the telemetry query layer (**ClickHouse `WHERE quality >= 192`**), ensuring that compliance cannot be bypassed by application bugs or unattributed SQL sessions.
+GxPHistorian implements regulatory data integrity controls directly inside the database kernel (**PostgreSQL 16 PL/pgSQL triggers & `pgcrypto`**) and the telemetry query layer (**ClickHouse `WHERE quality >= 192`**), ensuring that compliance cannot be bypassed by application bugs or unattributed SQL sessions.
 
 ---
 

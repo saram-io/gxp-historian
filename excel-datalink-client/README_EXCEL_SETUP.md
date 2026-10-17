@@ -1,4 +1,4 @@
-# OpenHistorian DataLink for Microsoft Excel (PI DataLink Replacement)
+# GxPHistorian DataLink for Microsoft Excel (PI DataLink Replacement)
 
 This directory provides two GxP-compliant ways for Process Engineers and MSAT Scientists to pull time-series telemetry, interpolated batch samples, and signed ISA-88 Event Frame summaries into Microsoft Excel without proprietary OSIsoft PI DataLink client licenses.
 
@@ -25,7 +25,7 @@ No Excel add-ins or Python installation are required on the user's workstation.
 
 ## Option 2: `xlwings` Worksheet User-Defined Functions (UDFs)
 
-[`openhistorian_datalink_udf.py`](file:///home/d3lee/my-repos/clickhouse-historian/excel-datalink-client/openhistorian_datalink_udf.py) provides drop-in worksheet formulas replacing legacy PI DataLink functions:
+[`gxphistorian_datalink_udf.py`](file:///home/d3lee/my-repos/clickhouse-historian/excel-datalink-client/gxphistorian_datalink_udf.py) provides drop-in worksheet formulas replacing legacy PI DataLink functions:
 
 ### Setup
 ```bash
@@ -37,7 +37,7 @@ xlwings addin install
 
 1. **Sampled Data (`=PISampDat` Replacement)**
    ```excel
-   =OPENHISTORIAN_SAMPLED("BR201_TEMP_PV", "2026-10-17T12:00:00Z", "2026-10-17T13:00:00Z", 60)
+   =GXPHISTORIAN_SAMPLED("BR201_TEMP_PV", "2026-10-17T12:00:00Z", "2026-10-17T13:00:00Z", 60)
    ```
    - Automatically inspects `is_step_tag` in the PostgreSQL Control Plane:
      - `is_step_tag = FALSE`: Performs linear interpolation across the requested interval step.
@@ -45,12 +45,12 @@ xlwings addin install
 
 2. **Visual Downsampled Plot Values (`=PIPlotValues` Replacement)**
    ```excel
-   =OPENHISTORIAN_PLOT_VALUES("CHROM_UV280_PV", "2026-10-17T12:00:00Z", "2026-10-17T13:00:00Z", 500)
+   =GXPHISTORIAN_PLOT_VALUES("CHROM_UV280_PV", "2026-10-17T12:00:00Z", "2026-10-17T13:00:00Z", 500)
    ```
    - Calls ClickHouse's native `largestTriangleThreeBuckets(500)(ts, val)` (`WHERE quality >= 192`) enriched with `pg_asset_tags` dictionary metadata.
 
 3. **ISA-88 Event Frame & Part 11 Signature Summary**
    ```excel
-   =OPENHISTORIAN_EVENT_SUMMARY("BR201_TEMP_PV_High_Limit_Excursion")
+   =GXPHISTORIAN_EVENT_SUMMARY("BR201_TEMP_PV_High_Limit_Excursion")
    ```
    - Returns the Event Frame window, `captured_metrics` JSONB snapshot (`avg_val`, `min_val`, `max_val`), and 21 CFR Part 11 electronic signature block (`signed_by`, `signature_meaning`, `signature_hash`).

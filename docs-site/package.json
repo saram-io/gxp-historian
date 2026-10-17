@@ -1,9 +1,9 @@
 {
-  "name": "openhistorian-docs",
+  "name": "gxphistorian-docs",
   "type": "module",
   "version": "1.0.0",
   "private": true,
-  "description": "Official Documentation Portal for OpenHistorian GxP Industrial Historian",
+  "description": "Official Documentation Portal for GxPHistorian GxP Industrial Historian",
   "scripts": {
     "sync": "node scripts/sync-docs.mjs",
     "dev": "node scripts/sync-docs.mjs && astro dev",

@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 650" width="100%" height="100%" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg-ser" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <marker id="arr-u-amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#f59e0b"/>
+    </marker>
+    <marker id="arr-u-cyan" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arr-u-green" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#10b981"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="650" rx="16" fill="url(#bg-ser)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Header -->
+  <text x="35" y="40" fill="#f8fafc" font-size="21" font-weight="800" letter-spacing="0.3">HOW RS-232 SERIAL (`DB9` / `MOXA NPORT`) &amp; FILE WATCH-FOLDERS (`PI UFL`) WORK</text>
+  <text x="35" y="62" fill="#94a3b8" font-size="13">DB9 Male (DTE) vs Female (DCE) Pinouts • UART `9600 8N1` Waveform • `MT-SICS` Balance Commands • ALCOA+ SHA-256 Watch-Folder State Machine</text>
+
+  <!-- TOP HALF: RS-232 DB9 PINOUT, NULL-MODEM CROSSOVER & UART WAVEFORM -->
+  <g transform="translate(30, 82)">
+    <rect width="1040" height="265" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+    <rect width="1040" height="34" rx="12" fill="#78350f"/>
+    <text x="520" y="22" text-anchor="middle" fill="#fef3c7" font-size="13" font-weight="700">1. RS-232 SERIAL ANATOMY: DB9 PINOUTS, DTE vs DCE NULL-MODEM CROSSOVER &amp; UART `9600 8N1`</text>
+
+    <!-- Box A: DB9 9-Pin Reference Table -->
+    <g transform="translate(18, 46)">
+      <rect width="320" height="204" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+      <text x="160" y="20" text-anchor="middle" fill="#fcd34d" font-size="10.5" font-weight="700">A. DB9 (DE-9) COMPLETE 9-PIN FUNCTION TABLE</text>
+
+      <text x="16" y="42" fill="#94a3b8" font-size="9">Pin 1 (`DCD`): Data Carrier Detect</text>
+      <rect x="12" y="49" width="296" height="22" rx="3" fill="#78350f"/>
+      <text x="16" y="64" fill="#fde68a" font-size="9.5" font-weight="700">Pin 2 (`RXD`): Receive Data (Input on DTE)</text>
+      <rect x="12" y="74" width="296" height="22" rx="3" fill="#082f49"/>
+      <text x="16" y="89" fill="#7dd3fc" font-size="9.5" font-weight="700">Pin 3 (`TXD`): Transmit Data (Output on DTE)</text>
+      <text x="16" y="106" fill="#94a3b8" font-size="9">Pin 4 (`DTR`): Data Terminal Ready</text>
+      <rect x="12" y="112" width="296" height="22" rx="3" fill="#064e3b"/>
+      <text x="16" y="127" fill="#6ee7b7" font-size="9.5" font-weight="700">Pin 5 (`GND`): Signal Ground (0V Reference)</text>
+      <text x="16" y="144" fill="#94a3b8" font-size="9">Pin 6 (`DSR`): Data Set Ready</text>
+      <text x="16" y="160" fill="#cbd5e1" font-size="9">Pin 7 (`RTS`) &amp; Pin 8 (`CTS`): Hardware Flow Ctrl</text>
+      <text x="16" y="176" fill="#94a3b8" font-size="9">Pin 9 (`RI`): Ring Indicator</text>
+      <text x="16" y="194" fill="#34d399" font-size="9" font-weight="700">95% of Lab Instruments need ONLY Pins 2, 3, and 5!</text>
+    </g>
+
+    <!-- Box B: DTE vs DCE & Null-Modem Crossover -->
+    <g transform="translate(354, 46)">
+      <rect width="335" height="204" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+      <text x="167" y="20" text-anchor="middle" fill="#fcd34d" font-size="10.5" font-weight="700">B. WHEN DO YOU NEED A NULL-MODEM ADAPTER?</text>
+
+      <!-- Crossover diagram -->
+      <rect x="16" y="32" width="110" height="76" rx="5" fill="#1e293b" stroke="#64748b" stroke-width="1"/>
+      <text x="71" y="48" text-anchor="middle" fill="#f8fafc" font-size="9" font-weight="700">Balance (DTE)</text>
+      <text x="71" y="66" text-anchor="middle" fill="#fbbf24" font-size="8.5">Pin 2 (RX In)</text>
+      <text x="71" y="82" text-anchor="middle" fill="#38bdf8" font-size="8.5">Pin 3 (TX Out)</text>
+      <text x="71" y="98" text-anchor="middle" fill="#10b981" font-size="8.5">Pin 5 (GND)</text>
+
+      <rect x="208" y="32" width="110" height="76" rx="5" fill="#1e293b" stroke="#38bdf8" stroke-width="1"/>
+      <text x="263" y="48" text-anchor="middle" fill="#7dd3fc" font-size="9" font-weight="700">Moxa NPort (DTE)</text>
+      <text x="263" y="66" text-anchor="middle" fill="#fbbf24" font-size="8.5">Pin 2 (RX In)</text>
+      <text x="263" y="82" text-anchor="middle" fill="#38bdf8" font-size="8.5">Pin 3 (TX Out)</text>
+      <text x="263" y="98" text-anchor="middle" fill="#10b981" font-size="8.5">Pin 5 (GND)</text>
+
+      <!-- Crossed lines -->
+      <line x1="126" y1="63" x2="208" y2="79" stroke="#fbbf24" stroke-width="2.5"/>
+      <line x1="126" y1="79" x2="208" y2="63" stroke="#38bdf8" stroke-width="2.5"/>
+      <line x1="126" y1="95" x2="208" y2="95" stroke="#10b981" stroke-width="2"/>
+
+      <text x="16" y="128" fill="#fde68a" font-size="9" font-weight="700">Rule of Thumb (Male vs Female DB9):</text>
+      <text x="16" y="144" fill="#cbd5e1" font-size="8.5">• Both Moxa NPort 5150 (Male DB9) and most balances</text>
+      <text x="16" y="158" fill="#cbd5e1" font-size="8.5">  transmit on **Pin 3** and listen on **Pin 2**.</text>
+      <text x="16" y="173" fill="#cbd5e1" font-size="8.5">• If connected straight-through, Pin 3 talks to Pin 3!</text>
+      <text x="16" y="189" fill="#34d399" font-size="8.5" font-weight="700">• A Null-Modem Adapter crosses Pin 2 ↔ Pin 3.</text>
+    </g>
+
+    <!-- Box C: UART 9600 8N1 & MT-SICS Protocol -->
+    <g transform="translate(705, 46)">
+      <rect width="317" height="204" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+      <text x="158" y="20" text-anchor="middle" fill="#fcd34d" font-size="10.5" font-weight="700">C. UART `9600 8N1` &amp; `MT-SICS` COMMANDS</text>
+
+      <rect x="14" y="32" width="289" height="58" rx="5" fill="#1e293b" stroke="#38bdf8" stroke-width="1"/>
+      <text x="24" y="48" fill="#7dd3fc" font-size="9" font-weight="700">What `"9600, 8, N, 1"` Means:</text>
+      <text x="24" y="63" fill="#cbd5e1" font-size="8.5">• `9600` Baud = 9,600 bits/sec (`104 µs` per bit)</text>
+      <text x="24" y="77" fill="#cbd5e1" font-size="8.5">• `1 Start Bit` + `8 Data Bits` + `No Parity` + `1 Stop Bit`</text>
+
+      <rect x="14" y="98" width="289" height="94" rx="5" fill="#064e3b" stroke="#10b981" stroke-width="1"/>
+      <text x="24" y="114" fill="#a7f3d0" font-size="9" font-weight="700">Mettler Toledo / Sartorius `MT-SICS` ASCII:</text>
+      <text x="24" y="130" fill="#ffffff" font-size="8.5">• Send `"S\r\n"` → Wait for **Stable** weight:</text>
+      <text x="32" y="144" fill="#34d399" font-size="8.5" font-weight="700">`"S S     125.4200 g\r\n"` → `quality = 192`</text>
+      <text x="24" y="160" fill="#ffffff" font-size="8.5">• Send `"SI\r\n"` → **Immediate** weight (even moving):</text>
+      <text x="32" y="174" fill="#fbbf24" font-size="8.5" font-weight="700">`"S D     125.3900 g\r\n"` → `quality = 64` (Dynamic)</text>
+    </g>
+  </g>
+
+  <!-- BOTTOM HALF: UNIVERSAL FILE & STREAM LOADER (PI UFL REPLACEMENT) STATE MACHINE -->
+  <g transform="translate(30, 365)">
+    <rect width="1040" height="258" rx="12" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+    <rect width="1040" height="34" rx="12" fill="#064e3b"/>
+    <text x="520" y="22" text-anchor="middle" fill="#d1fae5" font-size="13" font-weight="700">2. UNIVERSAL FILE WATCH-FOLDER CONNECTOR (`PI UFL` REPLACEMENT) — ALCOA+ SHA-256 PIPELINE</text>
+
+    <!-- 4-Stage Pipeline -->
+    <!-- Stage 1 -->
+    <g transform="translate(20, 50)">
+      <rect width="225" height="190" rx="8" fill="#0f172a" stroke="#64748b" stroke-width="1.5"/>
+      <text x="112" y="20" text-anchor="middle" fill="#f8fafc" font-size="10.5" font-weight="700">STAGE 1: SMB / SFTP DROP</text>
+      <rect x="14" y="32" width="197" height="54" rx="4" fill="#1e293b"/>
+      <text x="112" y="50" text-anchor="middle" fill="#fbbf24" font-size="9.5" font-weight="700">📁 `/ufl/incoming/`</text>
+      <text x="112" y="66" text-anchor="middle" fill="#cbd5e1" font-size="8.5">`FIT_Sartocheck_20261017.xml`</text>
+      <text x="112" y="79" text-anchor="middle" fill="#94a3b8" font-size="8">`Cedex_Run_042.csv`</text>
+
+      <text x="14" y="106" fill="#cbd5e1" font-size="9">• Instrument writes report to</text>
+      <text x="14" y="120" fill="#cbd5e1" font-size="9">  write-only SMB/SFTP share</text>
+      <text x="14" y="136" fill="#cbd5e1" font-size="9">• Worker waits for file size</text>
+      <text x="14" y="150" fill="#cbd5e1" font-size="9">  stability (`mtime` settled)</text>
+      <text x="14" y="168" fill="#38bdf8" font-size="9" font-weight="700">• Never reads half-written files</text>
+    </g>
+
+    <path d="M 245 145 L 278 145" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#arr-u-cyan)"/>
+
+    <!-- Stage 2 -->
+    <g transform="translate(282, 50)">
+      <rect width="235" height="190" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+      <text x="117" y="20" text-anchor="middle" fill="#7dd3fc" font-size="10.5" font-weight="700">STAGE 2: SHA-256 &amp; PARSE</text>
+      <rect x="14" y="32" width="207" height="54" rx="4" fill="#082f49" stroke="#0284c7" stroke-width="1"/>
+      <text x="117" y="50" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="700">`sha256 = e3b0c44298fc...`</text>
+      <text x="117" y="65" text-anchor="middle" fill="#e0f2fe" font-size="8.5">Extracts `SampleTimestamp` (UTC)</text>
+      <text x="117" y="78" text-anchor="middle" fill="#22d3ee" font-size="8">Maps `VesselID` → `tag_id`</text>
+
+      <text x="14" y="106" fill="#cbd5e1" font-size="9">• Computes cryptographic hash</text>
+      <text x="14" y="120" fill="#cbd5e1" font-size="9">  before touching any row</text>
+      <text x="14" y="136" fill="#cbd5e1" font-size="9">• Preserves original assay draw</text>
+      <text x="14" y="150" fill="#cbd5e1" font-size="9">  timestamp (`ts`), NOT file time</text>
+      <text x="14" y="168" fill="#7dd3fc" font-size="9" font-weight="700">• Sets `is_step_tag=true, exc_dev=0`</text>
+    </g>
+
+    <path d="M 517 145 L 550 145" stroke="#10b981" stroke-width="2.5" marker-end="url(#arr-u-green)"/>
+
+    <!-- Stage 3 -->
+    <g transform="translate(554, 50)">
+      <rect width="235" height="190" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="1.5"/>
+      <text x="117" y="20" text-anchor="middle" fill="#6ee7b7" font-size="10.5" font-weight="700">STAGE 3: HISTORIAN INGEST</text>
+      <rect x="14" y="32" width="207" height="54" rx="4" fill="#064e3b" stroke="#10b981" stroke-width="1"/>
+      <text x="117" y="50" text-anchor="middle" fill="#d1fae5" font-size="9" font-weight="700">`POST :8080/ingest` +</text>
+      <text x="117" y="65" text-anchor="middle" fill="#34d399" font-size="9" font-weight="700">Part 11 Audit Trail Entry</text>
+      <text x="117" y="78" text-anchor="middle" fill="#a7f3d0" font-size="8">ClickHouse + PostgreSQL</text>
+
+      <text x="14" y="106" fill="#cbd5e1" font-size="9">• Writes all assay values into</text>
+      <text x="14" y="120" fill="#cbd5e1" font-size="9">  `pi_historian.sensor_data`</text>
+      <text x="14" y="136" fill="#cbd5e1" font-size="9">• Records `file_sha256` in</text>
+      <text x="14" y="150" fill="#cbd5e1" font-size="9">  `part11_audit_log`</text>
+      <text x="14" y="168" fill="#34d399" font-size="9" font-weight="700">• Deduplicates if file re-dropped</text>
+    </g>
+
+    <path d="M 789 145 L 822 145" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arr-u-amber)"/>
+
+    <!-- Stage 4 -->
+    <g transform="translate(826, 50)">
+      <rect width="194" height="190" rx="8" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="97" y="20" text-anchor="middle" fill="#fcd34d" font-size="10.5" font-weight="700">STAGE 4: WORM ARCHIVE</text>
+      <rect x="12" y="32" width="170" height="54" rx="4" fill="#1e293b"/>
+      <text x="97" y="50" text-anchor="middle" fill="#10b981" font-size="9" font-weight="700">📁 `/ufl/archive/2026/10/`</text>
+      <text x="97" y="66" text-anchor="middle" fill="#cbd5e1" font-size="8">+ `.sha256` manifest</text>
+      <text x="97" y="79" text-anchor="middle" fill="#f43f5e" font-size="8">or `/ufl/quarantine/`</text>
+
+      <text x="12" y="106" fill="#cbd5e1" font-size="9">• Atomic `os.replace()` move</text>
+      <text x="12" y="122" fill="#cbd5e1" font-size="9">• Preserves raw vendor file</text>
+      <text x="12" y="136" fill="#cbd5e1" font-size="9">  for FDA 21 CFR Part 11</text>
+      <text x="12" y="150" fill="#cbd5e1" font-size="9">  Original Record inspection</text>
+      <text x="12" y="168" fill="#fbbf24" font-size="9" font-weight="700">• Alerts on quarantined file</text>
+    </g>
+  </g>
+</svg>

@@ -126,3 +126,17 @@
   font-size: 0.78rem;
   color: var(--sl-color-gray-3);
 }
+
+/* Instrument & Connector Visual SVG Diagrams */
+.sl-markdown-content img[src*="/images/instruments/"],
+.sl-markdown-content img[src*="/images/connectors/"] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  margin-block: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--sl-color-gray-5);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35);
+}
+

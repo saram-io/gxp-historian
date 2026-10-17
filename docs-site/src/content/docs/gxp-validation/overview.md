@@ -3,7 +3,7 @@ title: GAMP 5 & CSA Qualification Overview
 description: Execute the 15-test automated IQ/OQ pytest qualification suite and generate the 8-Document Commercial GMP Validation Binder.
 ---
 
-OpenHistorian includes an executable **ISPE GAMP 5 (Second Edition)** and **FDA Computer Software Assurance (CSA)** qualification package in `gxp-validation-package/`. Every User Requirement (`URS-001` through `URS-015`) is mapped bidirectionally to Functional Specifications (`FRS`), CSA Risk Assessments (`FRA`), and automated `pytest` IQ/OQ verification tests.
+GxPHistorian includes an executable **ISPE GAMP 5 (Second Edition)** and **FDA Computer Software Assurance (CSA)** qualification package in `gxp-validation-package/`. Every User Requirement (`URS-001` through `URS-015`) is mapped bidirectionally to Functional Specifications (`FRS`), CSA Risk Assessments (`FRA`), and automated `pytest` IQ/OQ verification tests.
 
 ---
 
@@ -47,7 +47,7 @@ Executing `pytest` runs all 15 qualification tests across three test modules and
 
 It outputs all 8 regulatory deliverables into `gxp-validation-package/dist_binder/` (and synced into this documentation portal):
 
-1. **[01 — Validation Master Plan (VMP)](/gxp-validation/01-vmp/)** (`VMP-OPENHISTORIAN-2026-001`)
+1. **[01 — Validation Master Plan (VMP)](/gxp-validation/01-vmp/)** (`VMP-GXPHISTORIAN-2026-001`)
 2. **[02 — User Requirements Specification (URS)](/gxp-validation/02-urs/)** (`URS-001` through `URS-015`)
 3. **[03 — Functional & Design Specification (FDS)](/gxp-validation/03-fds/)** (4-Pillar Architecture & Schema Spec)
 4. **[04 — CSA Functional Risk Assessment (FRA)](/gxp-validation/04-fra/)** (Patient Safety, Product Quality & Data Integrity Risk Matrix)

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-OpenHistorian DataLink Excel UDF & CLI Module (PI DataLink Replacement).
+GxPHistorian DataLink Excel UDF & CLI Module (PI DataLink Replacement).
 
 Provides drop-in Excel worksheet functions via xlwings as well as a standalone
 CLI/CSV helper:
-  - =OPENHISTORIAN_SAMPLED(tag_name, start_time, end_time, step_seconds)
-  - =OPENHISTORIAN_PLOT_VALUES(tag_name, start_time, end_time, intervals)
-  - =OPENHISTORIAN_EVENT_SUMMARY(event_name)
+  - =GXPHISTORIAN_SAMPLED(tag_name, start_time, end_time, step_seconds)
+  - =GXPHISTORIAN_PLOT_VALUES(tag_name, start_time, end_time, intervals)
+  - =GXPHISTORIAN_EVENT_SUMMARY(event_name)
 """
 
 from __future__ import annotations
@@ -59,7 +59,7 @@ def _resolve_tag_id(tag_name: str, api_base: str = HISTORIAN_API_URL) -> int:
 
 
 @xl_func
-def OPENHISTORIAN_SAMPLED(
+def GXPHISTORIAN_SAMPLED(
     tag_name: str,
     start_time: Optional[str] = None,
     end_time: Optional[str] = None,
@@ -94,7 +94,7 @@ def OPENHISTORIAN_SAMPLED(
 
 
 @xl_func
-def OPENHISTORIAN_PLOT_VALUES(
+def GXPHISTORIAN_PLOT_VALUES(
     tag_name: str,
     start_time: Optional[str] = None,
     end_time: Optional[str] = None,
@@ -128,7 +128,7 @@ def OPENHISTORIAN_PLOT_VALUES(
 
 
 @xl_func
-def OPENHISTORIAN_EVENT_SUMMARY(event_name: str) -> List[List[Any]]:
+def GXPHISTORIAN_EVENT_SUMMARY(event_name: str) -> List[List[Any]]:
     """
     Retrieves ISA-88 Event Frame summary metrics and 21 CFR Part 11 electronic
     signature status by event_name.
@@ -164,7 +164,7 @@ def OPENHISTORIAN_EVENT_SUMMARY(event_name: str) -> List[List[Any]]:
 
 def main() -> None:
     global HISTORIAN_API_URL
-    parser = argparse.ArgumentParser(description="OpenHistorian DataLink CLI & UDF Helper")
+    parser = argparse.ArgumentParser(description="GxPHistorian DataLink CLI & UDF Helper")
     parser.add_argument("--api-url", default=HISTORIAN_API_URL, help="Historian API base URL")
     parser.add_argument("--tag", default="BR201_TEMP_PV", help="Tag name to query")
     parser.add_argument("--step", type=int, default=5, help="Sample step seconds")
@@ -172,7 +172,7 @@ def main() -> None:
 
     HISTORIAN_API_URL = args.api_url
 
-    sampled = OPENHISTORIAN_SAMPLED(args.tag, step_seconds=args.step)
+    sampled = GXPHISTORIAN_SAMPLED(args.tag, step_seconds=args.step)
     print(json.dumps({"header": sampled[0], "sample_rows": sampled[1:6]}, indent=2))
 
 

@@ -1,21 +1,21 @@
-# OpenHistorian GxP Industrial Historian
+# GxPHistorian GxP Industrial Historian
 
 **A 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 Qualified Open-Source Industrial Time-Series Historian & Asset Framework**
 
-OpenHistorian GxP Industrial Historian is a production-ready, 4-Pillar open-source replacement for the proprietary **OSIsoft / AVEVA PI System** engineered for pharmaceutical, biotech, and regulated manufacturing environments. It combines **ClickHouse 24.8 LTS** (lossless `DoubleDelta` + `Gorilla` telemetry archive and LTTB visual downsampling), **PostgreSQL 16** (`ltree` ISA-95 Asset Framework, ISA-88 Event Frames, and cryptographic SHA-256 WORM 21 CFR Part 11 audit trail), **InfluxData Telegraf 1.32 + Python Multi-Protocol Edge Workers** (Stage 1 Exception/Deadband filtering and disk-backed store-and-forward WAL), **FastAPI**, **Grafana OSS**, and an **OpenHistorian DataLink Client for Excel** (`xlwings` UDFs + native Power Query CSV).
+GxPHistorian GxP Industrial Historian is a production-ready, 4-Pillar open-source replacement for the proprietary **OSIsoft / AVEVA PI System** engineered for pharmaceutical, biotech, and regulated manufacturing environments. It combines **ClickHouse 24.8 LTS** (lossless `DoubleDelta` + `Gorilla` telemetry archive and LTTB visual downsampling), **PostgreSQL 16** (`ltree` ISA-95 Asset Framework, ISA-88 Event Frames, and cryptographic SHA-256 WORM 21 CFR Part 11 audit trail), **InfluxData Telegraf 1.32 + Python Multi-Protocol Edge Workers** (Stage 1 Exception/Deadband filtering and disk-backed store-and-forward WAL), **FastAPI**, **Grafana OSS**, and a **GxPHistorian DataLink Client for Excel** (`xlwings` UDFs + native Power Query CSV).
 
 ---
 
 ## 1. OSIsoft / AVEVA PI System Parity Matrix
 
-| Legacy OSIsoft / AVEVA PI Component | OpenHistorian GxP Historian Equivalent | Key Technical Capabilities |
+| Legacy OSIsoft / AVEVA PI Component | GxPHistorian GxP Historian Equivalent | Key Technical Capabilities |
 | :--- | :--- | :--- |
 | **PI Data Archive** (Swinging Door / Archive Subsystem) | **ClickHouse 24.8 LTS (`pi_historian.sensor_data`)** | `MergeTree` partitioned by month (`toYYYYMM(ts)`) with lossless `Delta`, `DoubleDelta`, `Gorilla`, and `T64` codecs layered with `ZSTD(1)` + real-time 1-minute `AggregatingMergeTree` rollups (`sensor_rollup_1m`). |
 | **PI Asset Framework (PI AF)** | **PostgreSQL 16 `ltree` + ClickHouse `FLAT` Dictionary** | ISA-95 hierarchical asset paths (`Enterprise.Site.Area.Unit`) indexed via PostgreSQL `GiST` and synchronized into ClickHouse RAM (`pi_historian.pg_asset_tags`) with 5–15s refresh lifetime. |
 | **PI Event Frames (EF)** | **PostgreSQL `event_frames` + FastAPI State Machine** | Automated ISA-88 batch & excursion detection (`BR201_TEMP_PV > 38.0°C`), ClickHouse `quality >= 192` KPI capture (`peak_val`, `avg_val`, `min_val`, `sample_count`), and 21 CFR Part 11 electronic signatures. |
 | **PI Interface Node & PI Buffer Subsystem** | **Telegraf 1.32 Disk WAL + Python Edge Workers** | Stage 1 Exception/Deadband filtering (`ExcDev` & `ExcMax`) in memory + disk-backed Write-Ahead Log (`/var/lib/telegraf/buffer`, 1M metric capacity) for zero-data-loss store-and-forward across OPC UA, BACnet/IP, Siemens S7, Modbus, and Windows OPC DA. |
 | **PI Vision** (`PlotValues` Trends & EF Overlays) | **Grafana OSS 11.2 + ClickHouse `largestTriangleThreeBuckets`** | Asset-relative dashboard (`${asset_path}`) with native ClickHouse LTTB visual peak preservation, 1-minute rollup bands, Event Frame shaded region annotations, and live Part 11 audit trail inspection. |
-| **PI DataLink** (Excel `PISampDat`, `PIAdvCalcDat`) | **FastAPI `/api/v1/datalink/sampled` + `xlwings` UDF / Power Query** | Drop-in `=OPENHISTORIAN_SAMPLED()`, `=OPENHISTORIAN_PLOT_VALUES()`, and `=OPENHISTORIAN_EVENT_SUMMARY()` Excel functions plus zero-macro Power Query CSV streams respecting continuous (`LINEAR`) vs. discrete (`LOCF` step) tag metadata. |
+| **PI DataLink** (Excel `PISampDat`, `PIAdvCalcDat`) | **FastAPI `/api/v1/datalink/sampled` + `xlwings` UDF / Power Query** | Drop-in `=GXPHISTORIAN_SAMPLED()`, `=GXPHISTORIAN_PLOT_VALUES()`, and `=GXPHISTORIAN_EVENT_SUMMARY()` Excel functions plus zero-macro Power Query CSV streams respecting continuous (`LINEAR`) vs. discrete (`LOCF` step) tag metadata. |
 | **PI Integrator for Business Analytics** | **FastAPI + PyArrow Zero-ETL Lakehouse Exporter** | One-call (`POST /api/v1/lakehouse/export-parquet`) Snappy-compressed Apache Parquet export enriched with ISA-95 asset hierarchy and engineering units. |
 
 ---
@@ -119,19 +119,28 @@ clickhouse-historian/
 │   ├── datasources/datasources.yml                   # Auto-provisioned ClickHouse & PostgreSQL datasources
 │   └── dashboards/
 │       ├── dashboards.yml                            # Dashboard provider configuration
-│       └── openhistorian_bioreactor_hmi.json         # Asset-relative Bioreactor & Cleanroom HMI dashboard
+│       └── gxphistorian_bioreactor_hmi.json          # Asset-relative Bioreactor & Cleanroom HMI dashboard
 ├── docs/
-│   ├── BIOPHARMA_INSTRUMENT_INTEGRATION_CATALOG.md   # Master matrix & signal archetypes for 20+ biopharma instruments
+│   ├── images/instruments/                           # 10 SVG visual equipment, rear-panel connector & wiring guides
+│   ├── images/connectors/                            # 6 SVG physical pinout, protocol packet & state-machine diagrams
+│   ├── CONNECTORS_AND_PROTOCOLS_ENCYCLOPEDIA.md      # Visual Encyclopedia of Physical Hardware & Software Connectors
+│   ├── CONNECTOR_GUIDE_OPC_UA_AND_OPC_DA.md          # OPC UA (IEC 62541) & Classic OPC DA (Zero-DCOM Bridge) deep dive
+│   ├── CONNECTOR_GUIDE_BACNET_IP_AND_MSTP.md         # BACnet/IP & BACnet MS/TP (ASHRAE 135, DNET:DADR, COV) deep dive
+│   ├── CONNECTOR_GUIDE_MODBUS_TCP_AND_RTU.md         # Modbus TCP & RTU (RS-485, ABCD/CDAB Endianness) deep dive
+│   ├── CONNECTOR_GUIDE_PLC_S7_ETHERNETIP_HART_SERIAL_UFL.md # S7comm, EtherNet/IP, 4-20mA HART, RS-232 & Watch-Folder UFL
+│   ├── BIOPHARMA_INSTRUMENT_INTEGRATION_CATALOG.md   # Master matrix & signal archetypes for 35+ biopharma instruments
 │   ├── XCELLEREX_X_PLATFORM_INTEGRATION.md           # Cytiva Xcellerex X-Platform & Figurate integration guide
 │   ├── USP_BIOREACTORS_SARTORIUS_THERMO_EPPENDORF.md # Sartorius Biostat STR/Ambr, Thermo TruBio DV, Eppendorf DASGIP
 │   ├── PAT_CELL_ANALYZERS_AND_SPECTROSCOPY.md        # BioProfile FLEX2, Vi-CELL BLU, Cedex Bio HT, Raman Rxn, Hamilton Arc
 │   ├── DSP_CHROMATOGRAPHY_TFF_FILTRATION.md          # Cytiva ÄKTA (UNICORN 7), Sartorius Sartoflow, Millipore Mobius/Cogent
+│   ├── CELL_GENE_THERAPY_AND_MRNA_LNP_INSTRUMENTS.md # CliniMACS Prodigy, Sefia S-2000, Sepax C-Pro, NanoAssemblr LNP, CRFs
 │   ├── ASEPTIC_FILL_FINISH_LYO_AND_GMP_UTILITIES.md  # Lyophilizers, SKAN Isolators, LasAir EMS (BACnet/Modbus), Sievers M9 TOC
+│   ├── GMP_STABILITY_CHAMBERS_COLD_CHAIN_AND_AUTOCLAVES.md # Binder KBF Stability (MKT), Incubators, -80C ULT, Steam Autoclaves (F0)
 │   ├── LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md    # Legacy BACnet MS/TP & IP, COM OPC DA, Modbus RTU/TCP, S7comm & HART
 │   ├── LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md # RS-232 / Moxa NPort (MT-SICS balances, osmometers) & PI UFL watchfolders
 │   └── HARDWARE_SIZING_AND_CAPACITY_PLANNING.md      # Tier 1–4 server BOMs, 10yr NVMe + 15yr WORM sizing & Edge IPC specs
 ├── excel-datalink-client/
-│   ├── openhistorian_datalink_udf.py                 # xlwings UDFs (=OPENHISTORIAN_SAMPLED, =OPENHISTORIAN_PLOT_VALUES, etc.)
+│   ├── gxphistorian_datalink_udf.py                  # xlwings UDFs (=GXPHISTORIAN_SAMPLED, =GXPHISTORIAN_PLOT_VALUES, etc.)
 │   └── README_EXCEL_SETUP.md                         # Power Query (zero-macro) & xlwings setup guide
 └── gxp-validation-package/
     ├── generate_gmp_binder.py                        # Automated 8-Document GMP Validation Binder generator
@@ -156,17 +165,24 @@ clickhouse-historian/
         └── COMPLETE_GMP_VALIDATION_BINDER.html
 ```
 
-### Biopharma & Life Sciences Equipment Integration & Sizing Guides (`docs/`)
-| Guide Document | Covered Instruments, Skids & Automation Platforms |
+### Connectors, Protocols, Biopharma Equipment & Sizing Guides (`docs/`)
+| Guide Document | Covered Connectors, Protocols, Instruments & Skids |
 | :--- | :--- |
-| [docs/BIOPHARMA_INSTRUMENT_INTEGRATION_CATALOG.md](docs/BIOPHARMA_INSTRUMENT_INTEGRATION_CATALOG.md) | **Master Catalog & Signal Archetypes:** 20+ GMP biopharma instruments, Purdue Level 1–3 zoning, and Continuous (`LINEAR`) vs. Discrete (`LOCF`) vs. Sparse At-Line PAT (`exc_dev=0`) rules. |
-| [docs/XCELLEREX_X_PLATFORM_INTEGRATION.md](docs/XCELLEREX_X_PLATFORM_INTEGRATION.md) | **Cytiva Xcellerex™ X-Platform (50–2000 L):** Figurate™ automation (Emerson DeltaV™ & Rockwell PlantPAx®) via OPC UA and OPC DA. |
-| [docs/USP_BIOREACTORS_SARTORIUS_THERMO_EPPENDORF.md](docs/USP_BIOREACTORS_SARTORIUS_THERMO_EPPENDORF.md) | **USP Bioreactors & High-Throughput Screening:** Sartorius Biostat® STR (BioPAT® MFCS / S7-1500), Sartorius Ambr® 15/250 multi-vessel DoE arrays, Thermo Fisher HyPerforma™ S.U.B. (TruBio® DV), and Eppendorf BioFlo® / DASGIP® (`DASware® connect`). |
+| [docs/CONNECTORS_AND_PROTOCOLS_ENCYCLOPEDIA.md](docs/CONNECTORS_AND_PROTOCOLS_ENCYCLOPEDIA.md) | **Connectors & Protocols Visual Encyclopedia:** Physical hardware connector identification & pinouts (`RJ45 T568B`, `M12 D/X/A-Coded`, `DB9 RS-232/MPI`, `Phoenix RS-485 & 4–20 mA`, `Moxa` / `Advantech` / `Helmholz` / `LOYTEC` gateways) and all 8 software protocol families. |
+| [docs/CONNECTOR_GUIDE_OPC_UA_AND_OPC_DA.md](docs/CONNECTOR_GUIDE_OPC_UA_AND_OPC_DA.md) | **OPC UA & Classic OPC DA Connectors:** `NodeId` Address Space, `Basic256Sha256` X.509 certificate lifecycle, `MonitoredItem` subscriptions, 32-bit `StatusCode` mapping (`192/64/0`), and the Zero-DCOM Windows Localhost COM Forwarder (`opcda_windows_forwarder.py`). |
+| [docs/CONNECTOR_GUIDE_BACNET_IP_AND_MSTP.md](docs/CONNECTOR_GUIDE_BACNET_IP_AND_MSTP.md) | **BACnet/IP & BACnet MS/TP Connectors:** Physical 3-pin RS-485 MS/TP wiring & 8-switch binary MAC DIP switches, `LOYTEC`/`BASrouter` `DNET:DADR` routing, BBMD Foreign Device registration (`UDP :47808`), ASHRAE 135 objects (`AI`, `AV`, `BI`, `MSV`), `SubscribeCOV`, and 4-bit `Status_Flags`. |
+| [docs/CONNECTOR_GUIDE_MODBUS_TCP_AND_RTU.md](docs/CONNECTOR_GUIDE_MODBUS_TCP_AND_RTU.md) | **Modbus TCP & Modbus RTU Connectors:** The 4 Modbus memory tables (`0x`, `1x`, `3x`, `4x`), solving the "Off-by-One" (`40101` vs `100`) addressing rule, visual 32-bit IEEE-754 float word/byte order (`ABCD`, `CDAB`, `BADC`, `DCBA`), and `16-bit INT` fixed-point scaling. |
+| [docs/CONNECTOR_GUIDE_PLC_S7_ETHERNETIP_HART_SERIAL_UFL.md](docs/CONNECTOR_GUIDE_PLC_S7_ETHERNETIP_HART_SERIAL_UFL.md) | **PLC (`S7comm` & `EtherNet/IP`), `4–20 mA HART`, `RS-232 Serial` & File Watch-Folders:** Siemens S7-1500/300 `Rack/Slot` & `DB10.DBD0` offsets, Allen-Bradley ControlLogix CIP symbolic tags, $250\,\Omega$ shunt + NAMUR NE 43 (`< 3.6 mA`) burnout, Null-Modem DB9 `MT-SICS` balance streaming, and `SHA-256` File Watch-Folders (`PI UFL` replacement). |
+| [docs/BIOPHARMA_INSTRUMENT_INTEGRATION_CATALOG.md](docs/BIOPHARMA_INSTRUMENT_INTEGRATION_CATALOG.md) | **Master Catalog & Visual Connector Field Guide:** 35+ GMP biopharma instruments, RJ45 / M12 / DB9 / RS-485 physical port guide, Purdue Level 1–3 zoning, and Continuous (`LINEAR`) vs. Discrete (`LOCF`) vs. Sparse At-Line PAT (`exc_dev=0`) rules. |
+| [docs/XCELLEREX_X_PLATFORM_INTEGRATION.md](docs/XCELLEREX_X_PLATFORM_INTEGRATION.md) | **Cytiva Xcellerex™ X-Platform (50–2000 L):** Figurate™ automation (Emerson DeltaV™ & Rockwell PlantPAx®) via OPC UA and OPC DA with visual cabinet wiring walkthrough. |
+| [docs/USP_BIOREACTORS_SARTORIUS_THERMO_EPPENDORF.md](docs/USP_BIOREACTORS_SARTORIUS_THERMO_EPPENDORF.md) | **USP Bioreactors & High-Throughput Screening:** Sartorius Biostat® STR (BioPAT® MFCS / S7-1500 `X2`), Sartorius Ambr® 15/250 multi-vessel DoE arrays, Thermo Fisher HyPerforma™ S.U.B. (TruBio® DV), and Eppendorf BioFlo® / DASGIP® (`DASware® connect`). |
 | [docs/PAT_CELL_ANALYZERS_AND_SPECTROSCOPY.md](docs/PAT_CELL_ANALYZERS_AND_SPECTROSCOPY.md) | **At-Line PAT & In-Line Spectroscopy:** Nova Biomedical BioProfile® FLEX2 (+ Seg-Flow®), Beckman Coulter Vi-CELL™ BLU, Roche Cedex® Bio HT, Endress+Hauser Raman Rxn2™/Rxn4™, and Hamilton Arc® / Mettler Toledo smart sensors. |
 | [docs/DSP_CHROMATOGRAPHY_TFF_FILTRATION.md](docs/DSP_CHROMATOGRAPHY_TFF_FILTRATION.md) | **Downstream Purification (Chromatography & TFF):** Cytiva ÄKTA™ process / ready / readyflux (`UNICORN™ 7`), Sartorius Sartoflow® / Resolute®, and MilliporeSigma Mobius® / Cogent® with LTTB UV280 peak preservation. |
+| [docs/CELL_GENE_THERAPY_AND_MRNA_LNP_INSTRUMENTS.md](docs/CELL_GENE_THERAPY_AND_MRNA_LNP_INSTRUMENTS.md) | **Cell & Gene Therapy (CAR-T), mRNA-LNP & Controlled-Rate Freezers:** Miltenyi CliniMACS Prodigy®, Cytiva Sefia™ S-2000 & Sepax™ C-Pro, Precision NanoSystems NanoAssemblr™ GMP mRNA-LNP system, and Planer Kryo 560 / Thermo CryoMed™ CRFs with patient `COI_ID` Event Frames. |
 | [docs/ASEPTIC_FILL_FINISH_LYO_AND_GMP_UTILITIES.md](docs/ASEPTIC_FILL_FINISH_LYO_AND_GMP_UTILITIES.md) | **Fill-Finish, Lyophilization, Cleanroom EMS & WFI:** GMP Freeze Dryers (Capacitance Manometer / Pirani convergence), SKAN Isolators, PMS LasAir® III / Airnet® II particle counters, BACnet/IP EMS, and Veolia Sievers® M9 TOC / Thornton conductivity. |
-| [docs/LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md](docs/LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md) | **Legacy Fieldbus, BMS & PLC Protocols:** `BACnet/IP & MS/TP` (`DNET:DADR` routing & BBMD), Windows COM/DCOM `OPC DA 2.05a` zero-DCOM bridge, `Modbus RTU/TCP` (`ABCD`/`CDAB` endianness & scaling), Siemens `S7comm` (S7-300/400 autoclaves), and `4–20 mA HART` multiplexers. |
-| [docs/LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md](docs/LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md) | **Legacy RS-232 Serial & PI UFL Flat-File Replacement:** Moxa NPort TCP serial streaming for Mettler Toledo / Sartorius `MT-SICS` analytical balances and Advanced Instruments osmometers, plus ALCOA+ SHA-256 watchfolder ingestion for Sartocheck® / Palltronic® filter integrity testers. |
+| [docs/GMP_STABILITY_CHAMBERS_COLD_CHAIN_AND_AUTOCLAVES.md](docs/GMP_STABILITY_CHAMBERS_COLD_CHAIN_AND_AUTOCLAVES.md) | **ICH Q1A Stability Chambers, Incubators, $-80\,^\circ\text{C}$ Cold Chain & Steam Autoclaves:** Binder KBF / Weiss Stability Chambers (with ClickHouse SQL Mean Kinetic Temperature `MKT`), Infors HT / Thermo Heracell™ $\text{CO}_2$ Incubators, PHCbi / Thermo TSX $-80\,^\circ\text{C}$ ULT Freezers, and Fedegari / Getinge Steam Sterilizers (with real-time $F_0$ lethality SQL). |
+| [docs/LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md](docs/LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md) | **Legacy Fieldbus, BMS & PLC Protocols:** `BACnet/IP & MS/TP` (`DNET:DADR` routing & BBMD), Windows COM/DCOM `OPC DA 2.05a` zero-DCOM bridge, `Modbus RTU/TCP` (`ABCD`/`CDAB` endianness & scaling), Siemens `S7comm` (S7-300/400 autoclaves + Helmholz NETLink adapter), and `4–20 mA HART` multiplexers. |
+| [docs/LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md](docs/LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md) | **Legacy RS-232 Serial & PI UFL Flat-File Replacement:** Moxa NPort 5150 TCP serial streaming for Mettler Toledo / Sartorius `MT-SICS` analytical balances and Advanced Instruments osmometers, plus ALCOA+ SHA-256 watchfolder ingestion for Sartocheck® / Palltronic® filter integrity testers. |
 | [docs/HARDWARE_SIZING_AND_CAPACITY_PLANNING.md](docs/HARDWARE_SIZING_AND_CAPACITY_PLANNING.md) | **Hardware Sizing & Capacity Planning:** Compression math (`1.5–2.5 B/sample`), 10k–25k tag clinical/pilot GMP reference BOM, 10-year NVMe + 15-year S3 WORM tiering, and Level 2.5 Industrial Edge IPC specs. |
 
 ---
@@ -303,10 +319,10 @@ curl -s -X POST http://localhost:8020/api/v1/lakehouse/export-parquet \
 
 ---
 
-## 7. Operator HMI (Grafana Vision) & OpenHistorian DataLink Client
+## 7. Operator HMI (Grafana Vision) & GxPHistorian DataLink Client
 
 ### Grafana Operator HMI (`http://localhost:3020`)
-- **URL:** `http://localhost:3020/d/openhistorian-gxp-bioreactor-hmi`
+- **URL:** `http://localhost:3020/d/gxphistorian-gxp-bioreactor-hmi`
 - **Credentials:** `admin` / `GxP_Grafana_2026!` (configured in `.env`)
 - **Features:**
   - Dynamic `$asset_path` template selector querying PostgreSQL `assets`.
@@ -316,10 +332,10 @@ curl -s -X POST http://localhost:8020/api/v1/lakehouse/export-parquet \
   - **Panel 3:** Active & Signed ISA-88 Event Frames Table with HMAC-SHA256 verification status.
   - **Panel 4:** Live 21 CFR Part 11 WORM Audit Trail Inspector (`part11_audit_log`).
 
-### OpenHistorian DataLink Client for Excel (`excel-datalink-client/`)
+### GxPHistorian DataLink Client for Excel (`excel-datalink-client/`)
 See [excel-datalink-client/README_EXCEL_SETUP.md](file:///home/d3lee/my-repos/clickhouse-historian/excel-datalink-client/README_EXCEL_SETUP.md) for full instructions on:
 1. **Zero-Plugin Native Excel Power Query (`Data -> From Web`)** using `/api/v1/datalink/sampled?format=csv`.
-2. **`xlwings` User-Defined Functions (`=OPENHISTORIAN_SAMPLED()`, `=OPENHISTORIAN_PLOT_VALUES()`, `=OPENHISTORIAN_EVENT_SUMMARY()`)** and CLI CSV export via [excel-datalink-client/openhistorian_datalink_udf.py](file:///home/d3lee/my-repos/clickhouse-historian/excel-datalink-client/openhistorian_datalink_udf.py).
+2. **`xlwings` User-Defined Functions (`=GXPHISTORIAN_SAMPLED()`, `=GXPHISTORIAN_PLOT_VALUES()`, `=GXPHISTORIAN_EVENT_SUMMARY()`)** and CLI CSV export via [excel-datalink-client/gxphistorian_datalink_udf.py](file:///home/d3lee/my-repos/clickhouse-historian/excel-datalink-client/gxphistorian_datalink_udf.py).
 
 ---
 
@@ -352,4 +368,4 @@ This script combines `urs_risk_catalog.yaml`, `oq_execution_results.json`, live 
 
 ---
 
-> **Trademark Notice:** *PI System*, *PI Vision*, *PI DataLink*, *PI Asset Framework*, *PI UFL*, *OSIsoft*, and *AVEVA* are registered trademarks or trademarks of AVEVA Group Limited / OSIsoft, LLC. All references to third-party trademarks and instrument models in this repository are strictly for comparative architectural and interoperability documentation purposes (nominative fair use); OpenHistorian is an independent open-source project and is not affiliated with or endorsed by AVEVA or OSIsoft.
+> **Trademark Notice:** *PI System*, *PI Vision*, *PI DataLink*, *PI Asset Framework*, *PI UFL*, *OSIsoft*, and *AVEVA* are registered trademarks or trademarks of AVEVA Group Limited / OSIsoft, LLC. All references to third-party trademarks and instrument models in this repository are strictly for comparative architectural and interoperability documentation purposes (nominative fair use); GxPHistorian is an independent open-source project and is not affiliated with or endorsed by AVEVA or OSIsoft.

@@ -1,9 +1,9 @@
 ---
-title: OpenHistorian GxP Industrial Historian
+title: GxPHistorian GxP Industrial Historian
 description: A 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 Qualified Open-Source Industrial Time-Series Historian & Asset Framework.
 template: splash
 hero:
-  title: OpenHistorian GxP Industrial Historian
+  title: GxPHistorian GxP Industrial Historian
   tagline: A 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 Qualified 4-Pillar Open-Source Replacement for the OSIsoft / AVEVA PI System — Powered by ClickHouse 24.8 LTS & PostgreSQL 16.
   image:
     file: ../../assets/logo.svg
@@ -56,7 +56,7 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 <CardGrid>
   <LinkCard
     title="Overview & OSIsoft PI Parity Matrix"
-    description="Compare every legacy OSIsoft / AVEVA PI System subsystem against its OpenHistorian GxP open-source counterpart."
+    description="Compare every legacy OSIsoft / AVEVA PI System subsystem against its GxPHistorian GxP open-source counterpart."
     href="/getting-started/overview/"
   />
   <LinkCard
@@ -70,9 +70,24 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
     href="/clients-and-api/rest-api-reference/"
   />
   <LinkCard
-    title="Biopharma Equipment Integration Catalog"
-    description="8 engineering guides covering 20+ instruments: Cytiva Xcellerex & ÄKTA, Sartorius Biostat & Ambr, BioProfile FLEX2, Vi-CELL BLU, Raman, Lyophilizers, and BACnet EMS."
+    title="Connectors, Protocols & Wiring Encyclopedia"
+    description="Visual deep-dive into every physical plug (RJ45, M12, DB9, RS-485) and software protocol (OPC UA, OPC DA, BACnet/IP & MS/TP, Modbus TCP/RTU, S7comm, EtherNet/IP, 4–20 mA HART, RS-232 & UFL)."
+    href="/connectors/overview/"
+  />
+  <LinkCard
+    title="Biopharma Equipment Integration Catalog (Visual Guides)"
+    description="10 visual step-by-step guides covering 35+ instruments: Cytiva Xcellerex & ÄKTA, Sartorius Biostat & Ambr, BioProfile FLEX2, Vi-CELL BLU, Raman, Lyophilizers, and BACnet EMS."
     href="/biopharma-integration/catalog/"
+  />
+  <LinkCard
+    title="Cell & Gene Therapy, mRNA-LNP & Controlled-Rate Freezers"
+    description="Visual wiring & setup for Miltenyi CliniMACS Prodigy, Cytiva Sefia S-2000 & Sepax C-Pro, NanoAssemblr GMP mRNA-LNP skids, and Planer Kryo 560 / Thermo CryoMed CRFs."
+    href="/biopharma-integration/cgt-mrna-lnp-instruments/"
+  />
+  <LinkCard
+    title="Stability Chambers, Cold Chain & Steam Autoclaves"
+    description="Binder KBF / Weiss ICH Q1A Stability Chambers (with Mean Kinetic Temperature SQL), Infors / Heracell CO2 Incubators, -80°C ULT Freezers, and Fedegari / Getinge Autoclaves (F0 SQL)."
+    href="/biopharma-integration/stability-chambers-cold-chain-autoclaves/"
   />
   <LinkCard
     title="Legacy Fieldbus, Serial RS-232 & PI UFL"

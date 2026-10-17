@@ -1,6 +1,6 @@
 # Upstream Bioreactors & Parallel Microbioreactors Integration Guide
 
-**Connecting Sartorius Biostat® STR, Sartorius Ambr® 15/250, Thermo Fisher HyPerforma™ (TruBio® DV), and Eppendorf BioFlo® / DASGIP® Systems to OpenHistorian GxP Industrial Historian**
+**Connecting Sartorius Biostat® STR, Sartorius Ambr® 15/250, Thermo Fisher HyPerforma™ (TruBio® DV), and Eppendorf BioFlo® / DASGIP® Systems to GxPHistorian GxP Industrial Historian**
 
 > For **Cytiva Xcellerex™ X-Platform** bioreactors, see the dedicated guide: [XCELLEREX_X_PLATFORM_INTEGRATION.md](XCELLEREX_X_PLATFORM_INTEGRATION.md).
 
@@ -8,12 +8,27 @@
 
 ## 1. Overview of Upstream Bioreactor Platforms
 
-Upstream Processing (USP) seed trains, Process Development (PD) high-throughput screening, and GMP production vessels rely on four dominant bioreactor automation ecosystems alongside Cytiva Figurate™:
+Upstream Processing (USP) seed trains, Process Development (PD) high-throughput screening, and GMP production vessels rely on four dominant bioreactor automation ecosystems alongside [Cytiva Figurate™](https://www.cytivalifesciences.com/en/us/solutions/bioprocessing/products-and-solutions/xcellerex):
 
-1. **Sartorius Biostat® STR (Gen 3) & Biostat® B-DCU:** Controlled by local **Biobrain / DCU-4** (Siemens SIMATIC S7-1500 PLC) and supervised by **BioPAT® MFCS 4** SCADA, exposing native **OPC UA** and **Siemens S7comm** interfaces.
-2. **Sartorius Ambr® 250 High Throughput & Ambr® 15 Cell Culture:** Automated parallel microbioreactor workstations (12, 24, or 48 single-use vessels) exposing a unified **Ambr® OPC UA Server** (or bridged via BioPAT® MFCS) with multi-vessel namespace trees.
-3. **Thermo Fisher Scientific HyPerforma™ S.U.B. / S.U.F. (50 L – 5000 L):** Powered by **TruBio® DV** software built natively on **Emerson DeltaV™ DCS**, exposing **OPC UA** (DeltaV PK / Application Station) and legacy **OPC DA**.
-4. **Eppendorf BioFlo® 320 / 720 & DASGIP® Parallel Bioreactors:** Equipped with **DASware® connect**, which provides an integrated **OPC UA** and **OPC DA** server for seamless historian and DoE integration.
+1. **[Sartorius Biostat STR® (Gen 3)](https://www.sartorius.com/en/products/bioreactors-fermenters/single-use-bioreactors/biostat-str-generation-3-1110594) & Biostat® B-DCU:** Controlled by local **Biobrain / DCU-4** ([Siemens SIMATIC S7-1500 PLC](https://www.siemens.com)) and supervised by **[BioPAT® MFCS 4](https://www.sartorius.com/en/products/process-control-tools/biopat-mfcs-scada-software)** SCADA, exposing native **OPC UA** and **Siemens S7comm** interfaces.
+2. **[Sartorius Ambr® 250 High Throughput](https://www.sartorius.com/en/products/bioreactors-fermenters/ambr-multi-parallel-bioreactors/ambr-250-modular-504778) & [Ambr® 15 Cell Culture](https://www.sartorius.com/en/products/bioreactors-fermenters/ambr-multi-parallel-bioreactors/ambr-15-cell-culture-504780):** Automated parallel microbioreactor workstations (12, 24, or 48 single-use vessels) exposing a unified **Ambr® OPC UA Server** (or bridged via [BioPAT® MFCS](https://www.sartorius.com/en/products/process-control-tools/biopat-mfcs-scada-software)) with multi-vessel namespace trees.
+3. **[Thermo Fisher Scientific HyPerforma™ S.U.B. / S.U.F. (50 L – 5000 L)](https://www.thermofisher.com/us/en/home/industrial/bioproduction/single-use-systems.html):** Powered by **[TruBio™ DV](https://www.thermofisher.com/us/en/home/industrial/bioproduction/bioproduction-automation-software/trubio-bioprocess-control-software.html)** software built natively on **[Emerson DeltaV™ DCS](https://www.emerson.com/en-us/automation/control-and-safety-systems/distributed-control-systems-dcs/deltav-distributed-control-system)**, exposing **OPC UA** (DeltaV PK / Application Station) and legacy **OPC DA**.
+4. **[Eppendorf BioFlo® 320 / 720 & DASGIP® Parallel Bioreactors](https://www.eppendorf.com/PM-EN/Bioprocess-Controllers-Bioreactor-Systems-84594):** Equipped with **[DASware® connect](https://www.eppendorf.com/PM-EN/Bioprocess-Controllers-Bioreactor-Systems-84594)**, which provides an integrated **OPC UA** and **OPC DA** server for seamless historian and DoE integration.
+
+![Sartorius Biostat STR, Sartorius Ambr 250/15, Thermo HyPerforma & Eppendorf BioFlo Visual Wiring Guide](images/instruments/usp-bioreactors-sartorius-ambr.svg)
+
+---
+
+## 1.5 Non-Technical Step-by-Step Physical & Software Connection Walkthrough
+
+Whether you are connecting a benchtop **Eppendorf BioFlo 320**, a 24-vessel **Sartorius Ambr 250** robot, or a 2,000 L **Sartorius Biostat STR**, here is exactly where to plug in and which menu buttons to press:
+
+| Bioreactor System | Where to Plug the Ethernet Cable on the Physical Unit | Exact Touchscreen / Software Menu Path to Enable | Network Test Command |
+| :--- | :--- | :--- | :--- |
+| **1. [Sartorius Biostat STR® (Gen 3)](https://www.sartorius.com/en/products/bioreactors-fermenters/single-use-bioreactors/biostat-str-generation-3-1110594) & Biostat® B-DCU** | Open the stainless **Biobrain / DCU-4** cabinet door. Locate the **Siemens S7-1500 CPU**. Plug a **Cat6A cable** into **Port `X2` (Plant / SCADA LAN)**—leave Port `X1` (Green PROFINET I/O cable) untouched! | **Path A (Direct Biobrain OPC UA):** On the Biobrain touchscreen, tap **Settings $\rightarrow$ Service $\rightarrow$ Network (X2)**, set Static IP `10.20.40.15`, and verify **OPC UA Server = Active (`:4840`)**.<br>**Path B (Via [BioPAT® MFCS 4](https://www.sartorius.com/en/products/process-control-tools/biopat-mfcs-scada-software) PC):** Open **MFCS 4 Configurator $\rightarrow$ OPC UA Server $\rightarrow$ Enable Server on Port `4840`**. | `nc -zv 10.20.40.15 4840` |
+| **2. [Sartorius Ambr® 250](https://www.sartorius.com/en/products/bioreactors-fermenters/ambr-multi-parallel-bioreactors/ambr-250-modular-504778) & [Ambr® 15](https://www.sartorius.com/en/products/bioreactors-fermenters/ambr-multi-parallel-bioreactors/ambr-15-cell-culture-504780) (12/24/48 Vessels)** | Look at the back of the **Ambr Control Workstation PC** next to the liquid-handling deck. **NEVER** unplug **NIC 1** (connected to the Ambr robot & deck sensors). Plug your **Cat6 cable** into **NIC 2 (Plant Network)** (or plug in a USB 3.0 Gigabit Ethernet adapter). | Open **Ambr® Runtime Software $\rightarrow$ System Configuration $\rightarrow$ OPC UA Server**. Check **Enable OPC UA Server**, bind it to **NIC 2 IP (`10.20.40.20:4840`)**, and verify all 12/24/48 vessel namespaces (`Vessel_01` .. `Vessel_24`) are exported. | `nc -zv 10.20.40.20 4840` |
+| **3. [Thermo Fisher HyPerforma™ S.U.B. / S.U.F.](https://www.thermofisher.com/us/en/home/industrial/bioproduction/single-use-systems.html) ([TruBio™ DV](https://www.thermofisher.com/us/en/home/industrial/bioproduction/bioproduction-automation-software/trubio-bioprocess-control-software.html))** | Locate the **TruBio® DV / Emerson DeltaV™ Control Tower** on the bioreactor skid. Plug a **Cat6A cable** into the bulkhead port labeled **`NORTHBOUND / HISTORIAN LAN (SCN2)`**. | On the **TruBio® DV / DeltaV Application Station**, open **DeltaV Explorer $\rightarrow$ Application Station Properties $\rightarrow$ OPC UA Server**, check **Enable (`:4840`)**, and trust the `GxPHistorian` client certificate. | `nc -zv 10.20.40.30 4840` |
+| **4. [Eppendorf BioFlo® 320 / 720 & DASGIP® Parallel](https://www.eppendorf.com/PM-EN/Bioprocess-Controllers-Bioreactor-Systems-84594)** | Look at the **lower-rear connector panel** of the BioFlo 320 cylindrical control tower (above the gas sparge connections). Plug a **Cat6 cable** into the **upper RJ45 jack labeled `Ethernet / OPC`** (do not use the lower `Aux / Sensor Bus` port). | On the **BioFlo 320 front touchscreen**, tap **Settings (Gear) $\rightarrow$ System $\rightarrow$ Network**, enter Static IP `10.20.40.40`. Then tap **Settings $\rightarrow$ License / Features $\rightarrow$ OPC UA** and toggle **OPC UA Server = ON (`Port 4840`)** *(requires Eppendorf `DASware connect` / OPC UA license key)*. | `nc -zv 10.20.40.40 4840` |
 
 ---
 
@@ -36,7 +51,7 @@ flowchart LR
     S7 --> WAL
   end
 
-  subgraph Core["OpenHistorian GxP Historian"]
+  subgraph Core["GxPHistorian GxP Historian"]
     CH["ClickHouse 24.8 Archive\n(pi_historian.sensor_data)"]
     PG["PostgreSQL 16 Control Plane\n(ltree ISA-95 + Event Frames)"]
   end
@@ -64,8 +79,8 @@ Sartorius **BioPAT® MFCS 4** acts as the supervisory SCADA and batch server for
   endpoint = "opc.tcp://10.20.40.15:4840"
   security_policy = "Basic256Sha256"
   security_mode = "SignAndEncrypt"
-  certificate = "/etc/telegraf/certs/openhistorian_client_cert.pem"
-  private_key = "/etc/telegraf/certs/openhistorian_client_key.pem"
+  certificate = "/etc/telegraf/certs/gxphistorian_client_cert.pem"
+  private_key = "/etc/telegraf/certs/gxphistorian_client_key.pem"
   auth_method = "UserName"
   username = "${MFCS_OPCUA_USER}"
   password = "${MFCS_OPCUA_PASSWORD}"
@@ -82,7 +97,7 @@ Sartorius **BioPAT® MFCS 4** acts as the supervisory SCADA and batch server for
 ```
 
 #### Option 2: Direct Siemens S7-1500 (`S7COMM`) Polling
-For discrete safety interlocks, agitator drive status words, or jacket valve states stored in non-optimized S7-1500 Data Blocks (`DB`), OpenHistorian natively supports `S7COMM` metadata in `tags.source_config` (matching seeded Tag `103` in `init-postgres/01_control_plane_part11.sql`):
+For discrete safety interlocks, agitator drive status words, or jacket valve states stored in non-optimized S7-1500 Data Blocks (`DB`), GxPHistorian natively supports `S7COMM` metadata in `tags.source_config` (matching seeded Tag `103` in `init-postgres/01_control_plane_part11.sql`):
 ```json
 {
   "plc_ip": "10.20.40.16",
@@ -99,7 +114,7 @@ For discrete safety interlocks, agitator drive status words, or jacket valve sta
 ### 3.2 Sartorius Ambr® 250 High Throughput & Ambr® 15 (Multi-Vessel Array Pattern)
 An **Ambr® 250** (12 or 24 vessels) or **Ambr® 15** (24 or 48 vessels) generates hundreds of tags across parallel mini-bioreactors running Design of Experiments (DoE) clone selection or media optimization studies.
 
-Because OpenHistorian GxP Historian models its Asset Framework in PostgreSQL using `ltree` (`assets.asset_path`) and `asset_templates`, you can instantiate all 24 or 48 Ambr vessels from a single template in one audited SQL transaction:
+Because GxPHistorian GxP Historian models its Asset Framework in PostgreSQL using `ltree` (`assets.asset_path`) and `asset_templates`, you can instantiate all 24 or 48 Ambr vessels from a single template in one audited SQL transaction:
 
 ```sql
 BEGIN;
@@ -130,7 +145,7 @@ ON CONFLICT (asset_path) DO NOTHING;
 COMMIT;
 ```
 
-In Grafana (`openhistorian_bioreactor_hmi.json`), changing the `$asset_path` dropdown or querying `asset_path <@ 'BioCorp.Fremont.PD_USP.Ambr250_01'` in ClickHouse via `dictGet('pi_historian.pg_asset_tags', 'asset_path', toUInt64(tag_id))` lets scientists overlay all 24 vessels or export the entire 24-vessel DoE dataset into a single Apache Parquet file (`POST /api/v1/lakehouse/export-parquet` with `"asset_path": "BioCorp.Fremont.PD_USP.Ambr250_01"`).
+In Grafana (`gxphistorian_bioreactor_hmi.json`), changing the `$asset_path` dropdown or querying `asset_path <@ 'BioCorp.Fremont.PD_USP.Ambr250_01'` in ClickHouse via `dictGet('pi_historian.pg_asset_tags', 'asset_path', toUInt64(tag_id))` lets scientists overlay all 24 vessels or export the entire 24-vessel DoE dataset into a single Apache Parquet file (`POST /api/v1/lakehouse/export-parquet` with `"asset_path": "BioCorp.Fremont.PD_USP.Ambr250_01"`).
 
 ---
 

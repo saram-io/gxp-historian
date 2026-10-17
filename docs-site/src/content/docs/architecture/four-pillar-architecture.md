@@ -1,9 +1,9 @@
 ---
 title: "4-Pillar System Architecture"
-description: "Deep dive into OpenHistorian's 4-Pillar architecture: Telegraf Multi-Protocol Edge Collector, ClickHouse Immutable Telemetry Archive, PostgreSQL 16 + FastAPI Control Plane, and Grafana / Excel / Parquet Consumers."
+description: "Deep dive into GxPHistorian's 4-Pillar architecture: Telegraf Multi-Protocol Edge Collector, ClickHouse Immutable Telemetry Archive, PostgreSQL 16 + FastAPI Control Plane, and Grafana / Excel / Parquet Consumers."
 ---
 
-OpenHistorian strictly separates **immutable high-frequency time-series storage** (ClickHouse 24.8 LTS) from **mutable relational asset metadata, batch state, and cryptographic WORM audit logs** (PostgreSQL 16). This 4-Pillar separation eliminates the performance bottlenecks of relational historians while avoiding expensive ClickHouse `ALTER TABLE ... UPDATE/DELETE` mutations.
+GxPHistorian strictly separates **immutable high-frequency time-series storage** (ClickHouse 24.8 LTS) from **mutable relational asset metadata, batch state, and cryptographic WORM audit logs** (PostgreSQL 16). This 4-Pillar separation eliminates the performance bottlenecks of relational historians while avoiding expensive ClickHouse `ALTER TABLE ... UPDATE/DELETE` mutations.
 
 ---
 
@@ -57,7 +57,7 @@ Pillar 1 replaces legacy *OSIsoft PI Interface Nodes* and the *PI Buffer Subsyst
    - All incoming field protocols (**OPC UA**, **Siemens S7**, **BACnet/IP (`COV`)**, **Modbus RTU/TCP**, **Windows COM OPC DA HTTP batches**, and **RS-232 / PI UFL watchfolders**) are normalized into the canonical 6-field telemetry tuple:
      `(tag_id, ts, val, str_val, quality, status_code)`.
 2. **Stage 1 Exception / Deadband Filtering (`ExcDev` & `ExcMax`):**
-   - Unlike lossy Swinging Door (`CompDev`) algorithms that discard raw inflection points and complicate GMP audit reconstruction, OpenHistorian performs **Stage 1 Exception Filtering** in memory at the edge:
+   - Unlike lossy Swinging Door (`CompDev`) algorithms that discard raw inflection points and complicate GMP audit reconstruction, GxPHistorian performs **Stage 1 Exception Filtering** in memory at the edge:
      - Suppresses high-frequency ADC electrical noise when $|\text{val}_{\text{now}} - \text{val}_{\text{last\_emitted}}| < \text{exc\_dev}$ and $\Delta t < \text{exc\_max}$, provided `quality` has not changed.
      - Immediately emits any sample where `quality` transitions (e.g., `192` Good $\rightarrow$ `0` Bad) or when the heartbeat timer `exc_max` expires.
      - Discrete state tags (`is_step_tag = true`) and sparse at-line PAT analyzers set `exc_dev = 0.0` so every state transition and analytical sample is archived.
@@ -128,6 +128,6 @@ Pillar 3 combines **PostgreSQL 16** (`ltree`, `btree_gist`, `pgcrypto`) and the 
 
 ## 5. Pillar 4: Operator HMI, Excel DataLink & Lakehouse (`grafana-vision`)
 
-- **Grafana OSS 11.2 (`grafana-vision`):** Auto-provisioned with ClickHouse and PostgreSQL datasources and the **OpenHistorian GxP Bioreactor & Cleanroom HMI** dashboard (`openhistorian_bioreactor_hmi.json`).
-- **OpenHistorian DataLink for Microsoft Excel:** Provides zero-plugin native Excel Power Query CSV streams and `xlwings` worksheet functions (`=OPENHISTORIAN_SAMPLED`, `=OPENHISTORIAN_PLOT_VALUES`, `=OPENHISTORIAN_EVENT_SUMMARY`).
+- **Grafana OSS 11.2 (`grafana-vision`):** Auto-provisioned with ClickHouse and PostgreSQL datasources and the **GxPHistorian GxP Bioreactor & Cleanroom HMI** dashboard (`gxphistorian_bioreactor_hmi.json`).
+- **GxPHistorian DataLink for Microsoft Excel:** Provides zero-plugin native Excel Power Query CSV streams and `xlwings` worksheet functions (`=GXPHISTORIAN_SAMPLED`, `=GXPHISTORIAN_PLOT_VALUES`, `=GXPHISTORIAN_EVENT_SUMMARY`).
 - **Zero-ETL Apache Parquet Lakehouse Exporter:** Exports Snappy-compressed `.parquet` files enriched with ISA-95 `asset_path` and `eng_units` for downstream AI/ML and MSAT analytics.

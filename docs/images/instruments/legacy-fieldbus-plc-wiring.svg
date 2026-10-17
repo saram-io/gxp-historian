@@ -1,0 +1,198 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 620" width="100%" height="100%" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg-legacy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <marker id="arr-amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#f59e0b"/>
+    </marker>
+    <marker id="arr-sky2" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arr-emerald2" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#10b981"/>
+    </marker>
+    <marker id="arr-purple2" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#a855f7"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="620" rx="16" fill="url(#bg-legacy)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Header -->
+  <text x="35" y="42" fill="#f8fafc" font-size="21" font-weight="800" letter-spacing="0.3">LEGACY FIELDBUS, PLC &amp; ANALOG WIRING GUIDE FOR NON-TECHNICAL USERS</text>
+  <text x="35" y="65" fill="#94a3b8" font-size="13">RS-485 2-Wire Daisy Chain (120 Ω Termination) • Siemens S7-300/400 MPI Adapter • Windows OPC DA COM Bridge • 4–20 mA / HART Loop</text>
+
+  <!-- Quadrant 1: RS-485 2-Wire Daisy Chain (Modbus RTU & BACnet MS/TP) -->
+  <g transform="translate(30, 88)">
+    <rect width="505" height="235" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+    <rect width="505" height="34" rx="12" fill="#78350f"/>
+    <text x="252" y="22" text-anchor="middle" fill="#fef3c7" font-size="12" font-weight="700">1. RS-485 2-WIRE DAISY-CHAIN WIRING (MODBUS RTU &amp; BACNET MS/TP)</text>
+
+    <!-- Devices in Daisy Chain -->
+    <g transform="translate(20, 48)">
+      <!-- Device 1 -->
+      <rect x="0" y="15" width="95" height="75" rx="6" fill="#0f172a" stroke="#64748b" stroke-width="1.5"/>
+      <text x="47" y="33" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="700">UNIT ID = 1</text>
+      <text x="47" y="47" text-anchor="middle" fill="#94a3b8" font-size="8">Chiller / Probe</text>
+      <circle cx="25" cy="72" r="4" fill="#fbbf24"/><text x="25" y="63" text-anchor="middle" fill="#fbbf24" font-size="8">D+</text>
+      <circle cx="50" cy="72" r="4" fill="#38bdf8"/><text x="50" y="63" text-anchor="middle" fill="#38bdf8" font-size="8">D-</text>
+      <circle cx="75" cy="72" r="4" fill="#10b981"/><text x="75" y="63" text-anchor="middle" fill="#10b981" font-size="8">G</text>
+      <!-- 120 Ohm Termination Resistor on First Device -->
+      <rect x="27" y="79" width="22" height="8" rx="2" fill="#ef4444"/>
+      <text x="38" y="100" text-anchor="middle" fill="#fca5a5" font-size="8" font-weight="700">120 Ω Term</text>
+
+      <!-- Device 2 -->
+      <rect x="135" y="15" width="95" height="75" rx="6" fill="#0f172a" stroke="#64748b" stroke-width="1.5"/>
+      <text x="182" y="33" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="700">UNIT ID = 2</text>
+      <text x="182" y="47" text-anchor="middle" fill="#94a3b8" font-size="8">Particle Counter</text>
+      <circle cx="160" cy="72" r="4" fill="#fbbf24"/>
+      <circle cx="185" cy="72" r="4" fill="#38bdf8"/>
+      <circle cx="210" cy="72" r="4" fill="#10b981"/>
+
+      <!-- Moxa Gateway / BACnet Router (End of Bus) -->
+      <rect x="285" y="10" width="180" height="85" rx="6" fill="#0f172a" stroke="#f59e0b" stroke-width="2"/>
+      <text x="375" y="28" text-anchor="middle" fill="#fde68a" font-size="10" font-weight="700">MOXA MGate MB3180 /</text>
+      <text x="375" y="41" text-anchor="middle" fill="#fde68a" font-size="10" font-weight="700">LOYTEC BACnet Router</text>
+      <circle cx="310" cy="72" r="4" fill="#fbbf24"/>
+      <circle cx="335" cy="72" r="4" fill="#38bdf8"/>
+      <circle cx="360" cy="72" r="4" fill="#10b981"/>
+      <rect x="312" y="79" width="22" height="8" rx="2" fill="#ef4444"/>
+      <text x="323" y="104" text-anchor="middle" fill="#fca5a5" font-size="8" font-weight="700">120 Ω Term</text>
+      <!-- Ethernet out -->
+      <rect x="405" y="54" width="48" height="28" rx="4" fill="#0284c7"/>
+      <text x="429" y="71" text-anchor="middle" fill="#ffffff" font-size="8" font-weight="700">RJ45 LAN</text>
+
+      <!-- Daisy Chain Wires -->
+      <line x1="25" y1="72" x2="310" y2="72" stroke="#fbbf24" stroke-width="2"/>
+      <line x1="50" y1="76" x2="335" y2="76" stroke="#38bdf8" stroke-width="2"/>
+      <line x1="75" y1="80" x2="360" y2="80" stroke="#10b981" stroke-width="1.5" stroke-dasharray="3,2"/>
+    </g>
+
+    <!-- Rules Box -->
+    <rect x="16" y="160" width="473" height="62" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text x="26" y="177" fill="#fcd34d" font-size="10" font-weight="700">3 Golden Rules of RS-485 Wiring:</text>
+    <text x="26" y="193" fill="#cbd5e1" font-size="10">1. Wire in a line (Daisy-Chain), NEVER a star! Put a 120 Ω resistor across D+/D- at both ends only.</text>
+    <text x="26" y="209" fill="#cbd5e1" font-size="10">2. Every device on the chain must have a unique Slave ID (1..247) and identical Baud Rate (e.g. 9600 8N1).</text>
+  </g>
+
+  <!-- Quadrant 2: Legacy Siemens S7-300 / S7-400 MPI/PROFIBUS to Ethernet -->
+  <g transform="translate(565, 88)">
+    <rect width="505" height="235" rx="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+    <rect width="505" height="34" rx="12" fill="#0c4a6e"/>
+    <text x="252" y="22" text-anchor="middle" fill="#e0f2fe" font-size="12" font-weight="700">2. LEGACY SIEMENS S7-300/400 (NO ETHERNET PORT) RETROFIT ADAPTER</text>
+
+    <g transform="translate(24, 48)">
+      <!-- S7-300 CPU -->
+      <rect x="0" y="5" width="135" height="95" rx="6" fill="#334155" stroke="#94a3b8" stroke-width="2"/>
+      <text x="67" y="24" text-anchor="middle" fill="#f8fafc" font-size="10" font-weight="700">SIEMENS S7-300</text>
+      <text x="67" y="38" text-anchor="middle" fill="#cbd5e1" font-size="8">CPU 315-2 DP (1998–2014)</text>
+      <!-- X1 MPI DB9 Port -->
+      <rect x="28" y="50" width="78" height="36" rx="4" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="67" y="65" text-anchor="middle" fill="#fbbf24" font-size="8" font-weight="700">X1 MPI / DP Port</text>
+      <text x="67" y="78" text-anchor="middle" fill="#94a3b8" font-size="8">(9-Pin DB9 Female)</text>
+
+      <!-- Plug-on Adapter -->
+      <path d="M 106 68 L 165 68" stroke="#38bdf8" stroke-width="3" marker-end="url(#arr-sky2)"/>
+      <rect x="170" y="12" width="165" height="82" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+      <text x="252" y="32" text-anchor="middle" fill="#7dd3fc" font-size="10" font-weight="700">HELMHOLZ NETLink PRO</text>
+      <text x="252" y="46" text-anchor="middle" fill="#7dd3fc" font-size="9" font-weight="700">/ IBH Link S7++ Adapter</text>
+      <text x="252" y="63" text-anchor="middle" fill="#cbd5e1" font-size="8">Plugs directly onto DB9 port!</text>
+      <text x="252" y="77" text-anchor="middle" fill="#10b981" font-size="8" font-weight="700">Pass-through PG socket stays free</text>
+
+      <!-- RJ45 Out -->
+      <path d="M 335 53 L 378 53" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#arr-sky2)"/>
+      <rect x="382" y="22" width="80" height="62" rx="6" fill="#082f49" stroke="#38bdf8" stroke-width="1.5"/>
+      <text x="422" y="44" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="700">S7comm TCP</text>
+      <text x="422" y="58" text-anchor="middle" fill="#e0f2fe" font-size="9" font-weight="700">Port 102</text>
+      <text x="422" y="72" text-anchor="middle" fill="#94a3b8" font-size="8">Rack 0, Slot 2</text>
+    </g>
+
+    <rect x="16" y="160" width="473" height="62" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text x="26" y="177" fill="#7dd3fc" font-size="10" font-weight="700">Zero PLC Downtime Retrofit:</text>
+    <text x="26" y="193" fill="#cbd5e1" font-size="10">• For S7-300/400 without Ethernet: Snap a Helmholz NETLink PRO Compact onto the 9-pin MPI/PROFIBUS connector.</text>
+    <text x="26" y="209" fill="#cbd5e1" font-size="10">• For newer S7-1200/1500: Simply enable "Permit PUT/GET" or onboard OPC UA Server in TIA Portal.</text>
+  </g>
+
+  <!-- Quadrant 3: Legacy Windows COM/DCOM OPC DA 2.05a Bridge -->
+  <g transform="translate(30, 345)">
+    <rect width="505" height="245" rx="12" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+    <rect width="505" height="34" rx="12" fill="#064e3b"/>
+    <text x="252" y="22" text-anchor="middle" fill="#d1fae5" font-size="12" font-weight="700">3. WINDOWS OPC DA (COM/DCOM) ZERO-DCOM LOCALHOST BRIDGE</text>
+
+    <g transform="translate(20, 48)">
+      <!-- Windows PC Container -->
+      <rect x="0" y="0" width="335" height="105" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="2"/>
+      <text x="167" y="18" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="700">LEGACY WINDOWS XP / 7 / 10 / SERVER SCADA PC</text>
+
+      <!-- Vendor OPC DA Server -->
+      <rect x="14" y="28" width="132" height="64" rx="6" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+      <text x="80" y="46" text-anchor="middle" fill="#f8fafc" font-size="9" font-weight="700">OPC DA 2.05a Server</text>
+      <text x="80" y="60" text-anchor="middle" fill="#94a3b8" font-size="8">RSLinx / Kepware /</text>
+      <text x="80" y="72" text-anchor="middle" fill="#94a3b8" font-size="8">UNICORN / Matrikon</text>
+
+      <!-- Localhost COM Arrow -->
+      <path d="M 146 60 L 184 60" stroke="#10b981" stroke-width="2.5" marker-end="url(#arr-emerald2)"/>
+      <text x="165" y="52" text-anchor="middle" fill="#34d399" font-size="7" font-weight="700">Local COM</text>
+
+      <!-- GxPHistorian Windows Service -->
+      <rect x="188" y="28" width="134" height="64" rx="6" fill="#064e3b" stroke="#10b981" stroke-width="1.5"/>
+      <text x="255" y="46" text-anchor="middle" fill="#a7f3d0" font-size="9" font-weight="700">opcda_bridge_service</text>
+      <text x="255" y="60" text-anchor="middle" fill="#d1fae5" font-size="8">Local Python Service</text>
+      <text x="255" y="74" text-anchor="middle" fill="#34d399" font-size="8" font-weight="700">NO Network DCOM!</text>
+
+      <!-- HTTPS Outbound to GxPHistorian -->
+      <path d="M 335 55 L 382 55" stroke="#10b981" stroke-width="2.5" marker-end="url(#arr-emerald2)"/>
+      <rect x="386" y="20" width="82" height="70" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="1.5"/>
+      <text x="427" y="42" text-anchor="middle" fill="#6ee7b7" font-size="9" font-weight="700">GxPHistorian</text>
+      <text x="427" y="56" text-anchor="middle" fill="#cbd5e1" font-size="8">HTTP JSON</text>
+      <text x="427" y="70" text-anchor="middle" fill="#10b981" font-size="8" font-weight="700">Port 8090</text>
+    </g>
+
+    <rect x="16" y="165" width="473" height="66" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text x="26" y="182" fill="#6ee7b7" font-size="10" font-weight="700">Why Localhost COM Beats Network DCOM Every Time:</text>
+    <text x="26" y="198" fill="#cbd5e1" font-size="10">• Never open Windows Firewall RPC port 135 or dynamic high ports across your GMP VLAN.</text>
+    <text x="26" y="214" fill="#cbd5e1" font-size="10">• Install `opcda_bridge_service.py` directly on the Windows PC; it reads COM locally and pushes outbound HTTP.</text>
+  </g>
+
+  <!-- Quadrant 4: 4–20 mA Analog Current Loop & HART 7 Wiring -->
+  <g transform="translate(565, 345)">
+    <rect width="505" height="245" rx="12" fill="#1e293b" stroke="#a855f7" stroke-width="2"/>
+    <rect width="505" height="34" rx="12" fill="#4c1d95"/>
+    <text x="252" y="22" text-anchor="middle" fill="#f3e8ff" font-size="12" font-weight="700">4. 4–20 mA ANALOG CURRENT LOOP &amp; HART REMOTE I/O WIRING</text>
+
+    <g transform="translate(20, 48)">
+      <!-- 24V DC Power Supply -->
+      <rect x="0" y="15" width="85" height="75" rx="6" fill="#0f172a" stroke="#94a3b8" stroke-width="1.5"/>
+      <text x="42" y="38" text-anchor="middle" fill="#f8fafc" font-size="9" font-weight="700">24V DC PSU</text>
+      <text x="42" y="55" text-anchor="middle" fill="#ef4444" font-size="9" font-weight="700">+24V (Red)</text>
+      <text x="42" y="72" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="700">0V COM (Blk)</text>
+
+      <!-- 2-Wire 4-20mA Transmitter -->
+      <circle cx="175" cy="52" r="38" fill="#0f172a" stroke="#a855f7" stroke-width="2"/>
+      <text x="175" y="42" text-anchor="middle" fill="#d8b4fe" font-size="9" font-weight="700">FIELD SENSOR</text>
+      <text x="175" y="56" text-anchor="middle" fill="#f3e8ff" font-size="9" font-weight="700">4–20 mA</text>
+      <text x="175" y="70" text-anchor="middle" fill="#c084fc" font-size="8">+ HART FSK</text>
+
+      <!-- Advantech ADAM-6017 / Moxa ioLogik Ethernet I/O -->
+      <rect x="275" y="10" width="190" height="85" rx="6" fill="#0f172a" stroke="#a855f7" stroke-width="2"/>
+      <text x="370" y="28" text-anchor="middle" fill="#e9d5ff" font-size="10" font-weight="700">ADVANTECH ADAM-6017 /</text>
+      <text x="370" y="42" text-anchor="middle" fill="#e9d5ff" font-size="10" font-weight="700">MOXA ioLogik E1240</text>
+      <text x="325" y="62" text-anchor="middle" fill="#ef4444" font-size="8" font-weight="700">AI0+ (mA In)</text>
+      <text x="325" y="78" text-anchor="middle" fill="#38bdf8" font-size="8" font-weight="700">AI0- (Ret)</text>
+      <rect x="405" y="52" width="50" height="30" rx="4" fill="#6d28d9"/>
+      <text x="430" y="69" text-anchor="middle" fill="#ffffff" font-size="8" font-weight="700">Port 502</text>
+
+      <!-- Loop Wires -->
+      <path d="M 85 45 L 137 45" stroke="#ef4444" stroke-width="2.5"/>
+      <path d="M 213 45 L 275 56" stroke="#ef4444" stroke-width="2.5" marker-end="url(#arr-purple2)"/>
+      <path d="M 275 76 L 85 76" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4,2"/>
+    </g>
+
+    <rect x="16" y="165" width="473" height="66" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text x="26" y="182" fill="#d8b4fe" font-size="10" font-weight="700">Linear Scaling &amp; Broken-Wire Detection (`quality = 0`):</text>
+    <text x="26" y="198" fill="#cbd5e1" font-size="10">• 4.00 mA = 0% of range; 20.00 mA = 100% of range (`EU = EU_min + ((mA - 4.0) / 16.0) * Span`).</text>
+    <text x="26" y="214" fill="#cbd5e1" font-size="10">• If loop current drops below `3.6 mA` (cut wire or dead power supply), GxPHistorian flags `quality = 0` (Bad).</text>
+  </g>
+</svg>

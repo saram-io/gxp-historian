@@ -1,8 +1,8 @@
 ---
 title: "Document 02 — User Requirements Specification (URS)"
-description: "Document 02 — User Requirements Specification (URS-001 through URS-015) for OpenHistorian GxP."
+description: "Document 02 — User Requirements Specification (URS-001 through URS-015) for GxPHistorian GxP."
 ---
-**Document ID:** `URS-OPENHISTORIAN-2026-002` | **Generated (UTC):** `2026-10-17T13:35:22Z` | **Total Requirements:** `15`
+**Document ID:** `URS-GXPHISTORIAN-2026-002` | **Generated (UTC):** `2026-10-17T17:51:09Z` | **Total Requirements:** `15`
 
 ## 1. Formal User Requirements Catalog (URS-001 to URS-015)
 

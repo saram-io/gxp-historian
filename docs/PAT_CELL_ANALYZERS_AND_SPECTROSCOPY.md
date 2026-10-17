@@ -1,6 +1,6 @@
 # PAT, At-Line Cell/Metabolite Analyzers & In-Line Spectroscopy Integration Guide
 
-**Connecting Nova Biomedical BioProfile® FLEX2, Beckman Coulter Vi-CELL™ BLU, Roche Cedex® Bio HT, Endress+Hauser Raman Rxn2™/Rxn4™, and Hamilton Arc® / Mettler Toledo Sensors to OpenHistorian GxP Industrial Historian**
+**Connecting Nova Biomedical BioProfile® FLEX2, Beckman Coulter Vi-CELL™ BLU, Roche Cedex® Bio HT, Endress+Hauser Raman Rxn2™/Rxn4™, and Hamilton Arc® / Mettler Toledo Sensors to GxPHistorian GxP Industrial Historian**
 
 ---
 
@@ -9,12 +9,28 @@
 In modern Upstream and Downstream bioprocessing, online bioreactor probes (Temperature, pH, DO) tell only half the story. Critical Quality Attributes (CQAs) and biological state metrics—**Viable Cell Density (VCD)**, **Cell Viability (%)**, **Glucose**, **Lactate**, **Glutamine**, **Glutamate**, **Ammonium ($\text{NH}_4^+$)**, **Osmolality**, and **Monoclonal Antibody (IgG) Titer**—are measured by:
 
 1. **At-Line Automated Cell & Metabolite Analyzers:**
-   - **Nova Biomedical BioProfile® FLEX2** (coupled with the BioProfile® Automated Sampler or **Flownamics® Seg-Flow®** online sampling system)
-   - **Beckman Coulter Vi-CELL™ BLU** (automated Trypan Blue imaging cell viability analyzer)
-   - **Roche CustomBiotech Cedex® Bio HT & Cedex® HiRes** (high-throughput metabolite, substrate, and IgG titer analyzer)
+   - **[Nova Biomedical BioProfile® FLEX2](https://www.novabiomedical.com/flex-2/)** (coupled with the BioProfile® Automated Sampler or **[Flownamics® Seg-Flow®](https://flownamics.com)** online sampling system)
+   - **[Beckman Coulter Vi-CELL™ BLU](https://www.beckman.com/cell-counters-and-analyzers/vi-cell-blu)** (automated Trypan Blue imaging cell viability analyzer)
+   - **[Roche CustomBiotech Cedex® Bio HT](https://custombiotech.roche.com/global/en/products/cedex-bio-ht-analyzer.html) & Cedex® HiRes** (high-throughput metabolite, substrate, and IgG titer analyzer)
 2. **In-Line PAT Spectroscopy & Smart Sensors:**
-   - **Endress+Hauser (Kaiser) Raman Rxn2™ / Rxn4™ Bioprocess Analyzer** (*in situ* Raman spectroscopy predicting real-time glucose, lactate, VCD, and antibody titer for closed-loop nutrient feeding)
-   - **Hamilton Arc® (Incyte® Permittivity/Biomass, VisiFerm™ Optical DO, EasyFerm™ pH) & Mettler Toledo InPro® / M800 Transmitters**
+   - **[Endress+Hauser (Kaiser) Raman Rxn2™ / Rxn4™ Bioprocess Analyzer](https://www.endress.com/en/Field-instruments-overview/Product-finder/Raman-Rxn2-analyzer)** (*in situ* Raman spectroscopy predicting real-time glucose, lactate, VCD, and antibody titer for closed-loop nutrient feeding)
+   - **[Hamilton Arc®](https://www.hamiltoncompany.com/process-analytics/arc-sensors) (Incyte® Permittivity/Biomass, VisiFerm™ Optical DO, EasyFerm™ pH) & [Mettler Toledo InPro® / M800 Transmitters](https://www.mt.com/us/en/home/products/Process-Analytics/Multi-parameter-transmitters/M800.html)**
+
+![PAT Cell Analyzers, Metabolite Analyzers & In-Line Raman Spectroscopy Visual Wiring Guide](images/instruments/pat-analyzers-spectroscopy.svg)
+
+---
+
+## 1.5 Non-Technical Step-by-Step Physical & Software Connection Walkthrough
+
+Lab scientists and PAT engineers can connect all five instrument families to **GxPHistorian** without writing custom vendor drivers by following this physical port and menu guide:
+
+| PAT Instrument | Where to Plug In on the Physical Unit | Exact Touchscreen / PC Software Menu Click-Path | How GxPHistorian Ingests It |
+| :--- | :--- | :--- | :--- |
+| **1. [Nova Biomedical BioProfile® FLEX2](https://www.novabiomedical.com/flex-2/) (+ [Seg-Flow®](https://flownamics.com) Autosampler)** | Look at the **rear panel, lower-left corner** next to the power cord. Plug a **Cat6 Ethernet cable** into the **RJ45 Network Port**. *(If using a Flownamics Seg-Flow® 4800 autosampler, also connect its rear RJ45 port to the same lab switch).* | Log in as **Admin** on the FLEX2 touchscreen $\rightarrow$ **Setup $\rightarrow$ System Configuration $\rightarrow$ Network / OPC**. Enter Static IP `10.20.50.10`, check **Enable OPC UA Server (`Port 4840`)**, and also enable **Auto-Export CSV to Network Share (`\\10.20.10.50\gxphistorian_ufl\incoming\flex2`)**. | Telegraf `[[inputs.opcua]]` OR `ufl_file_collector.py` (`is_step_tag = true`, `exc_dev = 0.0`) |
+| **2. [Beckman Coulter Vi-CELL™ BLU](https://www.beckman.com/cell-counters-and-analyzers/vi-cell-blu)** | Look at the **back of the Vi-CELL BLU benchtop unit** (or the rear of the integrated Windows 10 PC). Plug a **Cat6 Ethernet cable** into the **RJ45 `LAN` port**. | Log in to Vi-CELL BLU software as **Administrator** $\rightarrow$ **Setup (Gear Icon) $\rightarrow$ System $\rightarrow$ Connectivity / Automation**. Toggle **Enable OPC UA Server = ON** (`Port 4840` or `49320`) and enable **Auto-Export Sample CSV** on completion. | Telegraf `[[inputs.opcua]]` (`is_step_tag = true`, `exc_dev = 0.0`) |
+| **3. [Roche CustomBiotech Cedex® Bio HT](https://custombiotech.roche.com/global/en/products/cedex-bio-ht-analyzer.html) / Cedex® HiRes** | The Cedex Bio HT analyzer connects to its local **Cedex Control Center Windows PC** over USB/Serial. Plug a **Cat6 cable** into **NIC 2 (or a USB-to-Ethernet adapter)** on the Cedex PC. | Open **Cedex Control Center $\rightarrow$ System $\rightarrow$ Configuration $\rightarrow$ Data Export / Host Interface**. Check **Automatic Result Archiving after Each Measurement** and set the export folder to `\\10.20.10.50\gxphistorian_ufl\incoming\cedex_bio_ht`. | `ufl_file_collector.py` parses `VesselID`, `SampleTimestamp`, `GLC`, `LAC`, `IGG` with `SHA-256` seal |
+| **4. [Endress+Hauser (Kaiser) Raman Rxn2™ / Rxn4™](https://www.endress.com/en/Field-instruments-overview/Product-finder/Raman-Rxn2-analyzer)** | Fiber-optic immersion probes (`bIO-Optic`) connect to the **4-Channel Laser Unit**, which connects to the **Embedded Analyzer Rear RJ45 Ethernet Port**. Plug a **Cat6A cable** into the rear RJ45 port. | In **Raman RunTime™** (or **SIMCA®-online**), go to **Configuration $\rightarrow$ Communications $\rightarrow$ OPC UA / Modbus**. Enable **OPC UA Server (`Port 4840`)** to publish predicted Chemometric PLS concentrations (`Predicted_Glucose_g_L`, `Predicted_Lactate_g_L`, `Predicted_VCD`, `Hotelling_T2`, `DModX`). | Telegraf `[[inputs.opcua]]` (`is_step_tag = false`, continuous `1–5 min` scans) |
+| **5. [Hamilton Arc® Smart Probes](https://www.hamiltoncompany.com/process-analytics/arc-sensors) (`Incyte` VCD, `VisiFerm` DO, `EasyFerm` pH)** | Screw an **8-Pin M12 Sensor Cable** (`Hamilton Ref 242079`) onto the top of the probe head. Connect the pigtail wires (`RS-485 D+`, `D-`, `GND`, `+24V DC`) into a **[Moxa MGate MB3180](https://www.moxa.com/en/products/industrial-edge-connectivity/protocol-gateways/modbus-tcp-gateways/mgate-mb3180-mb3280-mb3480-series)** Modbus gateway (or **Hamilton Arc Wi 2G** adapter). | Connect your smartphone/tablet via Bluetooth to the probe using the **Hamilton ArcAir® App** (with `Advanced` role). Verify **Modbus RTU Slave Address** (`1..32`, unique per probe on the daisy chain) and **Baud Rate = `19200, 8, N, 2`**. | Telegraf `[[inputs.modbus]]` polls IEEE-754 `FLOAT32` registers (`2088`, `2408`) every `1 s` |
 
 ---
 
@@ -40,7 +56,7 @@ flowchart LR
     WATCH --> WAL
   end
 
-  subgraph Core["OpenHistorian GxP Historian"]
+  subgraph Core["GxPHistorian GxP Historian"]
     CH["ClickHouse 24.8 Archive\n(pi_historian.sensor_data)"]
     PG["PostgreSQL 16 Control Plane\n(is_step_tag=true for Sparse Assays)"]
     API["FastAPI Control Plane\n(DataLink LOCF + Event Frames)"]
@@ -58,7 +74,7 @@ flowchart LR
 
 ---
 
-## 3. Golden Rules for Sparse At-Line Analytical Samples in OpenHistorian
+## 3. Golden Rules for Sparse At-Line Analytical Samples in GxPHistorian
 
 Unlike a 1 Hz thermocouple, an at-line **BioProfile® FLEX2**, **Vi-CELL™ BLU**, or **Cedex® Bio HT** produces a discrete analytical result vector once every 1 to 12 hours per bioreactor vessel. To prevent data loss or interpolation distortion:
 
@@ -86,8 +102,8 @@ Configure `edge-collector/telegraf-clickhouse.conf` to subscribe to the FLEX2 / 
   endpoint = "opc.tcp://10.20.50.10:4840/BioProfileOPC"
   security_policy = "Basic256Sha256"
   security_mode = "SignAndEncrypt"
-  certificate = "/etc/telegraf/certs/openhistorian_client_cert.pem"
-  private_key = "/etc/telegraf/certs/openhistorian_client_key.pem"
+  certificate = "/etc/telegraf/certs/gxphistorian_client_cert.pem"
+  private_key = "/etc/telegraf/certs/gxphistorian_client_key.pem"
 
   nodes = [
     { name = "val", namespace = "2", identifier_type = "s", identifier = "FLEX2.BR201.Gluc",      default_tags = { tag_id = "501" } },

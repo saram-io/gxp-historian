@@ -1,6 +1,6 @@
 # Downstream Processing (DSP): Chromatography, TFF/UF/DF & Viral Filtration Integration Guide
 
-**Connecting Cytiva ÄKTA™ (UNICORN™ 7), Sartorius Sartoflow® / Resolute®, and MilliporeSigma Mobius® / Cogent® Skids to OpenHistorian GxP Industrial Historian**
+**Connecting Cytiva ÄKTA™ (UNICORN™ 7), Sartorius Sartoflow® / Resolute®, and MilliporeSigma Mobius® / Cogent® Skids to GxPHistorian GxP Industrial Historian**
 
 ---
 
@@ -8,7 +8,22 @@
 
 Downstream Processing (DSP)—Protein A affinity capture, ion-exchange polishing, viral inactivation, ultrafiltration/diafiltration (UF/DF / TFF), and nanofiltration—requires **high-frequency, lossless signal capture** (`0.5 s` to `1 s` scan rates) with **LTTB peak preservation**. Unlike slow upstream temperature trends, a chromatography UV 280 nm elution peak or transmembrane pressure (TMP) spike occurs over seconds, and peak height/area (AUC) directly governs pooling gates and yield calculations.
 
-OpenHistorian GxP Industrial Historian is pre-seeded with a chromatography UV 280 nm tag (`Tag 401: CHROM_UV280_PV` in `init-postgres/01_control_plane_part11.sql`) and includes a production Windows localhost OPC DA forwarder (`edge-collector/scripts/opcda_windows_forwarder.py`) specifically designed for chromatography skid workstations.
+GxPHistorian GxP Industrial Historian is pre-seeded with a chromatography UV 280 nm tag (`Tag 401: CHROM_UV280_PV` in `init-postgres/01_control_plane_part11.sql`) and includes a production Windows localhost OPC DA forwarder (`edge-collector/scripts/opcda_windows_forwarder.py`) specifically designed for chromatography skid workstations.
+
+![Downstream Chromatography, TFF Filtration & LTTB UV280 Peak Preservation Visual Wiring Guide](images/instruments/dsp-chromatography-tff.svg)
+
+---
+
+## 1.5 Non-Technical Step-by-Step Physical & Software Connection Walkthrough
+
+Downstream purification skids (**[Cytiva ÄKTA™](https://www.cytivalifesciences.com/en/us/about-us/our-brands/akta)**, **[Sartorius Sartoflow®](https://www.sartorius.com/en/products/tangential-flow-filtration-tff/tff-systems)**, **[MilliporeSigma Mobius® / Cogent®](https://www.sigmaaldrich.com/US/en/products/pharma-and-biopharma-manufacturing/mobius-single-use-solutions)**) use a dual-network design to protect internal real-time pump/UV control. Follow this exact checklist to plug in safely:
+
+| Downstream Skid | CRITICAL Physical Connection Rule (Where to Plug In) | Software Menu / Service to Enable | Sampling & Peak Rule |
+| :--- | :--- | :--- | :--- |
+| **1. [Cytiva ÄKTA™ avant, ÄKTA™ pilot, ÄKTA™ ready & readyflux (UNICORN™ 7)](https://www.cytivalifesciences.com/en/us/about-us/our-brands/akta)** | **WARNING:** Never unplug the Ethernet cable going to the **CU-950 Control Box** (`192.168.0.x` private instrument link) or the ÄKTA will immediately fault! Instead, plug your **Cat6 cable** into **NIC 2 (Plant Network)** on the **UNICORN™ 7 Windows Workstation PC** (or connect to the central **UNICORN™ Database Server**). | Install the **UNICORN™ OPC Server** option (`UNICORN.OPCServer.1` for OPC DA or `UNICORN 7.6+ OPC UA Server`). Run `edge-collector/scripts/opcda_windows_forwarder.py` locally on the UNICORN PC so **zero Windows DCOM firewall ports** need to be opened! | Poll `UV1_280`, `Cond`, `P901`, `Flow` every **`0.5 s` – `1.0 s`** (`is_step_tag = false`) so ClickHouse LTTB preserves exact elution peak height ($\text{mAU}$) and area ($\text{AUC}$). |
+| **2. [Cytiva ÄKTA™ process (Figurate™ Automation)](https://www.cytivalifesciences.com/en/us/about-us/our-brands/akta)** | Open the stainless **Figurate™ PLC Cabinet** on the ÄKTA process skid. Plug a **Cat6A Shielded cable** into the **Northbound Plant LAN (`X2`)** port on the **[Emerson DeltaV™](https://www.emerson.com/en-us/automation/control-and-safety-systems/distributed-control-systems-dcs/deltav-distributed-control-system) PK Controller** or **[Rockwell ControlLogix `1756-EN2T`](https://www.rockwellautomation.com/en-us/capabilities/process-solutions/process-systems/plantpax-distributed-control-system.html)**. | Enable the onboard **OPC UA Server (`Port 4840`)** on the secondary interface (`10.20.60.15:4840`) with `Basic256Sha256` security. | Poll every `500 ms` (`0.5 s`) during `ELUTION` and `VIRAL_INACTIVATION` phases. |
+| **3. [Sartorius Sartoflow® Advanced / Modular](https://www.sartorius.com/en/products/tangential-flow-filtration-tff/tff-systems) & Resolute® AutoPak** | Locate the **[Siemens S7-1500 (`Biobrain`)](https://www.siemens.com)** inside the skid control cabinet (or the external **M12 D-coded washdown bulkhead**). Plug a **Cat6A cable** into **Port `X2` (Plant Network)**. | On the **Biobrain / [BioPAT® MFCS 4](https://www.sartorius.com/en/products/process-control-tools/biopat-mfcs-scada-software)** screen, enable **OPC UA Server (`Port 4840`)** (or enable `Permit PUT/GET` for `S7comm` on `Port 102`). | Tracks Feed Pressure ($P_{\text{feed}}$), Retentate ($P_{\text{ret}}$), Permeate ($P_{\text{perm}}$), $\text{TMP} = \frac{P_{\text{feed}}+P_{\text{ret}}}{2} - P_{\text{perm}}$, and Retentate Scale Weight (`kg`). |
+| **4. [MilliporeSigma Mobius® Chrom 20 / FlexReady & Cogent® Process Scale TFF](https://www.sigmaaldrich.com/US/en/products/pharma-and-biopharma-manufacturing/mobius-single-use-solutions)** | Open the **Rockwell CompactLogix / ControlLogix** enclosure on the rear of the Mobius or Cogent skid. Plug a **Cat6A cable** into **Port 2 (`Plant LAN`)** of the dual-IP processor/switch. | On the skid HMI (or **FactoryTalk Linx Gateway**), enable **OPC UA Server (`Port 4840`)** and assign Read-Only historian permissions. | Automatically triggers an ISA-88 Event Frame when Low-pH Viral Inactivation (`pH <= 3.60`) hold timer starts and ends. |
 
 ---
 
@@ -31,7 +46,7 @@ flowchart LR
     OPCUA --> WAL
   end
 
-  subgraph Core["OpenHistorian GxP Historian"]
+  subgraph Core["GxPHistorian GxP Historian"]
     CH["ClickHouse 24.8 Archive\n(Gorilla Float64 + LTTB Peak Preservation)"]
     PG["PostgreSQL 16 Control Plane\n(Elution Peak & Viral Inactivation Event Frames)"]
   end
@@ -122,5 +137,5 @@ MilliporeSigma’s **Mobius®** single-use chromatography systems and **Cogent®
 
 Standard time-bucket averaging (`GROUP BY toStartOfMinute(ts)`) flattens sharp chromatography UV 280 nm elution peaks and hides transient column over-pressure spikes.
 
-OpenHistorian GxP Historian’s `/api/v1/trends/plot-values` endpoint (`app/main.py`) uses ClickHouse’s native **`largestTriangleThreeBuckets(N)` (LTTB)** algorithm over raw `quality >= 192` samples:
-- Whether an operator views a 6-hour chromatography run across 200 screen pixels in Grafana (`openhistorian_bioreactor_hmi.json`) or exports plot values for batch review, LTTB mathematically preserves the **exact maximum apex (`mAU`) and inflection shoulders** of every elution peak (verified by automated qualification test `test_oq_09_lttb_peak_preservation` in `gxp-validation-package/tests/test_03_oq_historian_core.py`).
+GxPHistorian GxP Historian’s `/api/v1/trends/plot-values` endpoint (`app/main.py`) uses ClickHouse’s native **`largestTriangleThreeBuckets(N)` (LTTB)** algorithm over raw `quality >= 192` samples:
+- Whether an operator views a 6-hour chromatography run across 200 screen pixels in Grafana (`gxphistorian_bioreactor_hmi.json`) or exports plot values for batch review, LTTB mathematically preserves the **exact maximum apex (`mAU`) and inflection shoulders** of every elution peak (verified by automated qualification test `test_oq_09_lttb_peak_preservation` in `gxp-validation-package/tests/test_03_oq_historian_core.py`).

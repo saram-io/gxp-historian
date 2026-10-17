@@ -1,9 +1,9 @@
 ---
 title: Overview & OSIsoft PI System Parity
-description: Executive overview of OpenHistorian GxP Industrial Historian, OSIsoft / AVEVA PI System Parity Matrix, Container Port Matrix, and Repository Layout.
+description: Executive overview of GxPHistorian GxP Industrial Historian, OSIsoft / AVEVA PI System Parity Matrix, Container Port Matrix, and Repository Layout.
 ---
 
-**OpenHistorian GxP Industrial Historian** is a production-ready, **21 CFR Part 11**, **EU GMP Annex 11**, and **ISPE GAMP 5 (Second Edition)** qualified open-source replacement for the proprietary **OSIsoft / AVEVA PI System**, engineered specifically for pharmaceutical, biotechnology, and regulated industrial manufacturing environments.
+**GxPHistorian GxP Industrial Historian** is a production-ready, **21 CFR Part 11**, **EU GMP Annex 11**, and **ISPE GAMP 5 (Second Edition)** qualified open-source replacement for the proprietary **OSIsoft / AVEVA PI System**, engineered specifically for pharmaceutical, biotechnology, and regulated industrial manufacturing environments.
 
 It combines:
 - **ClickHouse 24.8 LTS** — Lossless `DoubleDelta` + `Gorilla` time-series telemetry archive, real-time 1-minute `AggregatingMergeTree` rollups, and native `largestTriangleThreeBuckets` (LTTB) visual downsampling.
@@ -16,14 +16,14 @@ It combines:
 
 ## 1. OSIsoft / AVEVA PI System Parity Matrix
 
-| Legacy OSIsoft / AVEVA PI Component | OpenHistorian GxP Historian Equivalent | Key Technical Capabilities |
+| Legacy OSIsoft / AVEVA PI Component | GxPHistorian GxP Historian Equivalent | Key Technical Capabilities |
 | :--- | :--- | :--- |
 | **PI Data Archive** (Swinging Door / Archive Subsystem) | **ClickHouse 24.8 LTS (`pi_historian.sensor_data`)** | `MergeTree` partitioned by month (`toYYYYMM(ts)`) with lossless `Delta`, `DoubleDelta`, `Gorilla`, and `T64` codecs layered with `ZSTD(1)` + real-time 1-minute `AggregatingMergeTree` rollups (`sensor_rollup_1m`). |
 | **PI Asset Framework (PI AF)** | **PostgreSQL 16 `ltree` + ClickHouse `FLAT` Dictionary** | ISA-95 hierarchical asset paths (`Enterprise.Site.Area.Unit`) indexed via PostgreSQL `GiST` and synchronized into ClickHouse RAM (`pi_historian.pg_asset_tags`) with 5–15s refresh lifetime. |
 | **PI Event Frames (EF)** | **PostgreSQL `event_frames` + FastAPI State Machine** | Automated ISA-88 batch & excursion detection (`BR201_TEMP_PV > 38.0°C`), ClickHouse `quality >= 192` KPI capture (`peak_val`, `avg_val`, `min_val`, `sample_count`), and 21 CFR Part 11 electronic signatures. |
 | **PI Interface Node & PI Buffer Subsystem** | **Telegraf 1.32 Disk WAL + Python Edge Workers** | Stage 1 Exception/Deadband filtering (`ExcDev` & `ExcMax`) in memory + disk-backed Write-Ahead Log (`/var/lib/telegraf/buffer`, 1M metric capacity) for zero-data-loss store-and-forward across OPC UA, BACnet/IP, Siemens S7, Modbus, and Windows OPC DA. |
 | **PI Vision** (`PlotValues` Trends & EF Overlays) | **Grafana OSS 11.2 + ClickHouse `largestTriangleThreeBuckets`** | Asset-relative dashboard (`${asset_path}`) with native ClickHouse LTTB visual peak preservation, 1-minute rollup bands, Event Frame shaded region annotations, and live Part 11 audit trail inspection. |
-| **PI DataLink** (Excel `PISampDat`, `PIAdvCalcDat`) | **FastAPI `/api/v1/datalink/sampled` + `xlwings` UDF / Power Query** | Drop-in `=OPENHISTORIAN_SAMPLED()`, `=OPENHISTORIAN_PLOT_VALUES()`, and `=OPENHISTORIAN_EVENT_SUMMARY()` Excel functions plus zero-macro Power Query CSV streams respecting continuous (`LINEAR`) vs. discrete (`LOCF` step) tag metadata. |
+| **PI DataLink** (Excel `PISampDat`, `PIAdvCalcDat`) | **FastAPI `/api/v1/datalink/sampled` + `xlwings` UDF / Power Query** | Drop-in `=GXPHISTORIAN_SAMPLED()`, `=GXPHISTORIAN_PLOT_VALUES()`, and `=GXPHISTORIAN_EVENT_SUMMARY()` Excel functions plus zero-macro Power Query CSV streams respecting continuous (`LINEAR`) vs. discrete (`LOCF` step) tag metadata. |
 | **PI Integrator for Business Analytics** | **FastAPI + PyArrow Zero-ETL Lakehouse Exporter** | One-call (`POST /api/v1/lakehouse/export-parquet`) Snappy-compressed Apache Parquet export enriched with ISA-95 asset hierarchy and engineering units. |
 
 ---
@@ -68,11 +68,11 @@ clickhouse-historian/
 │   ├── datasources/datasources.yml                   # Auto-provisioned ClickHouse & PostgreSQL datasources
 │   └── dashboards/
 │       ├── dashboards.yml                            # Dashboard provider configuration
-│       └── openhistorian_bioreactor_hmi.json         # Asset-relative Bioreactor & Cleanroom HMI dashboard
+│       └── gxphistorian_bioreactor_hmi.json         # Asset-relative Bioreactor & Cleanroom HMI dashboard
 ├── docs/                                             # 8 Biopharma & Legacy Equipment Integration Guides
 ├── docs-site/                                        # Astro Starlight Documentation Portal
 ├── excel-datalink-client/
-│   ├── openhistorian_datalink_udf.py                 # xlwings UDFs (=OPENHISTORIAN_SAMPLED, etc.)
+│   ├── gxphistorian_datalink_udf.py                 # xlwings UDFs (=GXPHISTORIAN_SAMPLED, etc.)
 │   └── README_EXCEL_SETUP.md                         # Power Query (zero-macro) & xlwings setup guide
 └── gxp-validation-package/
     ├── generate_gmp_binder.py                        # Automated 8-Document GMP Validation Binder generator

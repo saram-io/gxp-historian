@@ -1,4 +1,4 @@
-# .antigravity/rules.md — GxP Open-Source Industrial Historian Guardrails
+# .antigravity/rules.md — GxPHistorian GxP Industrial Historian Guardrails
 
 1. **4-Pillar Architecture Invariant:**
    - **Pillar 1 (`edge-collector`):** Telegraf + Python `execd` workers normalize all protocols (OPC UA, BACnet/IP, Modbus, Siemens S7, and Windows OPC DA HTTP batches) into `(tag_id, ts, val, quality, status_code)` with disk-backed store-and-forward buffering.
@@ -15,5 +15,14 @@
    - All mutations (`INSERT`, `UPDATE`, `DELETE`) on `asset_templates`, `assets`, `tags`, and `event_frames` in PostgreSQL MUST require session settings `app.actor_id` and `app.change_reason`. Missing context must raise a PostgreSQL exception.
    - `part11_audit_log` must compute a cryptographic `SHA-256` hash chain (`row_hash = encode(digest(prev_hash || recorded_at || actor_id || operation || coalesce(new_payload::text, ''), 'sha256'), 'hex')`) and enforce a `BEFORE UPDATE OR DELETE OR TRUNCATE` trigger that raises an exception unconditionally (even against superusers).
 
-4. **Verification Gate:**
-   - Never mark a phase complete until you have executed the specified terminal verification commands and confirmed zero errors.
+4. **Brand & Identifier Invariant (`GxPHistorian`):**
+   - Always use the exact casing **`GxPHistorian`** (capital `G`, lowercase `x`, capital `P`, capital `H`) in titles and prose. Never use deprecated names (`OpenPI`, `OpenHistorian`) or miscased variants (`GxpHistorian`).
+   - Use lowercase `gxphistorian` for filenames, Grafana dashboard UIDs (`gxphistorian-gxp-bioreactor-hmi`), and Cloudflare Workers names (`gxphistorian-docs`).
+   - Use uppercase `GXPHISTORIAN` for Excel DataLink UDFs (`=GXPHISTORIAN_SAMPLED`, `=GXPHISTORIAN_PLOT_VALUES`, `=GXPHISTORIAN_EVENT_SUMMARY`) and GMP Validation Binder document IDs (`VMP-GXPHISTORIAN-2026-001` through `VSR-GXPHISTORIAN-2026-008`).
+
+5. **Validation Binder & Documentation Site Synchronization Gate:**
+   - Whenever modifying `docs/*.md`, `provisioning/grafana/dashboards/`, or `gxp-validation-package/`, always run the full synchronization pipeline before completing the task:
+     1. If Grafana dashboards changed, restart Grafana (`docker compose restart grafana-vision`) and run `.venv/bin/pytest -v` to update `gxp-validation-package/evidence/oq_execution_results.json`.
+     2. Regenerate the 8-document GMP binder and HTML artifact: `.venv/bin/python3 gxp-validation-package/generate_gmp_binder.py`.
+     3. Sync and build the Astro Starlight documentation site: `pnpm --dir docs-site build` (which runs `node scripts/sync-docs.mjs && astro build`).
+   - Never mark a phase complete until all terminal verification commands succeed with zero errors.

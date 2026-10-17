@@ -1,9 +1,9 @@
 ---
 title: REST API Reference (historian-api)
-description: Complete REST API documentation for the OpenHistorian FastAPI Control Plane (asset tree, tag provisioning, LTTB trends, DataLink interpolation, ISA-88 Event Frames, Part 11 signatures, and Apache Parquet exports).
+description: Complete REST API documentation for the GxPHistorian FastAPI Control Plane (asset tree, tag provisioning, LTTB trends, DataLink interpolation, ISA-88 Event Frames, Part 11 signatures, and Apache Parquet exports).
 ---
 
-The OpenHistorian Control Plane (`historian-api`, implemented in `app/main.py`) exposes a unified GxP REST API on internal port `8000` (mapped to host port `8020` by default in `.env`).
+The GxPHistorian Control Plane (`historian-api`, implemented in `app/main.py`) exposes a unified GxP REST API on internal port `8000` (mapped to host port `8020` by default in `.env`).
 
 Interactive OpenAPI / Swagger UI documentation is available at:
 - **`http://localhost:8020/docs`**

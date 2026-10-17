@@ -1,6 +1,6 @@
-# OpenHistorian GxP Documentation Site (Astro Starlight + Cloudflare Workers)
+# GxPHistorian GxP Documentation Site (Astro Starlight + Cloudflare Workers)
 
-This directory contains the standalone **Astro Starlight** documentation portal for the **OpenHistorian GxP Industrial Historian**, configured for deployment on **Cloudflare Workers Static Assets** (not Cloudflare Pages) via [`wrangler.jsonc`](wrangler.jsonc).
+This directory contains the standalone **Astro Starlight** documentation portal for the **GxPHistorian GxP Industrial Historian**, configured for deployment on **Cloudflare Workers Static Assets** (not Cloudflare Pages) via [`wrangler.jsonc`](wrangler.jsonc).
 
 ## Features
 

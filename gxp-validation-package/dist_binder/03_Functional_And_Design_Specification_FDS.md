@@ -1,6 +1,6 @@
 # Document 03 — Functional & Design Specification (FDS)
 
-**Document ID:** `FDS-OPENHISTORIAN-2026-003` | **Effective Date (UTC):** `2026-10-17T13:35:22Z`
+**Document ID:** `FDS-GXPHISTORIAN-2026-003` | **Effective Date (UTC):** `2026-10-17T17:51:09Z`
 
 ---
 
@@ -27,5 +27,5 @@
    - Trigger `fn_enforce_part11_audit()` enforces `current_setting('app.actor_id', true)` and `current_setting('app.change_reason', true)` and computes `row_hash = encode(digest(prev_hash || recorded_at::text || actor_id || operation || coalesce(new_payload::text, ''), 'sha256'), 'hex')`.
    - Trigger `fn_prevent_audit_tampering()` blocks `UPDATE`, `DELETE`, and `TRUNCATE` on `part11_audit_log`.
 4. **Pillar 4 — Operator HMI & Excel DataLink (`grafana-vision` + `excel-datalink-client`):**
-   - Grafana OSS 11.2.0 pre-provisioned with `clickhouse_core` and `postgres_control` datasources and the asset-relative dashboard `OpenHistorian Vision — GxP Bioreactor & Cleanroom HMI`.
-   - Excel DataLink UDF module (`openhistorian_datalink_udf.py`) and native Power Query CSV endpoint (`/api/v1/datalink/sampled?format=csv`).
+   - Grafana OSS 11.2.0 pre-provisioned with `clickhouse_core` and `postgres_control` datasources and the asset-relative dashboard `GxPHistorian Vision — GxP Bioreactor & Cleanroom HMI`.
+   - Excel DataLink UDF module (`gxphistorian_datalink_udf.py`) and native Power Query CSV endpoint (`/api/v1/datalink/sampled?format=csv`).

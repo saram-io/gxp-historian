@@ -2,13 +2,13 @@
 title: "Hardware Sizing & Capacity Planning Guide"
 description: "Hardware sizing, compression math, 10k–25k tag clinical/pilot GMP reference Bill of Materials (BOM), 10-year NVMe + 15-year S3 WORM tiering, and Level 2.5 Industrial Edge IPC specs."
 ---
-**Engineering Reference & Bill of Materials (BOM) for Deploying OpenHistorian GxP Across Lab, Clinical Pilot, and Commercial cGMP Biomanufacturing Facilities**
+**Engineering Reference & Bill of Materials (BOM) for Deploying GxPHistorian GxP Across Lab, Clinical Pilot, and Commercial cGMP Biomanufacturing Facilities**
 
 ---
 
 ## 1. Executive Summary & Telemetry Compression Math
 
-Unlike legacy relational historians or uncompressed time-series databases, **OpenHistorian GxP Industrial Historian** combines two orthogonal data-reduction layers that reduce storage footprint by **10× to 25×** while preserving **100% mathematically lossless** raw sensor fidelity:
+Unlike legacy relational historians or uncompressed time-series databases, **GxPHistorian GxP Industrial Historian** combines two orthogonal data-reduction layers that reduce storage footprint by **10× to 25×** while preserving **100% mathematically lossless** raw sensor fidelity:
 
 1. **Stage 1 Edge Exception / Deadband Filtering (`ExcDev` & `ExcMax`):**
    - Executed in memory at the Purdue Level 2.5 `edge-collector` before network transmission (`edge-collector/scripts/multi_protocol_simulator.py`).
@@ -169,7 +169,7 @@ To implement the **10-year NVMe hot tier + 15-year S3/MinIO WORM cold tier** wit
       <!-- Immutable S3 / MinIO Object Lock Bucket (Years 10 to 15) -->
       <cold_worm_s3>
         <type>s3</type>
-        <endpoint>https://minio-worm.biocorp.internal:9000/openhistorian-gxp-archive/telemetry/</endpoint>
+        <endpoint>https://minio-worm.biocorp.internal:9000/gxphistorian-gxp-archive/telemetry/</endpoint>
         <access_key_id from_env="S3_ACCESS_KEY_ID" />
         <secret_access_key from_env="S3_SECRET_ACCESS_KEY" />
         <metadata_path>/var/lib/clickhouse/disks/cold_worm_s3/</metadata_path>
@@ -223,7 +223,7 @@ When deploying Level 3 nodes on **VMware vSphere / ESXi**, **Proxmox VE (KVM)**,
      ```
 2. **Disable Hypervisor Memory Ballooning & Host Swap:**
    - Pin 100% of allocated RAM (`64 GB` on ClickHouse VM, `32 GB` on PostgreSQL VM) with **Memory Reservation = 100%** so the hypervisor never reclaims ClickHouse page cache or dictionary RAM.
-   - Set `/etc/sysctl.d/99-openhistorian-gxp.conf` on the Linux host:
+   - Set `/etc/sysctl.d/99-gxphistorian-gxp.conf` on the Linux host:
      ```ini
      vm.swappiness = 1
      vm.max_map_count = 262144

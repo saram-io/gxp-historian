@@ -1,5 +1,5 @@
 system_metadata:
-  system_name: "OpenHistorian GxP Industrial Historian (ClickHouse + PostgreSQL Part 11 Control Plane)"
+  system_name: "GxPHistorian GxP Industrial Historian (ClickHouse + PostgreSQL Part 11 Control Plane)"
   system_version: "1.0.0"
   gamp_category: "Category 4 (Configured Software) & Category 5 (Custom FastAPI Control Plane / Triggers)"
   regulatory_frameworks:

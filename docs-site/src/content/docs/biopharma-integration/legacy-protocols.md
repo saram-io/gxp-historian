@@ -2,7 +2,7 @@
 title: "Legacy Fieldbus, BMS & PLC Protocols Integration Guide"
 description: "Legacy fieldbus and PLC protocol integration: BACnet/IP & MS/TP BBMD routing, Windows COM OPC DA 2.05a zero-DCOM bridge, Modbus RTU/TCP, Siemens S7comm, and 4-20 mA HART."
 ---
-**Connecting Legacy BACnet/IP & MS/TP, Windows COM/DCOM OPC DA 2.05a, Modbus RTU/TCP, Siemens S7comm (S7-300/400), Allen-Bradley DF1/PCCC, and 4–20 mA HART Instruments to OpenHistorian GxP Industrial Historian**
+**Connecting Legacy BACnet/IP & MS/TP, Windows COM/DCOM OPC DA 2.05a, Modbus RTU/TCP, Siemens S7comm (S7-300/400), Allen-Bradley DF1/PCCC, and 4–20 mA HART Instruments to GxPHistorian GxP Industrial Historian**
 
 ---
 
@@ -10,7 +10,7 @@ description: "Legacy fieldbus and PLC protocol integration: BACnet/IP & MS/TP BB
 
 In established cGMP biopharmaceutical facilities, critical equipment—steam sterilizers (autoclaves), Clean-in-Place (CIP) skids, chromatography workstations, cleanroom HVAC/EMS controllers, WFI loops, and stability chambers—often predates OPC UA by 10 to 25 years. Historically, connecting these systems required purchasing and maintaining separate proprietary **OSIsoft / AVEVA PI Interfaces**:
 
-| Legacy Protocol / Physical Layer | Traditional OSIsoft / AVEVA PI Interface | OpenHistorian GxP Historian Equivalent (`edge-collector`) | Typical Biopharma Equipment |
+| Legacy Protocol / Physical Layer | Traditional OSIsoft / AVEVA PI Interface | GxPHistorian GxP Historian Equivalent (`edge-collector`) | Typical Biopharma Equipment |
 | :--- | :--- | :--- | :--- |
 | **BACnet/IP & BACnet MS/TP** (UDP `:47808` / RS-485) | *PI Interface for BACnet* | `edge-collector/scripts/bacnet_cov_worker.py` (`bacpypes3`) | Cleanroom EMS differential pressure cascades, HVAC AHUs, walk-in stability & cold rooms ($2\text{–}8\,^\circ\text{C}$, $-80\,^\circ\text{C}$) |
 | **Classic OPC DA 2.05a / 3.0** (Windows COM/DCOM) | *PI Interface for OPC DA* + *PI Buffer Subsystem* | `edge-collector/scripts/opcda_windows_forwarder.py` (`OpenOPC` + `LocalSpoolBuffer`) | Cytiva UNICORN™ 5/6/7, Emerson DeltaV™ OPC Mirror, Rockwell RSLinx Classic, Sartorius MFCS/win 3 |
@@ -18,6 +18,21 @@ In established cGMP biopharmaceutical facilities, critical equipment—steam ste
 | **Siemens S7comm** (`RFC 1006` ISO-on-TCP `:102`) | *PI Interface for Siemens S7* | Python `snap7` / `[[inputs.s7comm]]` worker $\rightarrow$ `:8080/ingest` | Fedegari / Getinge autoclaves, legacy Sartorius Biostat® D-DCU, Syntegon/Bosch vial washers & depyrogenation tunnels, CIP skids |
 | **Allen-Bradley DF1 / PCCC / EtherNet/IP** (PLC-5 / SLC 500) | *PI Interface for Allen-Bradley DF1 / CIP* | Python `pycomm3` (`SLCDriver` / `LogixDriver`) worker $\rightarrow$ `:8080/ingest` | Legacy Millipore TFF skids, Paul Mueller WFI storage & distribution skids, lyophilizer refrigeration skids |
 | **4–20 mA Analog + HART** (Bell 202 FSK) | *PI Interface for HART / Cornerstone* | HART-to-Modbus TCP Multiplexer $\rightarrow$ `[[inputs.modbus]]` | Legacy Rosemount / Endress+Hauser sanitary pressure, level, PT100 RTD, and Micro Motion Coriolis flow transmitters |
+
+![Legacy Fieldbus, PLC & 4-20mA Analog Wiring Guide for Non-Technical Users](/images/instruments/legacy-fieldbus-plc-wiring.svg)
+
+---
+
+## 1.5 Non-Technical Step-by-Step Physical Wiring & Adapter Guide
+
+If your facility has older equipment from the 1995–2015 era that lacks an OPC UA server or even lacks an Ethernet port, you do **not** need to replace the equipment or upgrade its validated PLC code. Here is the exact hardware adapter to buy and how to wire it in under 15 minutes:
+
+| Legacy Situation | What Hardware Adapter to Buy | How to Physically Wire It | How GxPHistorian Reads It |
+| :--- | :--- | :--- | :--- |
+| **1. Equipment has a 2-Wire or 3-Wire `RS-485` Screw Terminal (`D+`, `D-`, `GND`)** | **[Moxa MGate MB3180](https://www.moxa.com/en/products/industrial-edge-connectivity/protocol-gateways/modbus-tcp-gateways/mgate-mb3180-mb3280-mb3480-series)** (for Modbus RTU, `$160`) or **[Contemporary Controls BASrouter](https://www.ccontrols.com/basautomation/basrouters.php)** (for BACnet MS/TP, `$390`) | Wire `D+` to `D+`, `D-` to `D-`, and `GND` to `GND` in a single **Daisy-Chain line** (never wire RS-485 in a star!). Place a **$120\,\Omega$ termination resistor** across `D+` and `D-` at the first device and at the gateway terminal block. | Gateway converts serial frames into **Modbus TCP (`Port 502`)** or **BACnet/IP (`UDP 47808`)** on your Ethernet LAN. |
+| **2. Legacy Siemens S7-300 / S7-400 Autoclave or CIP Skid has NO Ethernet Port (only a 9-Pin `MPI / PROFIBUS` DB9 socket)** | **[Helmholz NETLink® PRO Compact](https://www.helmholz.de/en/products/fieldbus-applications/profibus/gateways/netlink-pro/artikel/show/700-884-mpi21/)** or **IBH Link S7++** RJ45-to-MPI/PROFIBUS Plug Adapter (`~$450`) | Snap the adapter directly onto the 9-pin female **MPI / DP port (`X1`)** on the front of the S7-300/400 CPU. It draws $24\text{V}$ power directly from the PLC port and provides a pass-through socket so your local HMI stays connected! Plug a **Cat6 cable** into the adapter's top RJ45 port. | `edge-collector` polls the S7-300/400 Data Blocks (`DB`) over **RFC 1006 ISO-on-TCP (`Port 102`, Rack `0`, Slot `2`)** with **zero PLC program changes**. |
+| **3. Legacy Windows XP / 7 / 10 PC runs an `OPC DA 2.05a` Server (`UNICORN`, `RSLinx`, `Kepware`)** | **Zero hardware required** (or a `$20` USB-to-Ethernet adapter if the PC only has 1 NIC) | Never open Windows DCOM port `135` across the network! Copy `edge-collector/scripts/opcda_windows_forwarder.py` onto the Windows PC. | Reads COM `OPC DA` locally on `localhost` (`127.0.0.1`), buffers on disk (`opcda_spool.jsonl`), and pushes outbound HTTP JSON batches to `edge-collector:8080/ingest`. |
+| **4. Standalone `4–20 mA` Analog Transmitter or `PT100 RTD` Temperature Probe** | **[Advantech ADAM-6017](https://www.advantech.com/en/products/iot-modules/adam-6017/mod_9df3d854-3e9a-4712-9856-d76ffefb2100)** (8-Ch `4–20 mA` to Modbus TCP, `$240`) or **Advantech ADAM-6015** (7-Ch `PT100 RTD`, `$240`) | Wire your $24\text{V DC}$ power supply `+24V` to the sensor `+`, sensor `-` to `AI0+` on the ADAM module, and `AI0-` back to `0V COM`. Plug a **Cat6 cable** into the ADAM module's RJ45 port. | Polls milliamps over **Modbus TCP (`Port 502`)**, scales $4\text{–}20\text{ mA}$ linearly to engineering units, and flags `quality = 0` (`Bad`) if loop current drops below $3.6\text{ mA}$ (cut wire). |
 
 ---
 
@@ -51,7 +66,7 @@ flowchart LR
     MOD_IN --> WAL
   end
 
-  subgraph Core["OpenHistorian GxP Historian (Purdue Level 3)"]
+  subgraph Core["GxPHistorian GxP Historian (Purdue Level 3)"]
     CH["ClickHouse 24.8 Archive\n(pi_historian.sensor_data)"]
     PG["PostgreSQL 16 Control Plane\n(Part 11 Audit + Event Frames)"]
   end
@@ -122,7 +137,7 @@ Legacy **OPC DA 2.05a** relies on Microsoft **DCOM (Distributed Component Object
 2. Requires matching Windows NTLM workgroup credentials or bidirectional Active Directory trust between the Level 2 skid PC and the Level 3 historian node.
 3. Microsoft hardened DCOM authentication (`KB5004442` packet integrity enforcement), breaking legacy anonymous/unencrypted DCOM connections to older Windows 7 / Windows 10 LTSC skid workstations.
 
-#### The OpenHistorian Zero-DCOM Solution
+#### The GxPHistorian Zero-DCOM Solution
 Run `edge-collector/scripts/opcda_windows_forwarder.py` directly on the Windows OPC DA workstation as a local Windows service (using a 32-bit Python environment if the vendor OPC server is a 32-bit COM DLL/EXE registered under `HKLM\SOFTWARE\WOW6432Node\Classes`):
 - **Localhost COM Only:** `self._opc_client.connect(self.prog_id, "localhost")` communicates strictly within the local Windows kernel via LRPC (Local RPC)—zero inbound firewall ports are opened on the skid PC.
 - **Quality Normalization:** `map_opcda_quality()` converts COM quality strings (`"Good"`, `"Good: Local Override"`, `"Uncertain"`, `"Bad: Sensor Failure"`) to standard integer OPC quality codes (`192`, `64`, `0`).
@@ -198,7 +213,7 @@ When connecting legacy **Modbus RTU** (2-wire RS-485 via a Moxa NPort serial dev
 
 Many validated **Fedegari** and **Getinge** GMP steam sterilizers (autoclaves), **Syntegon (Bosch)** vial washers/depyrogenation tunnels, and **CIP skids** run on legacy **Siemens SIMATIC S7-300 (`Rack 0, Slot 2`)** or **S7-400 (`Rack 0, Slot 3`)** PLCs that do not have an onboard OPC UA server. Instead, they communicate via **Siemens `S7comm` (`RFC 1006` ISO-on-TCP over port `102`)**, reading absolute Data Block (`DB`) addresses.
 
-OpenHistorian GxP Historian seeds `Tag 103: BR201_AGIT_STATE` with `source_protocol = 'S7COMM'` and `source_config = '{"rack": 0, "slot": 1, "db": 10, "offset": 0}'` in `init-postgres/01_control_plane_part11.sql`.
+GxPHistorian GxP Historian seeds `Tag 103: BR201_AGIT_STATE` with `source_protocol = 'S7COMM'` and `source_config = '{"rack": 0, "slot": 1, "db": 10, "offset": 0}'` in `init-postgres/01_control_plane_part11.sql`.
 
 #### Production Python `S7comm` Edge Worker Example (`snap7` $\rightarrow$ `:8080/ingest`)
 Below is a complete reference worker for polling a legacy **Siemens S7-300 GMP Steam Autoclave** (chamber temperature, coldest drain temperature, chamber pressure, accumulated $F_0$ sterilization lethality, and sterilization phase state) with Stage 1 deadband filtering:

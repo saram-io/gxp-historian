@@ -2,7 +2,7 @@
 title: "Legacy RS-232 Serial, MT-SICS, ASTM & Flat-File Instruments Integration Guide (PI UFL Replacement)"
 description: "RS-232 / Moxa NPort serial streaming (Mettler Toledo / Sartorius MT-SICS balances, osmometers) and ALCOA+ SHA-256 watchfolder ingestion replacing OSIsoft PI UFL."
 ---
-**Replacing the OSIsoft / AVEVA PI Interface for Universal File and Stream Loading (PI UFL) to Connect Standalone Analytical Balances, Osmometers, Filter Integrity Testers, and Legacy Benchtop Analyzers to OpenHistorian GxP Industrial Historian**
+**Replacing the OSIsoft / AVEVA PI Interface for Universal File and Stream Loading (PI UFL) to Connect Standalone Analytical Balances, Osmometers, Filter Integrity Testers, and Legacy Benchtop Analyzers to GxPHistorian GxP Industrial Historian**
 
 ---
 
@@ -15,11 +15,43 @@ Across media preparation suites, buffer kitchens, In-Process Control (IPC) labor
 
 In a traditional OSIsoft / AVEVA PI System, these instruments are ingested using the **PI Interface for Universal File and Stream Loading (PI UFL)** configured via complex `.ini` regex files.
 
-**OpenHistorian GxP Industrial Historian** replaces *PI UFL* with deterministic Python edge workers that parse serial TCP streams and watched directories, enforce **ALCOA+ data integrity** (preserving the instrument's native measurement timestamp, operator/sample ID, and file SHA-256 hash), spool locally during network outages, and post normalized JSON batches to `http://edge-collector:8080/ingest`.
+**GxPHistorian GxP Industrial Historian** replaces *PI UFL* with deterministic Python edge workers that parse serial TCP streams and watched directories, enforce **ALCOA+ data integrity** (preserving the instrument's native measurement timestamp, operator/sample ID, and file SHA-256 hash), spool locally during network outages, and post normalized JSON batches to `http://edge-collector:8080/ingest`.
+
+![Benchtop RS-232 Serial Instruments & CSV/XML Watch-Folder (PI UFL Replacement) Visual Guide](/images/instruments/serial-rs232-ufl-watchfolder.svg)
 
 ---
 
-## 2. Architecture: Replacing OSIsoft PI UFL with OpenHistorian Edge Workers
+## 1.5 Non-Technical Step-by-Step Setup Guide (Balances, Osmometers & Filter Integrity Testers)
+
+Even if you have never configured a serial port before, you can connect any benchtop **[Mettler Toledo](https://www.mt.com/us/en/home/products/Laboratory_Weighing_Solutions/Balances/XPR-analytical-balance.html) / [Sartorius Cubis® II](https://www.sartorius.com/en/products/lab-weighing/lab-balances/cubis-ii) Balance**, **[Advanced Instruments OsmoTECH®](https://www.aicompanies.com/product/osmotech-xt-single-sample-micro-osmometer/) Osmometer**, or **[Sartocheck® 5](https://www.sartorius.com/en/products/process-filtration/filter-integrity-testing) / [Palltronic® Flowstar](https://www.cytivalifesciences.com/en/us/shop/bioprocess-filtration/integrity-test-instruments/palltronic-flowstar-iv-filter-integrity-test-instrument-p-45129) Filter Integrity Tester** in 4 simple steps:
+
+### Path A: Connecting Any 9-Pin RS-232 Benchtop Balance or Osmometer via a Moxa NPort 5150
+1. **What to Buy:**
+   - **1x [Moxa NPort 5150](https://www.moxa.com/en/products/industrial-edge-connectivity/serial-device-servers/general-device-servers/nport-5100-series)** 1-Port RS-232/422/485 Serial Device Server (`~$130`).
+   - **1x DB9 Serial Cable + DB9 Mini Null-Modem Adapter** (`~$10`, swaps Pin 2 `RX` and Pin 3 `TX`).
+   - **1x Standard Cat6 Ethernet Patch Cable** (`~$10`).
+2. **Plug In the Cables:**
+   - Plug the 9-pin DB9 cable into the **`RS-232 / COM` port on the back of your balance or osmometer** and connect the other end to **Port 1 on the Moxa NPort 5150**.
+   - Plug the **Cat6 Ethernet cable** into the Moxa NPort's RJ45 jack and into your lab wall Ethernet port.
+3. **Set the Balance / Osmometer Screen Settings (Must Match the Moxa!):**
+   - On a **[Mettler Toledo XPR / XSR / ICS Balance](https://www.mt.com/us/en/home/products/Laboratory_Weighing_Solutions/Balances/XPR-analytical-balance.html)**: Tap **Settings $\rightarrow$ Connections $\rightarrow$ RS232 $\rightarrow$ Protocol = `MT-SICS`**, **Baud = `9600`**, **Data Bits = `8`**, **Parity = `None`**, **Stop Bits = `1` (`9600 8N1`)**, **Handshake = `Off/Xon-Xoff`**.
+   - On a **[Sartorius Cubis® II Balance](https://www.sartorius.com/en/products/lab-weighing/lab-balances/cubis-ii)**: Tap **Settings $\rightarrow$ Connections $\rightarrow$ COM / RS232 $\rightarrow$ Protocol = `SBI` or `SICS` (`9600 8N1`)**.
+4. **Configure the Moxa NPort 5150 Web Console (2 Minutes in Any Browser):**
+   - Open `http://192.168.127.254` (default Moxa IP) in your browser and log in (`admin` / `moxa`).
+   - Under **Network Settings**, assign your lab static IP (e.g., `10.20.55.10`).
+   - Under **Serial Settings $\rightarrow$ Port 1**, set **Baud Rate = `9600`**, **Data Bits = `8`**, **Stop Bits = `1`**, **Parity = `None`**, **Interface = `RS-232`**.
+   - Under **Operating Settings $\rightarrow$ Port 1**, select **Operation Mode = `TCP Server Mode`**, **Local TCP Port = `4001`**, **Delimiter 1 = `0D` (`\r`)**, **Delimiter 2 = `0A` (`\n`)**, and click **Save/Restart**.
+   - **How to Verify It Works:** Press the **`Print`** button on your balance and watch the **orange `Tx/Rx` LED** on top of the Moxa NPort blink! If it doesn't blink, snap the **Null-Modem Adapter** onto the DB9 cable and press `Print` again.
+
+### Path B: Connecting a Filter Integrity Tester ([Sartocheck® 5](https://www.sartorius.com/en/products/process-filtration/filter-integrity-testing), [Palltronic® Flowstar V](https://www.cytivalifesciences.com/en/us/shop/bioprocess-filtration/integrity-test-instruments/palltronic-flowstar-iv-filter-integrity-test-instrument-p-45129), `Integritest® 5`) via Shared Folder
+1. Plug a **Cat6 Ethernet cable** into the **rear RJ45 network port** of the Filter Integrity Tester cart.
+2. On the tester's touchscreen, log in as **Administrator $\rightarrow$ System Settings $\rightarrow$ Network Export / File Transfer (SMB/CIFS)**.
+3. Enter the `GxPHistorian` watch-folder network share path: `\\10.20.10.50\gxphistorian_ufl\incoming\filter_integrity` and check **Automatically Export XML/CSV Report After Test Completion**.
+4. Every time an operator finishes a Pre-Use Post-Sterilization Integrity Test (**PUPSIT**) or Post-Use Bubble Point / Diffusion test, the tester drops the signed report into `incoming/`, where `GxPHistorian` hashes the raw file with **SHA-256**, extracts the Bubble Point (`mbar`) and Diffusion Rate (`mL/min`), creates an ISA-88 Event Frame, and moves the original file into the immutable WORM archive!
+
+---
+
+## 2. Architecture: Replacing OSIsoft PI UFL with GxPHistorian Edge Workers
 
 ```mermaid
 flowchart LR
@@ -43,7 +75,7 @@ flowchart LR
     ING --> WAL
   end
 
-  subgraph Core["OpenHistorian GxP Historian"]
+  subgraph Core["GxPHistorian GxP Historian"]
     CH["ClickHouse 24.8 Archive\n(pi_historian.sensor_data)"]
     PG["PostgreSQL 16 Control Plane\n(is_step_tag=true, exc_dev=0.0)"]
   end
@@ -59,7 +91,7 @@ flowchart LR
 
 ## 3. Target Legacy Serial & Flat-File Biopharma Instruments
 
-| Instrument Category | Common Models in GMP Biopharma | Output Interface & Format | Key Parameters Archived in OpenHistorian | Recommended Tag Settings |
+| Instrument Category | Common Models in GMP Biopharma | Output Interface & Format | Key Parameters Archived in GxPHistorian | Recommended Tag Settings |
 | :--- | :--- | :--- | :--- | :--- |
 | **Analytical & Floor Balances** | Mettler Toledo Excellence (XPR/XSR), ICS429/689; Sartorius Cubis® II / Combics | RS-232 / TCP `MT-SICS` (`S S    125.42 g`) or multi-line GLP print ticket | Net Dispensed Weight (`g` or `kg`), Tare Weight, Lot/Material ID (`str_val`) | `is_step_tag = true` (`LOCF`), `exc_dev = 0.0` |
 | **Freezing-Point Osmometers** | Advanced Instruments OsmoTECH®, OsmoPRO®,Osmo1, Fiske® 210; Gonotec Osmomat | RS-232 ASCII ticket, ASTM E1394, or CSV export | Osmolality (`mOsm/kg H2O`), Sample ID (`str_val`) | `is_step_tag = true` (`LOCF`), `exc_dev = 0.0` |
@@ -83,7 +115,7 @@ Standard `MT-SICS` responses follow a strict status grammar:
 ```python
 #!/usr/bin/env python3
 """
-OpenHistorian Replacement for OSIsoft PI UFL (Serial / Moxa NPort TCP Stream Mode).
+GxPHistorian Replacement for OSIsoft PI UFL (Serial / Moxa NPort TCP Stream Mode).
 Parses Mettler Toledo MT-SICS balance frames and Advanced Instruments Osmometer
 RS-232 tickets, maps stability flags to OPC quality (192/64/0), and posts to :8080/ingest.
 """
@@ -169,7 +201,7 @@ When a **Sartorius Sartocheck® 4 Plus** or **Pall Palltronic® Flowstar IV** co
 ```python
 #!/usr/bin/env python3
 """
-OpenHistorian Replacement for OSIsoft PI UFL (Flat-File Watchfolder Mode).
+GxPHistorian Replacement for OSIsoft PI UFL (Flat-File Watchfolder Mode).
 Monitors a directory for Filter Integrity Tester (Sartocheck / Palltronic) and
 benchtop analyzer CSV files, computes SHA-256 file hashes for ALCOA+ auditability,
 extracts explicit test completion timestamps, and posts to :8080/ingest.
@@ -183,7 +215,7 @@ import pathlib
 import shutil
 import httpx
 
-# Map (Equipment_ID, Parameter_Name) -> OpenHistorian tag_id
+# Map (Equipment_ID, Parameter_Name) -> GxPHistorian tag_id
 UFL_TAG_CATALOG = {
     ("FIT_01", "BUBBLE_POINT_MBAR"): 851,
     ("FIT_01", "DIFFUSION_ML_MIN"):  852,
@@ -244,7 +276,7 @@ Because serial balance check-weights, osmolality readings, and filter integrity 
 curl -s -X POST http://localhost:8020/api/v1/tags \
   -H "Content-Type: application/json" \
   -H "X-Actor-Id: operator_01" \
-  -H "X-Change-Reason: Provision Sartocheck 4 Plus Bubble Point tag via OpenHistorian UFL Watchfolder" \
+  -H "X-Change-Reason: Provision Sartocheck 4 Plus Bubble Point tag via GxPHistorian UFL Watchfolder" \
   -d '{
     "tag_id": 851,
     "tag_name": "DSP_FIT01_BUBBLE_PT_PV",
@@ -257,11 +289,11 @@ curl -s -X POST http://localhost:8020/api/v1/tags \
     "high_limit": 5000.0,
     "source_protocol": "PI_UFL_CSV",
     "source_config": {
-      "watch_dir": "/var/spool/openhistorian/fit_drop",
+      "watch_dir": "/var/spool/gxphistorian/fit_drop",
       "equipment_id": "FIT_01",
       "parameter": "BUBBLE_POINT_MBAR"
     }
   }' | jq .
 ```
-If a post-use filter integrity test reports a Bubble Point below `low_limit: 3200.0 mbar` (e.g., `2850.0 mbar`), OpenHistorian’s Event Frame engine (`POST /api/v1/event-frames/evaluate`) automatically opens a `CRITICAL` excursion Event Frame on the batch, requiring formal QA investigation and a dual-challenge **21 CFR Part 11 electronic signature** (`POST /api/v1/event-frames/{event_id}/sign`).
+If a post-use filter integrity test reports a Bubble Point below `low_limit: 3200.0 mbar` (e.g., `2850.0 mbar`), GxPHistorian’s Event Frame engine (`POST /api/v1/event-frames/evaluate`) automatically opens a `CRITICAL` excursion Event Frame on the batch, requiring formal QA investigation and a dual-challenge **21 CFR Part 11 electronic signature** (`POST /api/v1/event-frames/{event_id}/sign`).
 

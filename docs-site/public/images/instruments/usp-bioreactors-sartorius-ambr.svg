@@ -1,0 +1,181 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 560" fill="none" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1120" y2="560" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0b1120"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+  </defs>
+
+  <rect width="1120" height="560" rx="14" fill="url(#bg3)" stroke="#334155" stroke-width="2"/>
+
+  <!-- Header -->
+  <text x="32" y="38" fill="#f8fafc" font-size="19" font-weight="700">Upstream Bioreactors &amp; Parallel Microbioreactors — Physical Ports &amp; Software Setup</text>
+  <text x="32" y="60" fill="#94a3b8" font-size="13">Sartorius Biostat® STR (Biobrain S7-1500) • Sartorius Ambr® 250 / 15 • Thermo HyPerforma™ (TruBio® DV) • Eppendorf BioFlo® 320</text>
+  <line x1="32" y1="74" x2="1088" y2="74" stroke="#334155" stroke-width="1"/>
+
+  <!-- CARD 1: Sartorius Biostat STR Gen 3 -->
+  <rect x="28" y="90" width="252" height="444" rx="10" fill="#162032" stroke="#0284c7" stroke-width="1.5"/>
+  <circle cx="50" cy="114" r="12" fill="#0284c7"/>
+  <text x="50" y="118" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="700">A</text>
+  <text x="68" y="114" fill="#f8fafc" font-size="13" font-weight="700">Sartorius Biostat® STR</text>
+  <text x="68" y="130" fill="#38bdf8" font-size="10.5">Biobrain (S7-1500) + BioPAT® MFCS 4</text>
+
+  <!-- Biostat STR + Biobrain Drawing -->
+  <rect x="46" y="146" width="96" height="148" rx="12" fill="#334155" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="64" y="168" width="60" height="96" rx="5" fill="#0f172a"/>
+  <path d="M64 205 H124 V264 H64 Z" fill="#0d9488" fill-opacity="0.5"/>
+  <text x="94" y="190" text-anchor="middle" fill="#cbd5e1" font-size="8.5" font-weight="700">Flexsafe STR</text>
+  <text x="94" y="232" text-anchor="middle" fill="#99f6e4" font-size="8.5">50L – 2000L</text>
+
+  <rect x="154" y="146" width="110" height="148" rx="6" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+  <rect x="164" y="158" width="90" height="48" rx="3" fill="#0f172a" stroke="#facc15" stroke-width="1.2"/>
+  <text x="209" y="176" text-anchor="middle" fill="#facc15" font-size="9.5" font-weight="700">Biobrain HMI</text>
+  <text x="209" y="193" text-anchor="middle" fill="#34d399" font-size="8">OPC UA: ACTIVE</text>
+
+  <!-- S7-1500 Dual RJ45 Ports inside cabinet -->
+  <rect x="164" y="218" width="90" height="64" rx="4" fill="#0f172a" stroke="#38bdf8"/>
+  <text x="209" y="233" text-anchor="middle" fill="#38bdf8" font-size="8.5" font-weight="700">S7-1500 CPU Ports</text>
+  <rect x="174" y="242" width="30" height="22" rx="2" fill="#1e293b" stroke="#64748b"/>
+  <text x="189" y="256" text-anchor="middle" fill="#94a3b8" font-size="7.5">X1 IO</text>
+  <rect x="214" y="242" width="30" height="22" rx="2" fill="#1e293b" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="229" y="256" text-anchor="middle" fill="#22c55e" font-size="7.5" font-weight="700">X2 IT</text>
+  <text x="209" y="276" text-anchor="middle" fill="#facc15" font-size="8">Plug into X2 (Plant LAN)</text>
+
+  <rect x="42" y="308" width="224" height="210" rx="6" fill="#0f172a" stroke="#334155"/>
+  <text x="52" y="328" fill="#38bdf8" font-size="11" font-weight="700">Physical &amp; Software Steps:</text>
+  <text x="52" y="346" fill="#cbd5e1" font-size="10">1. <tspan fill="#facc15" font-weight="600">Physical:</tspan> Plug Cat6A cable into</text>
+  <text x="52" y="360" fill="#94a3b8" font-size="9.5">   Biobrain cabinet port <tspan fill="#22c55e" font-family="monospace">X2 P1 (Customer LAN)</tspan></text>
+  <text x="52" y="374" fill="#94a3b8" font-size="9.5">   or connect to the BioPAT® MFCS 4 Server.</text>
+  <text x="52" y="394" fill="#cbd5e1" font-size="10">2. <tspan fill="#34d399" font-weight="600">Biobrain Touchscreen:</tspan></text>
+  <text x="52" y="408" fill="#94a3b8" font-size="9.5">   Tap <tspan fill="#38bdf8" font-family="monospace">Settings → Interfaces → OPC UA</tspan></text>
+  <text x="52" y="422" fill="#94a3b8" font-size="9.5">   Set <tspan fill="#34d399" font-family="monospace">Server = Enabled, Port = 4840</tspan>.</text>
+  <text x="52" y="442" fill="#cbd5e1" font-size="10">3. <tspan fill="#34d399" font-weight="600">BioPAT® MFCS 4 Server:</tspan></text>
+  <text x="52" y="456" fill="#94a3b8" font-size="9.5">   Open <tspan fill="#38bdf8" font-family="monospace">MFCS Configuration → OPC UA</tspan></text>
+  <text x="52" y="470" fill="#94a3b8" font-size="9.5">   Endpoint: <tspan fill="#facc15" font-family="monospace">opc.tcp://&lt;IP&gt;:4840</tspan></text>
+  <text x="52" y="490" fill="#cbd5e1" font-size="10">4. <tspan fill="#c084fc" font-weight="600">Legacy B-DCU / D-DCU:</tspan></text>
+  <text x="52" y="504" fill="#94a3b8" font-size="9.5">   Use S7comm (<tspan font-family="monospace">:102</tspan>) or MFCS OPC DA.</text>
+
+  <!-- CARD 2: Sartorius Ambr 250 / Ambr 15 -->
+  <rect x="294" y="90" width="256" height="444" rx="10" fill="#162032" stroke="#0d9488" stroke-width="1.5"/>
+  <circle cx="316" cy="114" r="12" fill="#0d9488"/>
+  <text x="316" y="118" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="700">B</text>
+  <text x="334" y="114" fill="#f8fafc" font-size="13" font-weight="700">Sartorius Ambr® 250 / 15</text>
+  <text x="334" y="130" fill="#34d399" font-size="10.5">12 / 24 / 48 Parallel Mini-Bioreactors</text>
+
+  <!-- Ambr 250 Deck & Liquid Handler Drawing -->
+  <rect x="310" y="146" width="224" height="148" rx="8" fill="#1e293b" stroke="#94a3b8" stroke-width="1.5"/>
+  <!-- Robotic Gantry Arm -->
+  <line x1="322" y1="162" x2="522" y2="162" stroke="#38bdf8" stroke-width="4"/>
+  <rect x="405" y="154" width="26" height="32" rx="3" fill="#0284c7" stroke="#bae6fd"/>
+  <line x1="418" y1="186" x2="418" y2="204" stroke="#facc15" stroke-width="2"/>
+  <!-- 2x6 Grid of Mini Vessels (representing 12-24 vessels) -->
+  <g fill="#0f172a" stroke="#34d399" stroke-width="1.2">
+    <rect x="324" y="212" width="24" height="28" rx="3"/>
+    <rect x="356" y="212" width="24" height="28" rx="3"/>
+    <rect x="388" y="212" width="24" height="28" rx="3"/>
+    <rect x="420" y="212" width="24" height="28" rx="3"/>
+    <rect x="452" y="212" width="24" height="28" rx="3"/>
+    <rect x="484" y="212" width="24" height="28" rx="3"/>
+    <rect x="324" y="248" width="24" height="28" rx="3"/>
+    <rect x="356" y="248" width="24" height="28" rx="3"/>
+    <rect x="388" y="248" width="24" height="28" rx="3"/>
+    <rect x="420" y="248" width="24" height="28" rx="3"/>
+    <rect x="452" y="248" width="24" height="28" rx="3"/>
+    <rect x="484" y="248" width="24" height="28" rx="3"/>
+  </g>
+  <text x="422" y="288" text-anchor="middle" fill="#99f6e4" font-size="9" font-weight="600">Vessels 01..24 Mapped via AF Template</text>
+
+  <rect x="308" y="308" width="228" height="210" rx="6" fill="#0f172a" stroke="#334155"/>
+  <text x="318" y="328" fill="#34d399" font-size="11" font-weight="700">Physical &amp; Software Steps:</text>
+  <text x="318" y="346" fill="#cbd5e1" font-size="10">1. <tspan fill="#facc15" font-weight="600">Physical:</tspan> Locate the Ambr® Control</text>
+  <text x="318" y="360" fill="#94a3b8" font-size="9.5">   Workstation PC next to the deck.</text>
+  <text x="318" y="374" fill="#94a3b8" font-size="9.5">   • <tspan fill="#f87171">NIC 1:</tspan> Instrument Private Subnet (Do</text>
+  <text x="318" y="388" fill="#94a3b8" font-size="9.5">     NOT unplug! Connects to robot deck).</text>
+  <text x="318" y="402" fill="#94a3b8" font-size="9.5">   • <tspan fill="#22c55e" font-weight="600">NIC 2 (Corp/Lab LAN):</tspan> Plug Cat6A</text>
+  <text x="318" y="416" fill="#94a3b8" font-size="9.5">     cable here → GxPHistorian switch.</text>
+  <text x="318" y="436" fill="#cbd5e1" font-size="10">2. <tspan fill="#34d399" font-weight="600">Ambr Control Software:</tspan></text>
+  <text x="318" y="450" fill="#94a3b8" font-size="9.5">   Open <tspan fill="#38bdf8" font-family="monospace">System → Options → OPC UA Server</tspan></text>
+  <text x="318" y="464" fill="#94a3b8" font-size="9.5">   Enable OPC UA Server on Port <tspan fill="#facc15" font-family="monospace">4840</tspan>.</text>
+  <text x="318" y="484" fill="#cbd5e1" font-size="10">3. <tspan fill="#38bdf8" font-weight="600">One-Click 24-Vessel Provisioning:</tspan></text>
+  <text x="318" y="498" fill="#94a3b8" font-size="9.5">   Run the PostgreSQL <tspan font-family="monospace">generate_series(1,24)</tspan></text>
+  <text x="318" y="512" fill="#94a3b8" font-size="9.5">   template script to create all 24 vessels.</text>
+
+  <!-- CARD 3: Thermo Fisher HyPerforma (TruBio DV) -->
+  <rect x="564" y="90" width="256" height="444" rx="10" fill="#162032" stroke="#f59e0b" stroke-width="1.5"/>
+  <circle cx="586" cy="114" r="12" fill="#f59e0b"/>
+  <text x="586" y="118" text-anchor="middle" fill="#0f172a" font-size="12" font-weight="700">C</text>
+  <text x="604" y="114" fill="#f8fafc" font-size="13" font-weight="700">Thermo HyPerforma™ S.U.B.</text>
+  <text x="604" y="130" fill="#facc15" font-size="10.5">TruBio® DV Powered by Emerson DeltaV™</text>
+
+  <!-- HyPerforma Vessel + TruBio DeltaV Dock -->
+  <rect x="582" y="146" width="96" height="148" rx="12" fill="#334155" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="600" y="168" width="60" height="96" rx="5" fill="#0f172a"/>
+  <path d="M600 210 H660 V264 H600 Z" fill="#0284c7" fill-opacity="0.5"/>
+  <!-- Angled side impeller characteristic of Thermo SUB -->
+  <line x1="660" y1="185" x2="618" y2="248" stroke="#facc15" stroke-width="2.5"/>
+  <ellipse cx="620" cy="246" rx="14" ry="5" fill="#facc15"/>
+  <text x="630" y="188" text-anchor="middle" fill="#cbd5e1" font-size="8.5" font-weight="700">HyPerforma</text>
+
+  <rect x="690" y="146" width="114" height="148" rx="6" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+  <rect x="700" y="158" width="94" height="52" rx="3" fill="#0f172a" stroke="#38bdf8" stroke-width="1.2"/>
+  <text x="747" y="176" text-anchor="middle" fill="#38bdf8" font-size="9.5" font-weight="700">TruBio® DV</text>
+  <text x="747" y="193" text-anchor="middle" fill="#cbd5e1" font-size="8">DeltaV CHARMs I/O</text>
+  <rect x="700" y="222" width="94" height="60" rx="4" fill="#0f172a" stroke="#facc15"/>
+  <text x="747" y="240" text-anchor="middle" fill="#facc15" font-size="8.5" font-weight="700">DeltaV App Station</text>
+  <text x="747" y="256" text-anchor="middle" fill="#22c55e" font-size="8.5" font-weight="700">RJ45 LAN Port</text>
+  <text x="747" y="272" text-anchor="middle" fill="#94a3b8" font-size="8">OPC UA (:4840) / DA</text>
+
+  <rect x="578" y="308" width="228" height="210" rx="6" fill="#0f172a" stroke="#334155"/>
+  <text x="588" y="328" fill="#facc15" font-size="11" font-weight="700">Physical &amp; Software Steps:</text>
+  <text x="588" y="346" fill="#cbd5e1" font-size="10">1. <tspan fill="#facc15" font-weight="600">Physical:</tspan> Connect Cat6A Ethernet</text>
+  <text x="588" y="360" fill="#94a3b8" font-size="9.5">   to the TruBio® DeltaV Application</text>
+  <text x="588" y="374" fill="#94a3b8" font-size="9.5">   Station north-bound Plant Network NIC</text>
+  <text x="588" y="388" fill="#94a3b8" font-size="9.5">   (never plug into the yellow/red ACN</text>
+  <text x="588" y="402" fill="#94a3b8" font-size="9.5">   control network switches!).</text>
+  <text x="588" y="422" fill="#cbd5e1" font-size="10">2. <tspan fill="#34d399" font-weight="600">DeltaV v13/v14/v15+ (OPC UA):</tspan></text>
+  <text x="588" y="436" fill="#94a3b8" font-size="9.5">   Enable Application Station OPC UA</text>
+  <text x="588" y="450" fill="#94a3b8" font-size="9.5">   Server (<tspan fill="#facc15" font-family="monospace">opc.tcp://&lt;IP&gt;:4840</tspan>).</text>
+  <text x="588" y="470" fill="#cbd5e1" font-size="10">3. <tspan fill="#38bdf8" font-weight="600">Older TruBio (OPC DA 2.05a):</tspan></text>
+  <text x="588" y="484" fill="#94a3b8" font-size="9.5">   Run <tspan fill="#34d399" font-family="monospace">opcda_windows_forwarder.py</tspan> on</text>
+  <text x="588" y="498" fill="#94a3b8" font-size="9.5">   the App Station with <tspan font-family="monospace">OPC.DeltaV.1</tspan>.</text>
+
+  <!-- CARD 4: Eppendorf BioFlo 320 / 720 & DASGIP -->
+  <rect x="834" y="90" width="258" height="444" rx="10" fill="#162032" stroke="#a855f7" stroke-width="1.5"/>
+  <circle cx="856" cy="114" r="12" fill="#a855f7"/>
+  <text x="856" y="118" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="700">D</text>
+  <text x="874" y="114" fill="#f8fafc" font-size="13" font-weight="700">Eppendorf BioFlo® / DASGIP</text>
+  <text x="874" y="130" fill="#c084fc" font-size="10.5">BioFlo 320 / 720 &amp; DASware® connect</text>
+
+  <!-- BioFlo 320 Benchtop Unit Drawing -->
+  <rect x="852" y="146" width="222" height="148" rx="8" fill="#1e293b" stroke="#94a3b8" stroke-width="1.5"/>
+  <!-- Benchtop Glass/BioBLU Vessel -->
+  <rect x="868" y="170" width="68" height="106" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+  <path d="M868 216 H936 V276 H868 Z" fill="#0284c7" fill-opacity="0.45"/>
+  <text x="902" y="198" text-anchor="middle" fill="#bae6fd" font-size="8.5" font-weight="700">BioBLU Vessel</text>
+  <!-- BioFlo 320 Round Tower + Touchscreen -->
+  <rect x="952" y="158" width="108" height="122" rx="6" fill="#0f172a" stroke="#c084fc"/>
+  <text x="1006" y="176" text-anchor="middle" fill="#c084fc" font-size="9.5" font-weight="700">BioFlo® 320</text>
+  <text x="1006" y="194" text-anchor="middle" fill="#34d399" font-size="8.5">Rear RJ45 Optical</text>
+  <text x="1006" y="208" text-anchor="middle" fill="#34d399" font-size="8.5">Ethernet Port</text>
+  <rect x="966" y="220" width="80" height="48" rx="4" fill="#1e293b" stroke="#22c55e"/>
+  <text x="1006" y="238" text-anchor="middle" fill="#22c55e" font-size="8.5" font-weight="700">DASware® connect</text>
+  <text x="1006" y="254" text-anchor="middle" fill="#facc15" font-size="8">OPC UA :4840</text>
+
+  <rect x="848" y="308" width="230" height="210" rx="6" fill="#0f172a" stroke="#334155"/>
+  <text x="858" y="328" fill="#c084fc" font-size="11" font-weight="700">Physical &amp; Software Steps:</text>
+  <text x="858" y="346" fill="#cbd5e1" font-size="10">1. <tspan fill="#facc15" font-weight="600">Physical:</tspan> On the rear panel of the</text>
+  <text x="858" y="360" fill="#94a3b8" font-size="9.5">   BioFlo® 320/720 base unit, plug a</text>
+  <text x="858" y="374" fill="#94a3b8" font-size="9.5">   Cat6 RJ45 cable into the <tspan fill="#22c55e" font-family="monospace">ETHERNET</tspan></text>
+  <text x="858" y="388" fill="#94a3b8" font-size="9.5">   port (top-right of rear I/O panel).</text>
+  <text x="858" y="408" fill="#cbd5e1" font-size="10">2. <tspan fill="#34d399" font-weight="600">On BioFlo Touchscreen:</tspan></text>
+  <text x="858" y="422" fill="#94a3b8" font-size="9.5">   Tap <tspan fill="#38bdf8" font-family="monospace">Setup → Network → Ethernet</tspan>,</text>
+  <text x="858" y="436" fill="#94a3b8" font-size="9.5">   assign a static IP, and enable</text>
+  <text x="858" y="450" fill="#94a3b8" font-size="9.5">   <tspan fill="#34d399" font-family="monospace">Legacy/OPC Communication</tspan>.</text>
+  <text x="858" y="470" fill="#cbd5e1" font-size="10">3. <tspan fill="#38bdf8" font-weight="600">In DASware® connect:</tspan></text>
+  <text x="858" y="484" fill="#94a3b8" font-size="9.5">   Add the BioFlo IP, enable the</text>
+  <text x="858" y="498" fill="#94a3b8" font-size="9.5">   embedded OPC UA Server, and point</text>
+  <text x="858" y="512" fill="#94a3b8" font-size="9.5">   <tspan font-family="monospace">edge-collector</tspan> to <tspan fill="#facc15" font-family="monospace">/DASwareConnect</tspan>.</text>
+</svg>

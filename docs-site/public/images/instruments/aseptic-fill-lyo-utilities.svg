@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 620" width="100%" height="100%" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg-lyo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <marker id="arrow-cyan" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrow-emerald" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#10b981"/>
+    </marker>
+    <marker id="arrow-amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#f59e0b"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#a855f7"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="620" rx="16" fill="url(#bg-lyo)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Header -->
+  <text x="35" y="42" fill="#f8fafc" font-size="21" font-weight="800" letter-spacing="0.3">ASEPTIC FILL-FINISH, LYOPHILIZATION &amp; EU ANNEX 1 GMP UTILITIES</text>
+  <text x="35" y="65" fill="#94a3b8" font-size="13">SP Hull / Martin Christ / Telstar Lyo • SKAN Isolator + Bausch+Ströbel Filler • PMS LasAir III • Sievers M9 TOC • Cleanroom BACnet</text>
+
+  <!-- Card 1: GMP Lyophilizer -->
+  <g transform="translate(30, 88)">
+    <rect width="248" height="285" rx="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+    <rect width="248" height="36" rx="12" fill="#0c4a6e"/>
+    <text x="124" y="23" text-anchor="middle" fill="#e0f2fe" font-size="12" font-weight="700">1. GMP FREEZE DRYER (LYO)</text>
+
+    <!-- Lyo Chamber + Shelves + Condenser Graphic -->
+    <g transform="translate(24, 48)">
+      <!-- Chamber Box -->
+      <rect x="0" y="0" width="115" height="115" rx="6" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+      <text x="57" y="14" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="700">LYO CHAMBER</text>
+      <!-- Shelves with vials -->
+      <line x1="12" y1="35" x2="103" y2="35" stroke="#38bdf8" stroke-width="3"/>
+      <line x1="12" y1="60" x2="103" y2="60" stroke="#38bdf8" stroke-width="3"/>
+      <line x1="12" y1="85" x2="103" y2="85" stroke="#38bdf8" stroke-width="3"/>
+      <!-- Vial icons -->
+      <rect x="20" y="25" width="8" height="9" fill="#22d3ee"/>
+      <rect x="35" y="25" width="8" height="9" fill="#22d3ee"/>
+      <rect x="50" y="25" width="8" height="9" fill="#22d3ee"/>
+      <rect x="20" y="50" width="8" height="9" fill="#22d3ee"/>
+      <rect x="35" y="50" width="8" height="9" fill="#22d3ee"/>
+      <text x="57" y="104" text-anchor="middle" fill="#38bdf8" font-size="8">-45.0°C | 100 mTorr</text>
+
+      <!-- Isolation Valve + Condenser -->
+      <rect x="115" y="45" width="18" height="20" fill="#334155" stroke="#94a3b8" stroke-width="1"/>
+      <circle cx="166" cy="57" r="33" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+      <text x="166" y="53" text-anchor="middle" fill="#7dd3fc" font-size="8" font-weight="700">CONDENSER</text>
+      <text x="166" y="65" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="700">-82.4°C</text>
+    </g>
+
+    <!-- Port & PLC Details -->
+    <rect x="14" y="175" width="220" height="96" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text x="24" y="193" fill="#7dd3fc" font-size="11" font-weight="700">Physical PLC &amp; Software Setup:</text>
+    <text x="24" y="210" fill="#cbd5e1" font-size="10">• Models: SP Hull, Telstar, IMA, Christ</text>
+    <text x="24" y="225" fill="#cbd5e1" font-size="10">• Port: Technical skid PLC cabinet</text>
+    <text x="24" y="240" fill="#cbd5e1" font-size="10">  (CompactLogix EN2T or S7-1500 X2)</text>
+    <text x="24" y="255" fill="#38bdf8" font-size="10" font-weight="700">• Dual Vacuum: Pirani + Cap Manometer</text>
+  </g>
+
+  <!-- Card 2: SKAN Isolator + Bausch+Ströbel Filler -->
+  <g transform="translate(294, 88)">
+    <rect width="248" height="285" rx="12" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+    <rect width="248" height="36" rx="12" fill="#064e3b"/>
+    <text x="124" y="23" text-anchor="middle" fill="#d1fae5" font-size="12" font-weight="700">2. ISOLATOR &amp; VIAL FILLING LINE</text>
+
+    <!-- Grade A Isolator Graphic -->
+    <g transform="translate(20, 48)">
+      <rect x="0" y="0" width="208" height="115" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="2"/>
+      <!-- HEPA laminar arrows -->
+      <text x="104" y="14" text-anchor="middle" fill="#6ee7b7" font-size="9" font-weight="700">GRADE A RABS / ISOLATOR (0.45 m/s)</text>
+      <!-- Glove ports -->
+      <circle cx="45" cy="52" r="16" fill="#064e3b" stroke="#34d399" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <circle cx="104" cy="52" r="16" fill="#064e3b" stroke="#34d399" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <circle cx="163" cy="52" r="16" fill="#064e3b" stroke="#34d399" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <!-- Conveyor + Vials + IPC Checkweigher -->
+      <line x1="12" y1="92" x2="196" y2="92" stroke="#64748b" stroke-width="4"/>
+      <rect x="28" y="76" width="10" height="15" fill="#38bdf8"/>
+      <rect x="65" y="76" width="10" height="15" fill="#38bdf8"/>
+      <rect x="100" y="76" width="10" height="15" fill="#10b981"/>
+      <rect x="145" y="72" width="42" height="19" rx="3" fill="#065f46" stroke="#10b981" stroke-width="1"/>
+      <text x="166" y="84" text-anchor="middle" fill="#a7f3d0" font-size="8" font-weight="700">IPC Tare/Gross</text>
+      <text x="104" y="108" text-anchor="middle" fill="#34d399" font-size="8">ΔP: +42.5 Pa | H2O2 VHP: 0.0 ppm</text>
+    </g>
+
+    <!-- Port & PLC Details -->
+    <rect x="14" y="175" width="220" height="96" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text x="24" y="193" fill="#6ee7b7" font-size="11" font-weight="700">Physical Dual-PLC Architecture:</text>
+    <text x="24" y="210" fill="#cbd5e1" font-size="10">• Isolator: SKAN / Syntegon (S7-1500)</text>
+    <text x="24" y="225" fill="#cbd5e1" font-size="10">• Filler: Bausch+Ströbel / Groninger</text>
+    <text x="24" y="240" fill="#cbd5e1" font-size="10">• Plug Cat6A into both PLC X2 ports</text>
+    <text x="24" y="255" fill="#34d399" font-size="10" font-weight="700">• OPC UA TCP (4840) + PackML State</text>
+  </g>
+
+  <!-- Card 3: PMS LasAir III / Airnet II Non-Viable Particle Counter -->
+  <g transform="translate(558, 88)">
+    <rect width="248" height="285" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+    <rect width="248" height="36" rx="12" fill="#78350f"/>
+    <text x="124" y="23" text-anchor="middle" fill="#fef3c7" font-size="12" font-weight="700">3. PMS PARTICLE COUNTERS</text>
+
+    <!-- Isokinetic Cone + Counter Graphic -->
+    <g transform="translate(30, 48)">
+      <!-- Isokinetic Cone -->
+      <polygon points="35,5 55,5 48,30 42,30" fill="#475569" stroke="#cbd5e1" stroke-width="1.5"/>
+      <line x1="45" y1="30" x2="45" y2="45" stroke="#94a3b8" stroke-width="3"/>
+      <!-- Stainless enclosure -->
+      <rect x="10" y="45" width="168" height="68" rx="6" fill="#334155" stroke="#f59e0b" stroke-width="2"/>
+      <rect x="22" y="54" width="95" height="50" rx="4" fill="#0f172a"/>
+      <text x="69" y="68" text-anchor="middle" fill="#fde68a" font-size="8" font-weight="700">GRADE A (28.3 LPM)</text>
+      <text x="69" y="82" text-anchor="middle" fill="#10b981" font-size="10" font-weight="700">≥0.5 µm: 4 /m³</text>
+      <text x="69" y="96" text-anchor="middle" fill="#10b981" font-size="10" font-weight="700">≥5.0 µm: 0 /m³</text>
+      <!-- PoE Port on bottom -->
+      <rect x="128" y="64" width="38" height="30" rx="4" fill="#0f172a" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="147" y="78" text-anchor="middle" fill="#fbbf24" font-size="8" font-weight="700">PoE</text>
+      <text x="147" y="88" text-anchor="middle" fill="#cbd5e1" font-size="7">RJ45</text>
+    </g>
+
+    <!-- Port & Modbus Details -->
+    <rect x="14" y="175" width="220" height="96" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text x="24" y="193" fill="#fcd34d" font-size="11" font-weight="700">Physical &amp; Modbus TCP Setup:</text>
+    <text x="24" y="210" fill="#cbd5e1" font-size="10">• PMS Airnet II / LasAir III / Beckman</text>
+    <text x="24" y="225" fill="#cbd5e1" font-size="10">• Port: Bottom PoE RJ45 (802.3af)</text>
+    <text x="24" y="240" fill="#cbd5e1" font-size="10">• Enable: Setup → Comm → Modbus TCP</text>
+    <text x="24" y="255" fill="#fbbf24" font-size="10" font-weight="700">• Port 502 (Reg 30001: 0.5µm, 30003: 5µm)</text>
+  </g>
+
+  <!-- Card 4: Veolia Sievers M9 WFI TOC + Cleanroom BACnet -->
+  <g transform="translate(822, 88)">
+    <rect width="248" height="285" rx="12" fill="#1e293b" stroke="#a855f7" stroke-width="2"/>
+    <rect width="248" height="36" rx="12" fill="#4c1d95"/>
+    <text x="124" y="23" text-anchor="middle" fill="#f3e8ff" font-size="12" font-weight="700">4. WFI TOC &amp; CLEANROOM ΔP</text>
+
+    <!-- Sievers M9 + Magnehelic Graphic -->
+    <g transform="translate(20, 48)">
+      <!-- Sievers M9 Box -->
+      <rect x="0" y="0" width="112" height="115" rx="6" fill="#0f172a" stroke="#a855f7" stroke-width="2"/>
+      <text x="56" y="16" text-anchor="middle" fill="#d8b4fe" font-size="9" font-weight="700">SIEVERS M9 TOC</text>
+      <rect x="12" y="24" width="88" height="52" rx="4" fill="#1e1b4b"/>
+      <text x="56" y="40" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="700">TOC: 38 ppb</text>
+      <text x="56" y="55" text-anchor="middle" fill="#a7f3d0" font-size="9">Cond: 0.84 µS/cm</text>
+      <text x="56" y="68" text-anchor="middle" fill="#94a3b8" font-size="8">WFI Loop Return</text>
+      <text x="56" y="96" text-anchor="middle" fill="#c084fc" font-size="8" font-weight="700">Rear RJ45: Port 502</text>
+
+      <!-- Cleanroom DP Sensor -->
+      <circle cx="164" cy="57" r="42" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+      <text x="164" y="42" text-anchor="middle" fill="#94a3b8" font-size="8" font-weight="700">CASCADE ΔP</text>
+      <text x="164" y="58" text-anchor="middle" fill="#10b981" font-size="11" font-weight="800">+15.2 Pa</text>
+      <text x="164" y="72" text-anchor="middle" fill="#38bdf8" font-size="8">Grade B → C</text>
+      <text x="164" y="84" text-anchor="middle" fill="#cbd5e1" font-size="7">BACnet UDP 47808</text>
+    </g>
+
+    <!-- Port & Protocol Details -->
+    <rect x="14" y="175" width="220" height="96" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text x="24" y="193" fill="#d8b4fe" font-size="11" font-weight="700">WFI &amp; Cleanroom HVAC Setup:</text>
+    <text x="24" y="210" fill="#cbd5e1" font-size="10">• Sievers M9 / 500 RL: Rear Ethernet</text>
+    <text x="24" y="225" fill="#cbd5e1" font-size="10">  (Modbus TCP Port 502 Float32 ABCD)</text>
+    <text x="24" y="240" fill="#cbd5e1" font-size="10">• BMS (Desigo / Metasys / EcoStruxure):</text>
+    <text x="24" y="255" fill="#c084fc" font-size="10" font-weight="700">• BACnet/IP UDP 47808 (AnalogInput)</text>
+  </g>
+
+  <!-- Convergence Lines to Edge Collector -->
+  <path d="M 154 373 L 154 415 L 400 415 L 400 440" fill="none" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#arrow-cyan)"/>
+  <path d="M 418 373 L 418 440" fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-emerald)"/>
+  <path d="M 682 373 L 682 440" fill="none" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arrow-amber)"/>
+  <path d="M 946 373 L 946 415 L 700 415 L 700 440" fill="none" stroke="#a855f7" stroke-width="2.5" marker-end="url(#arrow-purple)"/>
+
+  <!-- Bottom Bar: GxPHistorian Edge Collector + EU GMP Annex 1 / USP <1207> / USP <643> Engine -->
+  <g transform="translate(30, 445)">
+    <rect width="1040" height="145" rx="12" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+    <rect width="1040" height="34" rx="12" fill="#0284c7"/>
+    <text x="520" y="22" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="800">GXPHISTORIAN EU GMP ANNEX 1 (2023) CONTAMINATION CONTROL STRATEGY (CCS) ENGINE</text>
+
+    <!-- 3 Feature Pillars inside bottom bar -->
+    <g transform="translate(20, 46)">
+      <rect width="320" height="84" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      <text x="14" y="20" fill="#38bdf8" font-size="11" font-weight="700">Lyo Pressure Rise &amp; Eutectic Verification</text>
+      <text x="14" y="38" fill="#cbd5e1" font-size="10">• Tracks Pirani vs Capacitance Manometer convergence</text>
+      <text x="14" y="53" fill="#cbd5e1" font-size="10">  (`LYO_PIRANI_MTORR - LYO_CAP_MANO_MTORR &lt; 5.0`)</text>
+      <text x="14" y="68" fill="#7dd3fc" font-size="10" font-weight="700">• Automatic Phase Event Frames: Freezing → Primary → Secondary</text>
+    </g>
+
+    <g transform="translate(360, 46)">
+      <rect width="320" height="84" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      <text x="14" y="20" fill="#10b981" font-size="11" font-weight="700">Grade A Particle &amp; ΔP Excursion Auto-Capture</text>
+      <text x="14" y="38" fill="#cbd5e1" font-size="10">• Continuous 1-min Grade A ≥0.5 µm &amp; ≥5.0 µm logging</text>
+      <text x="14" y="53" fill="#cbd5e1" font-size="10">• Instant ISA-88 Excursion Event Frame if ΔP &lt; 10 Pa</text>
+      <text x="14" y="68" fill="#34d399" font-size="10" font-weight="700">  for &gt; 15 seconds or Grade A ≥5.0 µm &gt; 20 counts/m³</text>
+    </g>
+
+    <g transform="translate(700, 46)">
+      <rect width="320" height="84" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      <text x="14" y="20" fill="#a855f7" font-size="11" font-weight="700">USP &lt;643&gt; / &lt;645&gt; WFI &amp; Sanitization Release</text>
+      <text x="14" y="38" fill="#cbd5e1" font-size="10">• Continuous WFI TOC (&lt; 500 ppb) &amp; Conductivity Stage 1</text>
+      <text x="14" y="53" fill="#cbd5e1" font-size="10">• Tracks Thermal Sanitization hold (&gt; 80.0 °C for ≥ 60 min)</text>
+      <text x="14" y="68" fill="#d8b4fe" font-size="10" font-weight="700">• 21 CFR Part 11 Electronic Signatures for Lot Disposition</text>
+    </g>
+  </g>
+</svg>

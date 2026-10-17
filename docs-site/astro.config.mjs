@@ -25,14 +25,14 @@ function remarkMermaid() {
 }
 
 export default defineConfig({
-  site: 'https://openhistorian-docs.cloud-expert1666.workers.dev',
+  site: 'https://gxphistorian-docs.cloud-expert1666.workers.dev',
   markdown: {
     remarkPlugins: [remarkMermaid, remarkMath],
     rehypePlugins: [rehypeKatex],
   },
   integrations: [
     starlight({
-      title: 'OpenHistorian GxP',
+      title: 'GxPHistorian',
       description:
         'A 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 Qualified Open-Source Industrial Time-Series Historian & Asset Framework',
       logo: {
@@ -71,6 +71,16 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Connectors & Protocols Reference',
+          items: [
+            { label: 'Connectors & Wiring Encyclopedia', slug: 'connectors/overview' },
+            { label: 'OPC UA (:4840) & Classic OPC DA (COM)', slug: 'connectors/opc-ua-and-opc-da' },
+            { label: 'BACnet/IP (:47808) & BACnet MS/TP', slug: 'connectors/bacnet-ip-and-mstp' },
+            { label: 'Modbus TCP (:502) & Modbus RTU (RS-485)', slug: 'connectors/modbus-tcp-and-rtu' },
+            { label: 'Siemens S7, EtherNet/IP, HART, RS-232 & UFL', slug: 'connectors/plc-s7-ethernetip-hart-serial-ufl' },
+          ],
+        },
+        {
           label: 'Biopharma & Legacy Equipment Guides',
           items: [
             { label: 'Master Biopharma Instrument Catalog', slug: 'biopharma-integration/catalog' },
@@ -78,7 +88,9 @@ export default defineConfig({
             { label: 'USP Bioreactors (Sartorius, Thermo, Eppendorf)', slug: 'biopharma-integration/usp-bioreactors' },
             { label: 'At-Line PAT & In-Line Spectroscopy', slug: 'biopharma-integration/pat-analyzers-spectroscopy' },
             { label: 'DSP Chromatography & TFF Filtration', slug: 'biopharma-integration/dsp-chromatography-tff' },
+            { label: 'Cell & Gene Therapy, mRNA-LNP & CRFs', slug: 'biopharma-integration/cgt-mrna-lnp-instruments' },
             { label: 'Aseptic Fill-Finish, Lyo & GMP Utilities', slug: 'biopharma-integration/aseptic-fill-finish-lyo-utilities' },
+            { label: 'Stability Chambers, Cold Chain & Autoclaves', slug: 'biopharma-integration/stability-chambers-cold-chain-autoclaves' },
             { label: 'Legacy Fieldbus (BACnet, OPC DA, Modbus, S7)', slug: 'biopharma-integration/legacy-protocols' },
             { label: 'Legacy RS-232 Serial & PI UFL Replacement', slug: 'biopharma-integration/legacy-serial-rs232-pi-ufl' },
           ],

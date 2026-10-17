@@ -2,7 +2,7 @@
 title: "Aseptic Fill-Finish, Lyophilization, Cleanroom EMS & GMP Utilities Integration Guide"
 description: "GMP lyophilizers, SKAN isolators, aseptic filling lines, LasAir III / Airnet II particle counters, BACnet/IP EMS, and Veolia Sievers M9 TOC / WFI utilities."
 ---
-**Connecting GMP Freeze Dryers (Lyophilizers), Aseptic Filling Isolators, Cleanroom Environmental Monitoring Systems (EMS / Particle Counters), and WFI / Veolia Sievers® M9 TOC Analyzers to OpenHistorian GxP Industrial Historian**
+**Connecting GMP Freeze Dryers (Lyophilizers), Aseptic Filling Isolators, Cleanroom Environmental Monitoring Systems (EMS / Particle Counters), and WFI / Veolia Sievers® M9 TOC Analyzers to GxPHistorian GxP Industrial Historian**
 
 ---
 
@@ -10,10 +10,26 @@ description: "GMP lyophilizers, SKAN isolators, aseptic filling lines, LasAir II
 
 Under **EU GMP Annex 1 (2022 Revision)** and **FDA 21 CFR 211**, sterile Drug Product (DP) manufacturing and GMP facility utilities require continuous monitoring, alarm/excursion Event Frame tracking, and electronic signatures across four critical infrastructure domains:
 
-1. **GMP Lyophilizers / Freeze Dryers (SP Hull, IMA Edwards, Telstar, Martin Christ, Hof):** Continuous tracking of shelf fluid temperature, product thermocouples, chamber vacuum pressure (Capacitance Manometer vs. Pirani gauge convergence), condenser temperature, and hydraulic stoppering pressure.
-2. **Aseptic Filling Lines & RABS/Isolator Barrier Systems (Bausch+Ströbel, Optima, IMA Life, Groninger, SKAN Isolators):** Vaporized Hydrogen Peroxide ($\text{VHP}$ / $\text{H}_2\text{O}_2$) decontamination concentration (`ppm`), isolator positive pressure cascades (`Pa`), unidirectional laminar airflow velocity (`0.45 m/s ± 20%`), and 100% In-Process Control (IPC) checkweigher fill weights.
-3. **Cleanroom Environmental Monitoring Systems (EMS) & Airborne Particle Counters (Particle Measuring Systems LasAir® III / Airnet® II, Lighthouse Solair, Beckman MET ONE, Siemens Desigo CC / Honeywell EBI / JCI Metasys):** Continuous Grade A / ISO 5 and Grade B/C / ISO 7 differential pressure (`Pa`), temperature, relative humidity, and $0.5\,\mu\text{m}$ / $5.0\,\mu\text{m}$ non-viable particle counts via **BACnet/IP** and **Modbus TCP**.
-4. **Compendial Water Loops (WFI, PW, Pure Steam) & Analytical Transmitters (Veolia Sievers® M9 / M9e TOC & Mettler Toledo Thornton Conductivity):** Real-time USP <643> Total Organic Carbon (`ppb`) and USP <645> conductivity ($\mu\text{S/cm}$), return loop temperature ($> 80\,^\circ\text{C}$ sanitization), and ozone concentration.
+1. **GMP Lyophilizers / Freeze Dryers ([SP Scientific Hull / VirTis](https://www.scientificproducts.com), IMA Edwards, [Telstar](https://www.telstar.com), Martin Christ, Hof):** Continuous tracking of shelf fluid temperature, product thermocouples, chamber vacuum pressure (Capacitance Manometer vs. Pirani gauge convergence), condenser temperature, and hydraulic stoppering pressure.
+2. **Aseptic Filling Lines & RABS/Isolator Barrier Systems (Bausch+Ströbel, Optima, IMA Life, Groninger, [SKAN Isolators](https://www.skan.ch)):** Vaporized Hydrogen Peroxide ($\text{VHP}$ / $\text{H}_2\text{O}_2$) decontamination concentration (`ppm`), isolator positive pressure cascades (`Pa`), unidirectional laminar airflow velocity (`0.45 m/s ± 20%`), and 100% In-Process Control (IPC) checkweigher fill weights.
+3. **Cleanroom Environmental Monitoring Systems (EMS) & Airborne Particle Counters ([Particle Measuring Systems LasAir® III / Pro & Airnet® II](https://www.pmeasuring.com/products/lasair-pro-airborne-particle-counter/), Lighthouse Solair, [Beckman MET ONE](https://www.beckman.com/particle-counters/air), Siemens Desigo CC / Honeywell EBI / JCI Metasys):** Continuous Grade A / ISO 5 and Grade B/C / ISO 7 differential pressure (`Pa`), temperature, relative humidity, and $0.5\,\mu\text{m}$ / $5.0\,\mu\text{m}$ non-viable particle counts via **BACnet/IP** and **Modbus TCP**.
+4. **Compendial Water Loops (WFI, PW, Pure Steam) & Analytical Transmitters ([Veolia Sievers® M9 / M9e TOC](https://www.watertechnologies.com/products/sievers-m9-laboratory-toc-analyzer) & [Mettler Toledo Thornton M800 Conductivity](https://www.mt.com/us/en/home/products/Process-Analytics/Multi-parameter-transmitters/M800.html)):** Real-time USP <643> Total Organic Carbon (`ppb`) and USP <645> conductivity ($\mu\text{S/cm}$), return loop temperature ($> 80\,^\circ\text{C}$ sanitization), and ozone concentration.
+
+![Aseptic Fill-Finish, Lyophilization & EU Annex 1 GMP Utilities Visual Wiring Guide](/images/instruments/aseptic-fill-lyo-utilities.svg)
+
+---
+
+## 1.5 Non-Technical Step-by-Step Physical & Software Connection Walkthrough
+
+Sterile drug product (DP) suites and EU GMP Annex 1 utility rooms combine PLC-controlled machinery with PoE environmental sensors. Use this step-by-step physical connection table to wire each system to **GxPHistorian**:
+
+| Sterile DP / Utility System | Where to Plug In on the Physical Unit | Exact Touchscreen / Software Menu Path to Enable | Protocol & Test Command |
+| :--- | :--- | :--- | :--- |
+| **1. GMP Freeze Dryers / Lyophilizers ([SP Hull](https://www.scientificproducts.com), `IMA Edwards`, [Telstar](https://www.telstar.com), `Martin Christ`)** | Walk into the technical service area (gray space) behind the cleanroom wall. Open the **Lyo Main PLC Cabinet** (`Siemens S7-1500` or `Allen-Bradley ControlLogix`). Plug a **Cat6A cable** into **Northbound Port `X2` / `EN2T`**. | In the Lyo SCADA (**Telstar Lyogistics**, **IMA Sentinel**, or **Christ LPCplus**), enable **OPC UA Server (`Port 4840`)** on the northbound interface. Ensure both **Capacitance Manometer (`mTorr`)** and **Pirani Vacuum (`mTorr`)** tags are exposed. | `nc -zv 10.20.90.10 4840` |
+| **2. Aseptic Filling Line (`Bausch+Ströbel`, `Optima`, `IMA`) + Barrier Isolator ([SKAN](https://www.skan.ch), `Syntegon`)** | **Important:** An isolator filling line has **TWO separate PLCs**—one for the **SKAN Isolator** (managing $\text{H}_2\text{O}_2$ VHP bio-decontamination, glove-port pressures, and laminar airflow) and one for the **Vial/Syringe Filler** (managing peristaltic/rotary pumps and 100% IPC checkweighers). Plug **two Cat6A cables** into the respective `X2` SCADA ports of both PLCs. | Enable **OPC UA Server (`Port 4840`)** on both the SKAN Isolator S7-1500 PLC (`10.20.90.11`) and the Bausch+Ströbel Filler PLC (`10.20.90.12`). | `nc -zv 10.20.90.11 4840` & `nc -zv 10.20.90.12 4840` |
+| **3. Non-Viable Airborne Particle Counters ([PMS LasAir® III / Pro & Airnet® II](https://www.pmeasuring.com/products/lasair-pro-airborne-particle-counter/), [Beckman MET ONE](https://www.beckman.com/particle-counters/air))** | Look at the **underside of the stainless particle counter enclosure**. Plug a **Power-over-Ethernet (PoE `802.3af`) Cat6A cable** into the sealed **RJ45 Ethernet port** (for `Airnet II` fixed sensors, this single cable provides both $24\text{V}$ power and Modbus TCP data!). | On the **LasAir III touchscreen** (or `Airnet II` web browser console), tap **Setup $\rightarrow$ Communications $\rightarrow$ Network**, set Static IP `10.20.90.21`, and toggle **Modbus TCP = Enabled (`Port 502`, Unit ID `1`)**. | `nc -zv 10.20.90.21 502` |
+| **4. WFI Total Organic Carbon Analyzer ([Veolia Sievers® M9 / M9e / 500 RL On-Line](https://www.watertechnologies.com/products/sievers-m9-laboratory-toc-analyzer))** | Open the hinged **side splash cover on the rear/side I/O bay** of the Sievers M9 analyzer. Plug a **Cat6 cable** into the **RJ45 Ethernet port** labeled `LAN`. | On the **Sievers M9 touchscreen**, tap **Menu $\rightarrow$ Setup $\rightarrow$ Network & Comms $\rightarrow$ Modbus TCP**. Set Static IP `10.20.90.30` and enable **Modbus TCP Port `502`** (Big-Endian `ABCD` Float32 registers for TOC `ppb`, Conductivity $\mu\text{S/cm}$, and Temperature $^{\circ}\text{C}$). | `nc -zv 10.20.90.30 502` |
+| **5. Cleanroom Differential Pressure (`Pa`), Temp & `%RH` (`Siemens Desigo`, `JCI Metasys`, `Honeywell EBI`)** | Connect `GxPHistorian` `edge-collector` to the **Facility BMS / EMS VLAN** (or install a **[LOYTEC](https://www.loytec.com) / [Contemporary Controls BASrouter](https://www.ccontrols.com/basautomation/basrouters.php)** BACnet MS/TP-to-BACnet/IP Router on the mechanical floor). | Register the `edge-collector` IP as a **Foreign Device** in your BMS **BBMD (BACnet Broadcast Management Device)** on **`UDP Port 47808`**. `bacnet_cov_worker.py` automatically maps ASHRAE `Status_Flags` to OPC Quality (`192/64/0`). | `python3 edge-collector/scripts/bacnet_cov_worker.py --self-test` |
 
 ---
 
@@ -39,7 +55,7 @@ flowchart LR
     OPCUA --> WAL
   end
 
-  subgraph Core["OpenHistorian GxP Historian"]
+  subgraph Core["GxPHistorian GxP Historian"]
     CH["ClickHouse 24.8 Archive\n(pi_historian.sensor_data)"]
     PG["PostgreSQL 16 Control Plane\n(Room DP & TOC Excursion Event Frames)"]
   end
@@ -59,7 +75,7 @@ flowchart LR
 ### 3.1 Cleanroom EMS via BACnet/IP (`bacnet_cov_worker.py`)
 Cleanroom differential pressure cascades (e.g., Grade B/C corridor at `+30 Pa` $\rightarrow$ Grade C Bioreactor Suite at `+18.5 Pa` $\rightarrow$ Airlock at `+12.5 Pa`), HVAC supply/exhaust airflows, and room temperature/humidity are managed by **BACnet/IP** controllers.
 
-OpenHistorian GxP Historian includes a production-ready asynchronous BACnet/IP worker at `edge-collector/scripts/bacnet_cov_worker.py` (`AsyncBacnetTelemetryWorker`) and seeds `Tag 301: CR_ISO7_DP_PV` under `BioCorp.Fremont.Facilities.Cleanroom_ISO7`.
+GxPHistorian GxP Historian includes a production-ready asynchronous BACnet/IP worker at `edge-collector/scripts/bacnet_cov_worker.py` (`AsyncBacnetTelemetryWorker`) and seeds `Tag 301: CR_ISO7_DP_PV` under `BioCorp.Fremont.Facilities.Cleanroom_ISO7`.
 
 #### How IEEE/ASHRAE BACnet `Status_Flags` Map to GxP OPC Quality
 In `bacnet_cov_worker.py`, `status_flags_to_quality()` reads both the `presentValue` and the 4-bit `statusFlags` array (`[in_alarm, fault, overridden, out_of_service]`) from each BACnet `analog-input` object:

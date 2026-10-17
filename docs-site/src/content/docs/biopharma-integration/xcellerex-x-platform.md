@@ -2,15 +2,49 @@
 title: "Cytiva Xcellerex™ X-Platform Bioreactor Integration Guide"
 description: "Integration guide for Cytiva Xcellerex X-Platform single-use bioreactors (50 L – 2000 L) and Figurate automation (Emerson DeltaV & Rockwell PlantPAx)."
 ---
-**Connecting Cytiva Xcellerex™ X-Platform Single-Use Bioreactors (50 L – 2000 L) and Figurate™ Automation to the OpenHistorian GxP Industrial Historian**
+**Connecting Cytiva Xcellerex™ X-Platform Single-Use Bioreactors (50 L – 2000 L) and Figurate™ Automation to the GxPHistorian GxP Industrial Historian**
 
 ---
 
 ## 1. Overview
 
-**OpenHistorian GxP Industrial Historian** integrates directly with **Cytiva Xcellerex™ X-Platform** single-use bioreactors (supporting batch, fed-batch, and perfusion upstream workflows from 50 L to 2000 L) via their **Figurate™ automation solutions** layer—whether deployed on **Emerson DeltaV™ DCS**, **Rockwell Automation PlantPAx® (ControlLogix / FactoryTalk)**, or legacy supervisory stations.
+**GxPHistorian GxP Industrial Historian** integrates directly with **[Cytiva Xcellerex™ X-Platform](https://www.cytivalifesciences.com/en/us/shop/cell-culture-and-fermentation/single-use-bioreactor-systems/xcellerex-xdr-50-to-2000-single-use-stirred-tank-bioreactors-p-05636)** single-use bioreactors (supporting batch, fed-batch, and perfusion upstream workflows from 50 L to 2000 L) via their **[Figurate™ automation solutions](https://www.cytivalifesciences.com/en/us/solutions/bioprocessing/products-and-solutions/xcellerex)** layer—whether deployed on **[Emerson DeltaV™ DCS](https://www.emerson.com/en-us/automation/control-and-safety-systems/distributed-control-systems-dcs/deltav-distributed-control-system)**, **[Rockwell Automation PlantPAx®](https://www.rockwellautomation.com/en-us/capabilities/process-solutions/process-systems/plantpax-distributed-control-system.html) (ControlLogix / FactoryTalk)**, or legacy supervisory stations.
 
 By default, the repository’s qualification seed (`init-postgres/01_control_plane_part11.sql`) models a **2000 L Upstream Processing (USP) single-use bioreactor** (`BioCorp.Fremont.USP.Bioreactor_201`) with pre-configured ISA-95 `ltree` asset paths, Stage 1 exception/deadband filtering (`ExcDev` / `ExcMax`), 1-minute ClickHouse rollups, automated ISA-88 Event Frames, and 21 CFR Part 11 cryptographic audit trails.
+
+![Cytiva Xcellerex XDR Bioreactor, XDUO Mixer & Figurate Cabinet Visual Wiring Guide](/images/instruments/xcellerex-x-platform.svg)
+
+---
+
+## 1.5 Non-Technical Step-by-Step Physical & Software Connection Walkthrough
+
+If you are an **upstream scientist, facility engineer, or commissioning specialist** standing in front of an **Xcellerex™ XDR Bioreactor (50 L – 2000 L)** or **XDUO Single-Use Mixer**, follow these steps to connect it to **GxPHistorian**:
+
+### Step A: Physical Cable Connection (Where to Plug In)
+1. **What You Need:** One **Cat6A Shielded Ethernet Cable** (`S/FTP`, blue or teal jacket) or an **M12 D-Coded-to-RJ45 washdown Ethernet cable** if your skid has sealed washdown bulkhead ports.
+2. **Locate the Figurate™ Automation Cabinet:**
+   - Look at the stainless-steel **I/O & Automation Control Cabinet** mounted on the side/rear of the Xcellerex skid frame.
+   - Do **NOT** unplug any cables inside the internal **Level 1 Skid I/O Ring** (`192.168.1.x`, which connects the internal mass flow controllers, load cells, and peristaltic pumps to the PLC).
+   - Locate the external bulkhead port labeled **`PLANT LAN` / `SCADA` / `LAN 2`** (connected to **Port 2 (`X2`)** of the **Emerson DeltaV™ PK Controller** or the **Allen-Bradley 1756-EN2T Northbound Ethernet module**).
+3. **Plug In:**
+   - Plug your Cat6A cable into the `PLANT LAN / LAN 2` port on the Xcellerex skid and connect the other end to your cleanroom wall Ethernet jack (`10.20.30.0/24`).
+   - Confirm the **green Link LED** turns solid and the **amber Activity LED** blinks.
+
+### Step B: Software Enablement on Figurate™ (DeltaV™ or PlantPAx®)
+- **If Your Xcellerex Skid Runs Figurate™ on Emerson DeltaV™:**
+  1. On the **DeltaV ProfessionalPlus / Application Station** (or standalone **DeltaV PK Controller** engineering laptop), open **DeltaV Explorer**.
+  2. Navigate to **Physical Network** $\rightarrow$ **Control Network** $\rightarrow$ **[Your_XDR_PK_Controller_or_AppStation]** $\rightarrow$ **Properties** $\rightarrow$ **OPC UA Server**.
+  3. Check **Enable OPC UA Server** on the secondary northbound network interface (`10.20.30.10`, Port `4840`).
+  4. Under **Security Policies**, enable `Basic256Sha256 (Sign & Encrypt)`, import `/etc/telegraf/certs/gxphistorian_client_cert.pem` into the **Trusted Clients** store, and click **Download** to apply without interrupting the active vessel control modules.
+- **If Your Xcellerex Skid Runs Figurate™ on Rockwell PlantPAx® (ControlLogix):**
+  1. On the **FactoryTalk View SE / FactoryTalk Linx Gateway** workstation, open **FactoryTalk Administration Console**.
+  2. Right-click the **FactoryTalk Linx Server** $\rightarrow$ **OPC UA Server Properties**.
+  3. Enable **OPC UA Endpoint (`opc.tcp://10.20.30.10:4840`)** and assign Read-Only access to the `gxphistorian_svc` account.
+- **1-Line Network Test from Your GxPHistorian Server:**
+  ```bash
+  nc -zv 10.20.30.10 4840
+  # Expected output: Connection to 10.20.30.10 4840 port [tcp/*] succeeded!
+  ```
 
 ---
 
@@ -33,7 +67,7 @@ flowchart LR
     OPCDA -->|"JSON Batch + Local Spool"| ING --> WAL
   end
 
-  subgraph Core["Pillars 2–4: OpenHistorian GxP Historian"]
+  subgraph Core["Pillars 2–4: GxPHistorian GxP Historian"]
     CH["ClickHouse 24.8 Archive\n(pi_historian.sensor_data & 1m Rollups)"]
     PG["PostgreSQL 16 Control Plane\n(ltree ISA-95, ISA-88 Event Frames, Part 11 WORM)"]
     API["FastAPI Control Plane\n(historian-api :8020)"]
@@ -69,8 +103,8 @@ Both **Figurate™ for Emerson DeltaV** (via DeltaV PK Controller or Application
      request_timeout = "5s"
      security_policy = "Basic256Sha256"
      security_mode = "SignAndEncrypt"
-     certificate = "/etc/telegraf/certs/openhistorian_client_cert.pem"
-     private_key = "/etc/telegraf/certs/openhistorian_client_key.pem"
+     certificate = "/etc/telegraf/certs/gxphistorian_client_cert.pem"
+     private_key = "/etc/telegraf/certs/gxphistorian_client_key.pem"
      auth_method = "UserName"
      username = "${FIGURATE_OPCUA_USER}"
      password = "${FIGURATE_OPCUA_PASSWORD}"
@@ -96,7 +130,7 @@ When direct controller polling is required alongside DCS supervisory links (e.g.
 
 ## 4. Standard Xcellerex™ X-Platform / Figurate™ Tag Mapping
 
-The table below outlines standard Xcellerex X-Platform parameters and how their interpolation and deadband behaviors should be configured in OpenHistorian GxP Historian:
+The table below outlines standard Xcellerex X-Platform parameters and how their interpolation and deadband behaviors should be configured in GxPHistorian GxP Historian:
 
 | Tag ID | Tag Name | Figurate™ Parameter Description | Eng Units | `is_step_tag` (Interpolation) | `exc_dev` (Deadband) | Typical USP Limits (`Low` / `High`) | Protocol |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -168,7 +202,7 @@ Within **5–15 seconds**, ClickHouse automatically refreshes its in-memory `FLA
 
 ### Step 4: Automated ISA-88 Batch Event Frames & 21 CFR Part 11 Electronic Signatures
 1. **Batch & Excursion Detection:** Calling `POST /api/v1/event-frames/evaluate` (or running the background evaluation loop in `app/main.py`) automatically opens/updates the parent `Fermentation_Batch` Event Frame on `Bioreactor_201` and detects parameter excursions (such as `BR201_TEMP_PV > 38.0 °C`), capturing summary metrics (`peak_val`, `avg_val`, `min_val`, `sample_count`, `duration_sec`).
-2. **Operator HMI Visualization:** Open `http://localhost:3020/d/openhistorian-gxp-bioreactor-hmi` in Grafana to view high-speed LTTB vessel trends (`largestTriangleThreeBuckets`), 1-minute rollup envelopes, shaded Event Frame excursion overlays, and the live 21 CFR Part 11 WORM audit trail.
+2. **Operator HMI Visualization:** Open `http://localhost:3020/d/gxphistorian-gxp-bioreactor-hmi` in Grafana to view high-speed LTTB vessel trends (`largestTriangleThreeBuckets`), 1-minute rollup envelopes, shaded Event Frame excursion overlays, and the live 21 CFR Part 11 WORM audit trail.
 3. **QA Disposition & Electronic Signature (`§11.50`, `§11.70`, `§11.200`):**
    ```bash
    curl -s -X POST "http://localhost:8020/api/v1/event-frames/<EVENT_UUID>/sign" \

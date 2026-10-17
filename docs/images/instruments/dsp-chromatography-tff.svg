@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 560" fill="none" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg5" x1="0" y1="0" x2="1120" y2="560" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0b1120"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <marker id="arr5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arr5g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#34d399"/>
+    </marker>
+  </defs>
+
+  <rect width="1120" height="560" rx="14" fill="url(#bg5)" stroke="#334155" stroke-width="2"/>
+
+  <!-- Header -->
+  <text x="32" y="38" fill="#f8fafc" font-size="19" font-weight="700">Downstream Processing (DSP): Chromatography &amp; TFF Skids — Visual Setup Guide</text>
+  <text x="32" y="60" fill="#94a3b8" font-size="13">Cytiva ÄKTA™ (UNICORN™ 7 Dual-NIC Wiring) • Sartorius Sartoflow® / Resolute® • MilliporeSigma Mobius® / Cogent®</text>
+  <line x1="32" y1="74" x2="1088" y2="74" stroke="#334155" stroke-width="1"/>
+
+  <!-- PANEL 1: Cytiva AKTA Skid + Dual-NIC UNICORN 7 PC -->
+  <rect x="28" y="90" width="440" height="444" rx="10" fill="#162032" stroke="#0284c7" stroke-width="1.5"/>
+  <circle cx="52" cy="116" r="13" fill="#0284c7"/>
+  <text x="52" y="121" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">1</text>
+  <text x="74" y="116" fill="#f8fafc" font-size="14" font-weight="700">Cytiva ÄKTA™ &amp; UNICORN™ 7 Dual-NIC Wiring</text>
+  <text x="74" y="133" fill="#38bdf8" font-size="11">CRITICAL: Never unplug the private instrument NIC (CU-950)!</text>
+
+  <!-- AKTA Skid + Column Drawing -->
+  <rect x="46" y="152" width="174" height="162" rx="8" fill="#1e293b" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="133" y="171" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="700">ÄKTA™ ready / process</text>
+  <!-- Pumps + Valves + UV Sensor -->
+  <circle cx="76" cy="204" r="14" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+  <text x="76" y="208" text-anchor="middle" fill="#38bdf8" font-size="8" font-weight="700">P-900</text>
+  <rect x="104" y="190" width="42" height="28" rx="4" fill="#0f172a" stroke="#facc15" stroke-width="1.5"/>
+  <text x="125" y="207" text-anchor="middle" fill="#facc15" font-size="8" font-weight="700">UV-280</text>
+  <!-- Process Chrom Column -->
+  <rect x="160" y="182" width="44" height="86" rx="6" fill="#0f172a" stroke="#a855f7" stroke-width="2"/>
+  <rect x="164" y="206" width="36" height="48" fill="#a855f7" fill-opacity="0.4"/>
+  <text x="182" y="232" text-anchor="middle" fill="#f3e8ff" font-size="8" font-weight="700">MabSelect</text>
+  <!-- CU-950 Internal Ethernet Port -->
+  <rect x="58" y="238" width="90" height="62" rx="4" fill="#0f172a" stroke="#f87171" stroke-width="1.5"/>
+  <text x="103" y="255" text-anchor="middle" fill="#f87171" font-size="8.5" font-weight="700">CU-950 Controller</text>
+  <text x="103" y="270" text-anchor="middle" fill="#cbd5e1" font-size="8">Internal IP:</text>
+  <text x="103" y="284" text-anchor="middle" fill="#f87171" font-size="8" font-family="monospace">192.168.0.2</text>
+
+  <!-- UNICORN 7 Workstation PC with 2 NICs -->
+  <rect x="260" y="152" width="190" height="162" rx="8" fill="#1e293b" stroke="#34d399" stroke-width="1.5"/>
+  <text x="355" y="171" text-anchor="middle" fill="#34d399" font-size="11" font-weight="700">UNICORN™ 7 Workstation</text>
+  <!-- NIC 1: Instrument Port -->
+  <rect x="274" y="184" width="162" height="44" rx="4" fill="#0f172a" stroke="#f87171"/>
+  <text x="284" y="201" fill="#f87171" font-size="9" font-weight="700">NIC 1 (Instrument LAN):</text>
+  <text x="284" y="216" fill="#94a3b8" font-size="8.5" font-family="monospace">192.168.0.1 → Keep Connected!</text>
+  <line x1="148" y1="268" x2="274" y2="206" stroke="#f87171" stroke-width="2" stroke-dasharray="3 2"/>
+
+  <!-- NIC 2: Plant / Historian Port -->
+  <rect x="274" y="238" width="162" height="62" rx="4" fill="#0f172a" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="284" y="255" fill="#22c55e" font-size="9.5" font-weight="700">NIC 2 (Plant / Historian):</text>
+  <text x="284" y="270" fill="#e2e8f0" font-size="8.5">Plug Cat6A Cable Here!</text>
+  <text x="284" y="285" fill="#38bdf8" font-size="8.5" font-family="monospace">opcda_windows_forwarder.py</text>
+
+  <rect x="46" y="328" width="404" height="190" rx="6" fill="#0f172a" stroke="#334155"/>
+  <text x="58" y="348" fill="#38bdf8" font-size="11" font-weight="700">Step-by-Step UNICORN™ 7 Software Setup:</text>
+  <text x="58" y="366" fill="#cbd5e1" font-size="10">1. Open <tspan fill="#facc15" font-weight="600">UNICORN Administration → Tools → System Properties</tspan>.</text>
+  <text x="58" y="383" fill="#cbd5e1" font-size="10">2. Select your system (<tspan font-family="monospace">AKTA_Ready_01</tspan>) → click the <tspan fill="#34d399" font-weight="600">OPC Settings</tspan> tab.</text>
+  <text x="58" y="400" fill="#cbd5e1" font-size="10">3. Check <tspan fill="#34d399" font-weight="600">[✓] Enable OPC Data Access</tspan> (<tspan font-family="monospace">UNICORN.OPCServer.1</tspan>) and set</text>
+  <text x="58" y="415" fill="#94a3b8" font-size="9.5">   Update Rate = <tspan fill="#facc15" font-family="monospace">500 ms</tspan> or <tspan fill="#facc15" font-family="monospace">1000 ms</tspan> so sharp UV280 peaks are never missed.</text>
+  <text x="58" y="434" fill="#cbd5e1" font-size="10">4. Start <tspan fill="#38bdf8" font-family="monospace">opcda_windows_forwarder.py</tspan> on the UNICORN PC: it reads</text>
+  <text x="58" y="449" fill="#94a3b8" font-size="9.5">   <tspan font-family="monospace">UNICORN.OPCServer.1</tspan> over <tspan fill="#34d399">localhost COM</tspan> (zero DCOM firewall holes!)</text>
+  <text x="58" y="464" fill="#94a3b8" font-size="9.5">   and streams JSON batches over NIC 2 to <tspan fill="#34d399" font-family="monospace">http://&lt;edge-collector&gt;:8080/ingest</tspan>.</text>
+  <text x="58" y="484" fill="#cbd5e1" font-size="10">5. <tspan fill="#facc15" font-weight="600">ÄKTA™ process with Figurate™:</tspan> Connect directly via OPC UA (<tspan font-family="monospace">:4840</tspan>).</text>
+
+  <!-- PANEL 2: Sartorius Sartoflow / Resolute & Millipore Mobius / Cogent -->
+  <rect x="488" y="90" width="316" height="444" rx="10" fill="#162032" stroke="#0d9488" stroke-width="1.5"/>
+  <circle cx="512" cy="116" r="13" fill="#0d9488"/>
+  <text x="512" y="121" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">2</text>
+  <text x="534" y="116" fill="#f8fafc" font-size="14" font-weight="700">Sartorius &amp; Millipore DSP Skids</text>
+  <text x="534" y="133" fill="#34d399" font-size="11">Sartoflow® TFF • Resolute® • Mobius® • Cogent®</text>
+
+  <!-- TFF Cassette & Pressure Gauges Drawing -->
+  <rect x="506" y="152" width="280" height="142" rx="8" fill="#1e293b" stroke="#94a3b8" stroke-width="1.5"/>
+  <!-- 3 Pressure Transmitters (P_feed, P_ret, P_perm) -->
+  <circle cx="546" cy="186" r="18" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+  <text x="546" y="184" text-anchor="middle" fill="#38bdf8" font-size="8.5" font-weight="700">P_feed</text>
+  <text x="546" y="196" text-anchor="middle" fill="#cbd5e1" font-size="7.5">2.4 bar</text>
+
+  <circle cx="646" cy="186" r="18" fill="#0f172a" stroke="#34d399" stroke-width="1.5"/>
+  <text x="646" y="184" text-anchor="middle" fill="#34d399" font-size="8.5" font-weight="700">P_ret</text>
+  <text x="646" y="196" text-anchor="middle" fill="#cbd5e1" font-size="7.5">1.6 bar</text>
+
+  <circle cx="746" cy="186" r="18" fill="#0f172a" stroke="#facc15" stroke-width="1.5"/>
+  <text x="746" y="184" text-anchor="middle" fill="#facc15" font-size="8.5" font-weight="700">P_perm</text>
+  <text x="746" y="196" text-anchor="middle" fill="#cbd5e1" font-size="7.5">0.2 bar</text>
+
+  <!-- TFF Cassette Block -->
+  <rect x="536" y="220" width="220" height="58" rx="6" fill="#0f172a" stroke="#34d399" stroke-width="1.5"/>
+  <text x="646" y="242" text-anchor="middle" fill="#34d399" font-size="10" font-weight="700">UF/DF TFF Cassette Holder</text>
+  <text x="646" y="259" text-anchor="middle" fill="#facc15" font-size="9.5" font-family="monospace">TMP = (P_feed + P_ret)/2 - P_perm = 1.8 bar</text>
+
+  <rect x="506" y="310" width="280" height="208" rx="6" fill="#0f172a" stroke="#334155"/>
+  <text x="518" y="330" fill="#34d399" font-size="11" font-weight="700">Sartorius Sartoflow® / Resolute®:</text>
+  <text x="518" y="347" fill="#94a3b8" font-size="9.5">• <tspan fill="#facc15">Physical:</tspan> Plug Cat6A (or M12-to-RJ45 washdown</text>
+  <text x="518" y="361" fill="#94a3b8" font-size="9.5">  adapter) into Siemens S7-1500 port <tspan fill="#22c55e" font-family="monospace">X2 (Plant LAN)</tspan>.</text>
+  <text x="518" y="376" fill="#94a3b8" font-size="9.5">• <tspan fill="#34d399">Software:</tspan> Enable S7-1500 OPC UA (<tspan font-family="monospace">:4840</tspan>) or</text>
+  <text x="518" y="390" fill="#94a3b8" font-size="9.5">  connect via BioPAT® MFCS 4 OPC UA Server.</text>
+
+  <line x1="518" y1="404" x2="774" y2="404" stroke="#334155"/>
+  <text x="518" y="422" fill="#38bdf8" font-size="11" font-weight="700">Millipore Mobius® Chrom / Cogent® TFF:</text>
+  <text x="518" y="439" fill="#94a3b8" font-size="9.5">• <tspan fill="#facc15">Physical:</tspan> Plug Cat6A into the ControlLogix</text>
+  <text x="518" y="453" fill="#94a3b8" font-size="9.5">  <tspan font-family="monospace">1756-EN2T</tspan> Northbound port on the skid cabinet.</text>
+  <text x="518" y="468" fill="#94a3b8" font-size="9.5">• <tspan fill="#34d399">Software:</tspan> Open FactoryTalk Linx Gateway on the</text>
+  <text x="518" y="482" fill="#94a3b8" font-size="9.5">  skid HMI PC → enable OPC UA Server (<tspan font-family="monospace">:4840</tspan>).</text>
+  <text x="518" y="497" fill="#94a3b8" font-size="9.5">• Archive <tspan font-family="monospace">TMP, Flux (LMH), DV_Count, UV280</tspan>.</text>
+
+  <!-- PANEL 3: LTTB Peak Preservation in ClickHouse -->
+  <rect x="824" y="90" width="268" height="444" rx="10" fill="#162032" stroke="#f59e0b" stroke-width="1.5"/>
+  <circle cx="848" cy="116" r="13" fill="#f59e0b"/>
+  <text x="848" y="121" text-anchor="middle" fill="#0f172a" font-size="13" font-weight="700">3</text>
+  <text x="870" y="116" fill="#f8fafc" font-size="14" font-weight="700">LTTB UV280 Peak Capture</text>
+  <text x="870" y="133" fill="#facc15" font-size="11">Why 1s Capture + LTTB Matters</text>
+
+  <!-- UV280 Elution Peak Graph -->
+  <rect x="840" y="152" width="236" height="162" rx="8" fill="#0f172a" stroke="#64748b" stroke-width="1.5"/>
+  <text x="958" y="171" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">Protein A Elution Peak (UV 280 nm)</text>
+  <!-- Grid -->
+  <line x1="854" y1="286" x2="1062" y2="286" stroke="#334155"/>
+  <line x1="854" y1="230" x2="1062" y2="230" stroke="#1e293b" stroke-dasharray="2 2"/>
+  <line x1="854" y1="190" x2="1062" y2="190" stroke="#1e293b" stroke-dasharray="2 2"/>
+  <!-- Bad Bucket Average Curve (dashed red flattened) -->
+  <path d="M856 282 L900 280 L930 232 L960 228 L990 245 L1056 282" fill="none" stroke="#f87171" stroke-width="1.8" stroke-dasharray="4 3"/>
+  <!-- True LTTB Curve preserving exact apex -->
+  <path d="M856 282 L910 282 L928 240 L942 184 L956 225 L978 272 L1056 282" fill="none" stroke="#34d399" stroke-width="2.5"/>
+  <circle cx="942" cy="184" r="4.5" fill="#facc15" stroke="#0f172a" stroke-width="1.5"/>
+  <text x="988" y="188" fill="#facc15" font-size="9" font-weight="700">Apex: 1842 mAU</text>
+  <text x="958" y="303" text-anchor="middle" fill="#34d399" font-size="8.5" font-weight="600">Green: ClickHouse LTTB • Red: Naive 1m Avg</text>
+
+  <rect x="840" y="328" width="236" height="190" rx="6" fill="#0f172a" stroke="#334155"/>
+  <text x="852" y="348" fill="#facc15" font-size="11" font-weight="700">GMP DSP Verification Checklist:</text>
+  <text x="852" y="368" fill="#cbd5e1" font-size="9.5">• <tspan fill="#34d399" font-weight="600">UV280 &amp; ΔP Scan Rate:</tspan> Poll at</text>
+  <text x="852" y="382" fill="#94a3b8" font-size="9.5">  <tspan font-family="monospace">0.5s – 1.0s</tspan> with <tspan font-family="monospace">is_step_tag=false</tspan>.</text>
+  <text x="852" y="402" fill="#cbd5e1" font-size="9.5">• <tspan fill="#38bdf8" font-weight="600">Fraction / Outlet Valve:</tspan> Set</text>
+  <text x="852" y="416" fill="#94a3b8" font-size="9.5">  <tspan font-family="monospace">is_step_tag=true, exc_dev=0.0</tspan> so</text>
+  <text x="852" y="430" fill="#94a3b8" font-size="9.5">  exact Waste → Pool cut timestamps</text>
+  <text x="852" y="444" fill="#94a3b8" font-size="9.5">  are preserved to the millisecond.</text>
+  <text x="852" y="464" fill="#cbd5e1" font-size="9.5">• <tspan fill="#c084fc" font-weight="600">Low-pH Viral Inactivation:</tspan></text>
+  <text x="852" y="478" fill="#94a3b8" font-size="9.5">  Event Frame verifies continuous hold</text>
+  <text x="852" y="492" fill="#94a3b8" font-size="9.5">  at <tspan font-family="monospace">pH 3.60 ± 0.10</tspan> for <tspan font-family="monospace">≥ 60 min</tspan></text>
+  <text x="852" y="506" fill="#94a3b8" font-size="9.5">  with <tspan font-family="monospace">quality &gt;= 192</tspan>.</text>
+</svg>

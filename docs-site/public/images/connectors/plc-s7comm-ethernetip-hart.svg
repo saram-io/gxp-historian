@@ -1,0 +1,209 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 650" width="100%" height="100%" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg-plc" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <marker id="arr-p-cyan" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arr-p-pink" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#ec4899"/>
+    </marker>
+    <marker id="arr-p-rose" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#f43f5e"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="650" rx="16" fill="url(#bg-plc)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Header -->
+  <text x="35" y="40" fill="#f8fafc" font-size="21" font-weight="800" letter-spacing="0.3">SIEMENS S7COMM (`:102`), ALLEN-BRADLEY ETHERNET/IP (`:44818`) &amp; 4–20 mA HART LOOPS</text>
+  <text x="35" y="62" fill="#94a3b8" font-size="13">S7 Data Block Offsets (`DB10.DBD0`) &amp; Rack/Slot Rules • ControlLogix Symbolic CIP Tags • 4–20 mA Shunt Law &amp; NAMUR NE 43 Burnout</text>
+
+  <!-- COLUMN 1: SIEMENS SIMATIC S7-1500 / S7-300 (S7COMM PORT 102) -->
+  <g transform="translate(30, 82)">
+    <rect width="335" height="540" rx="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+    <rect width="335" height="36" rx="12" fill="#0c4a6e"/>
+    <text x="167" y="23" text-anchor="middle" fill="#e0f2fe" font-size="12" font-weight="700">1. SIEMENS S7COMM (`RFC 1006 :102`)</text>
+
+    <!-- S7-1500 & S7-300 Physical CPU Graphics -->
+    <g transform="translate(18, 48)">
+      <rect width="299" height="145" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+      <text x="149" y="18" text-anchor="middle" fill="#7dd3fc" font-size="10" font-weight="700">PHYSICAL PLC PORTS &amp; RACK/SLOT RULES</text>
+
+      <!-- S7-1500 Box -->
+      <rect x="12" y="28" width="132" height="104" rx="5" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>
+      <text x="78" y="44" text-anchor="middle" fill="#f8fafc" font-size="9.5" font-weight="700">S7-1200 / S7-1500</text>
+      <text x="78" y="58" text-anchor="middle" fill="#38bdf8" font-size="8.5" font-weight="700">Rack = 0, Slot = 1</text>
+      <rect x="24" y="68" width="48" height="28" rx="3" fill="#064e3b" stroke="#10b981" stroke-width="1"/>
+      <text x="48" y="85" text-anchor="middle" fill="#34d399" font-size="7.5" font-weight="700">X1 (I/O)</text>
+      <rect x="82" y="68" width="50" height="28" rx="3" fill="#082f49" stroke="#38bdf8" stroke-width="1.5"/>
+      <text x="107" y="85" text-anchor="middle" fill="#38bdf8" font-size="7.5" font-weight="700">X2 (LAN)</text>
+      <text x="78" y="114" text-anchor="middle" fill="#94a3b8" font-size="7.5">Plug Cat6A into Port X2</text>
+
+      <!-- S7-300 / S7-400 Box -->
+      <rect x="155" y="28" width="132" height="104" rx="5" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="221" y="44" text-anchor="middle" fill="#f8fafc" font-size="9.5" font-weight="700">S7-300 / S7-400</text>
+      <text x="221" y="58" text-anchor="middle" fill="#fbbf24" font-size="8.5" font-weight="700">Rack = 0, Slot = 2</text>
+      <rect x="168" y="68" width="106" height="28" rx="3" fill="#78350f" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="221" y="85" text-anchor="middle" fill="#fde68a" font-size="7.5" font-weight="700">9-Pin MPI → NETLink</text>
+      <text x="221" y="114" text-anchor="middle" fill="#94a3b8" font-size="7.5">Or CP 343-1 Ethernet Card</text>
+    </g>
+
+    <!-- Data Block Memory Layout -->
+    <g transform="translate(18, 205)">
+      <rect width="299" height="185" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+      <text x="149" y="20" text-anchor="middle" fill="#7dd3fc" font-size="10" font-weight="700">HOW S7 DATA BLOCK (`DB`) ADDRESSING WORKS</text>
+
+      <rect x="12" y="30" width="275" height="32" rx="4" fill="#082f49" stroke="#0284c7" stroke-width="1"/>
+      <text x="20" y="50" fill="#38bdf8" font-size="9.5" font-weight="700">`DB10.DBD0` (32-Bit IEEE Float `Real`)</text>
+      <text x="215" y="50" fill="#e0f2fe" font-size="8.5">Bytes 0..3</text>
+
+      <rect x="12" y="68" width="275" height="32" rx="4" fill="#082f49" stroke="#0284c7" stroke-width="1"/>
+      <text x="20" y="88" fill="#38bdf8" font-size="9.5" font-weight="700">`DB10.DBD4` (32-Bit IEEE Float `Real`)</text>
+      <text x="215" y="88" fill="#e0f2fe" font-size="8.5">Bytes 4..7</text>
+
+      <rect x="12" y="106" width="275" height="32" rx="4" fill="#064e3b" stroke="#10b981" stroke-width="1"/>
+      <text x="20" y="126" fill="#34d399" font-size="9.5" font-weight="700">`DB10.DBW8` (16-Bit Signed `Int`)</text>
+      <text x="215" y="126" fill="#d1fae5" font-size="8.5">Bytes 8..9</text>
+
+      <rect x="12" y="144" width="275" height="32" rx="4" fill="#78350f" stroke="#f59e0b" stroke-width="1"/>
+      <text x="20" y="164" fill="#fbbf24" font-size="9.5" font-weight="700">`DB10.DBX10.0` (1-Bit Boolean Flag)</text>
+      <text x="215" y="164" fill="#fef3c7" font-size="8.5">Byte 10 Bit 0</text>
+    </g>
+
+    <!-- TIA Portal Checklist -->
+    <g transform="translate(18, 402)">
+      <rect width="299" height="122" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+      <text x="149" y="20" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="700">2 MANDATORY TIA PORTAL CHECKBOXES</text>
+      <text x="14" y="42" fill="#cbd5e1" font-size="9">1. Right-click `DB10` → **Properties** → **Attributes**:</text>
+      <text x="24" y="57" fill="#34d399" font-size="9" font-weight="700">☐ UNCHECK "Optimized block access"</text>
+      <text x="14" y="77" fill="#cbd5e1" font-size="9">2. CPU **Properties** → **Protection &amp; Security**:</text>
+      <text x="24" y="92" fill="#34d399" font-size="9" font-weight="700">☑ CHECK "Permit access with PUT/GET"</text>
+      <text x="14" y="111" fill="#94a3b8" font-size="8.5">Test: `nc -zv &lt;PLC_IP&gt; 102`</text>
+    </g>
+  </g>
+
+  <!-- COLUMN 2: ALLEN-BRADLEY ETHERNET/IP (CIP :44818) & PCCC -->
+  <g transform="translate(382, 82)">
+    <rect width="335" height="540" rx="12" fill="#1e293b" stroke="#ec4899" stroke-width="2"/>
+    <rect width="335" height="36" rx="12" fill="#831843"/>
+    <text x="167" y="23" text-anchor="middle" fill="#fce7f3" font-size="12" font-weight="700">2. ALLEN-BRADLEY CIP (`TCP :44818`)</text>
+
+    <!-- ControlLogix Chassis Graphic -->
+    <g transform="translate(18, 48)">
+      <rect width="299" height="145" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+      <text x="149" y="18" text-anchor="middle" fill="#f472b6" font-size="10" font-weight="700">CONTROLLOGIX 1756 CHASSIS &amp; SLOT PATH</text>
+
+      <!-- 4 Chassis Slots -->
+      <rect x="18" y="30" width="58" height="86" rx="4" fill="#1e293b" stroke="#ec4899" stroke-width="1.5"/>
+      <text x="47" y="46" text-anchor="middle" fill="#f472b6" font-size="8" font-weight="700">SLOT 0</text>
+      <text x="47" y="62" text-anchor="middle" fill="#f8fafc" font-size="8">L83E CPU</text>
+      <text x="47" y="76" text-anchor="middle" fill="#34d399" font-size="7.5">RUN</text>
+
+      <rect x="82" y="30" width="58" height="86" rx="4" fill="#1e293b" stroke="#64748b" stroke-width="1"/>
+      <text x="111" y="46" text-anchor="middle" fill="#94a3b8" font-size="8" font-weight="700">SLOT 1</text>
+      <text x="111" y="62" text-anchor="middle" fill="#cbd5e1" font-size="8">EN2T #1</text>
+      <text x="111" y="76" text-anchor="middle" fill="#94a3b8" font-size="7.5">Skid I/O</text>
+
+      <rect x="146" y="30" width="68" height="86" rx="4" fill="#500724" stroke="#ec4899" stroke-width="2"/>
+      <text x="180" y="46" text-anchor="middle" fill="#fbcfe8" font-size="8" font-weight="700">SLOT 2</text>
+      <text x="180" y="62" text-anchor="middle" fill="#ffffff" font-size="8" font-weight="700">1756-EN2T</text>
+      <text x="180" y="76" text-anchor="middle" fill="#f472b6" font-size="7.5" font-weight="700">Plant LAN</text>
+      <rect x="165" y="84" width="30" height="20" rx="2" fill="#0f172a" stroke="#38bdf8" stroke-width="1"/>
+      <text x="180" y="97" text-anchor="middle" fill="#38bdf8" font-size="7">RJ45</text>
+
+      <rect x="220" y="30" width="60" height="86" rx="4" fill="#1e293b" stroke="#64748b" stroke-width="1"/>
+      <text x="250" y="46" text-anchor="middle" fill="#94a3b8" font-size="8" font-weight="700">SLOT 3</text>
+      <text x="250" y="62" text-anchor="middle" fill="#cbd5e1" font-size="8">IF8 Analog</text>
+
+      <text x="149" y="132" text-anchor="middle" fill="#fbcfe8" font-size="8.5" font-weight="700">CIP Route Path: `10.20.60.15/1/0` (Backplane `1`, CPU Slot `0`)</text>
+    </g>
+
+    <!-- Symbolic Tag vs PCCC Addressing -->
+    <g transform="translate(18, 205)">
+      <rect width="299" height="185" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+      <text x="149" y="20" text-anchor="middle" fill="#f472b6" font-size="10" font-weight="700">SYMBOLIC CIP TAGS VS LEGACY PCCC FILES</text>
+
+      <rect x="12" y="32" width="275" height="72" rx="5" fill="#500724" stroke="#ec4899" stroke-width="1"/>
+      <text x="22" y="49" fill="#fbcfe8" font-size="9.5" font-weight="700">Modern ControlLogix / CompactLogix (LogixDriver):</text>
+      <text x="22" y="65" fill="#ffffff" font-size="8.5">• Controller Tag: `"Tank_201_Temp_PV"` (`REAL`)</text>
+      <text x="22" y="80" fill="#ffffff" font-size="8.5">• Program Tag: `"Program:USP_Main.pH_PV"`</text>
+      <text x="22" y="95" fill="#f472b6" font-size="8.5" font-weight="700">• PlantPAx AOI: `"TT_201.Val"`, `"TT_201.Sts_Bad"`</text>
+
+      <rect x="12" y="112" width="275" height="62" rx="5" fill="#1e293b" stroke="#64748b" stroke-width="1"/>
+      <text x="22" y="129" fill="#f8fafc" font-size="9.5" font-weight="700">Legacy SLC 5/05 &amp; PLC-5 (SLCDriver PCCC):</text>
+      <text x="22" y="145" fill="#cbd5e1" font-size="8.5">• `F8:0` = Floating Point File 8, Element 0</text>
+      <text x="22" y="160" fill="#cbd5e1" font-size="8.5">• `N7:12` = Integer File 7 | `B3:0/1` = Bit Flag</text>
+    </g>
+
+    <!-- Studio 5000 Checklist -->
+    <g transform="translate(18, 402)">
+      <rect width="299" height="122" rx="8" fill="#0f172a" stroke="#ec4899" stroke-width="1.5"/>
+      <text x="149" y="20" text-anchor="middle" fill="#f472b6" font-size="10" font-weight="700">STUDIO 5000 EXTERNAL ACCESS RULE</text>
+      <text x="14" y="42" fill="#cbd5e1" font-size="9">1. Open **Controller Tags** in Studio 5000 Logix Designer</text>
+      <text x="14" y="59" fill="#cbd5e1" font-size="9">2. Set **External Access** column on historian tags to:</text>
+      <text x="24" y="75" fill="#34d399" font-size="9.5" font-weight="700">☑ `Read Only` (Protects GMP setpoints!)</text>
+      <text x="14" y="93" fill="#cbd5e1" font-size="9">3. Uses `CIP ReadTagFragmented (0x52)` over TCP</text>
+      <text x="14" y="111" fill="#94a3b8" font-size="8.5">Test: `nc -zv &lt;EN2T_IP&gt; 44818`</text>
+    </g>
+  </g>
+
+  <!-- COLUMN 3: 4–20 mA ANALOG CURRENT LOOP & HART 7 FSK -->
+  <g transform="translate(734, 82)">
+    <rect width="336" height="540" rx="12" fill="#1e293b" stroke="#f43f5e" stroke-width="2"/>
+    <rect width="336" height="36" rx="12" fill="#881337"/>
+    <text x="168" y="23" text-anchor="middle" fill="#ffe4e6" font-size="12" font-weight="700">3. 4–20 mA ANALOG LOOP &amp; HART 7</text>
+
+    <!-- 250 Ohm Shunt Law & HART FSK Sine Wave -->
+    <g transform="translate(18, 48)">
+      <rect width="300" height="145" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+      <text x="150" y="18" text-anchor="middle" fill="#fda4af" font-size="10" font-weight="700">HOW 4–20 mA + HART FSK WORKS PHYSICALLY</text>
+
+      <!-- Circuit Diagram -->
+      <rect x="14" y="30" width="272" height="68" rx="6" fill="#1e293b" stroke="#f43f5e" stroke-width="1"/>
+      <text x="150" y="46" text-anchor="middle" fill="#ffe4e6" font-size="9" font-weight="700">Ohm's Law across 250 Ω Precision Shunt (`V = I × R`)</text>
+      <text x="24" y="64" fill="#38bdf8" font-size="9">• `4.00 mA × 250 Ω = 1.000 V DC` (0% Scale)</text>
+      <text x="24" y="80" fill="#10b981" font-size="9">• `12.00 mA × 250 Ω = 3.000 V DC` (50% Scale)</text>
+      <text x="24" y="94" fill="#fbbf24" font-size="9">• `20.00 mA × 250 Ω = 5.000 V DC` (100% Scale)</text>
+
+      <text x="14" y="116" fill="#fda4af" font-size="9" font-weight="700">HART Digital Overlay (Bell 202 FSK):</text>
+      <text x="14" y="131" fill="#cbd5e1" font-size="8.5">`±0.5 mA` sine wave (`1200 Hz = 1`, `2200 Hz = 0`) averages</text>
+      <text x="14" y="142" fill="#cbd5e1" font-size="8.5">to `0.00 mA`, carrying digital `PV, SV, TV, QV` &amp; Tag Name!</text>
+    </g>
+
+    <!-- NAMUR NE 43 Signal Quality Range Bar -->
+    <g transform="translate(18, 205)">
+      <rect width="300" height="185" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+      <text x="150" y="20" text-anchor="middle" fill="#fda4af" font-size="10" font-weight="700">NAMUR NE 43 FAULT DETECTION → GXP QUALITY</text>
+
+      <!-- Range 1: <= 3.6 mA -->
+      <rect x="12" y="32" width="276" height="34" rx="4" fill="#7f1d1d" stroke="#ef4444" stroke-width="1"/>
+      <text x="20" y="53" fill="#fee2e2" font-size="9" font-weight="700">`0.00 .. 3.60 mA` (Cut Wire / Dead PSU) → `quality = 0`</text>
+
+      <!-- Range 2: 3.6 .. 3.8 mA -->
+      <rect x="12" y="72" width="276" height="32" rx="4" fill="#78350f" stroke="#f59e0b" stroke-width="1"/>
+      <text x="20" y="92" fill="#fef3c7" font-size="9" font-weight="700">`3.60 .. 3.80 mA` (Underrange Warning) → `quality = 64`</text>
+
+      <!-- Range 3: 3.8 .. 20.5 mA -->
+      <rect x="12" y="110" width="276" height="34" rx="4" fill="#064e3b" stroke="#10b981" stroke-width="1"/>
+      <text x="20" y="131" fill="#d1fae5" font-size="9" font-weight="700">`3.80 .. 20.50 mA` (Valid Measurement) → `quality = 192`</text>
+
+      <!-- Range 4: >= 21.0 mA -->
+      <rect x="12" y="150" width="276" height="28" rx="4" fill="#7f1d1d" stroke="#ef4444" stroke-width="1"/>
+      <text x="20" y="168" fill="#fee2e2" font-size="9" font-weight="700">`≥ 21.00 mA` (Short Circuit / Burnout) → `quality = 0`</text>
+    </g>
+
+    <!-- Linear Scaling Equation -->
+    <g transform="translate(18, 402)">
+      <rect width="300" height="122" rx="8" fill="#0f172a" stroke="#f43f5e" stroke-width="1.5"/>
+      <text x="150" y="20" text-anchor="middle" fill="#fda4af" font-size="10" font-weight="700">LINEAR ENGINEERING UNIT SCALING</text>
+      <rect x="14" y="30" width="272" height="32" rx="4" fill="#1e293b"/>
+      <text x="150" y="50" text-anchor="middle" fill="#38bdf8" font-size="9.5" font-weight="700">EU = LRV + ((I_mA - 4.0) / 16.0) × (URV - LRV)</text>
+      <text x="14" y="80" fill="#cbd5e1" font-size="9">• Hardware: **Advantech ADAM-6017** (8-Ch 4–20mA)</text>
+      <text x="14" y="96" fill="#cbd5e1" font-size="9">  or **Pepperl+Fuchs / Moxa HART Multiplexer**</text>
+      <text x="14" y="112" fill="#fda4af" font-size="9" font-weight="700">• Outputs Modbus TCP (`:502`) to `edge-collector`</text>
+    </g>
+  </g>
+</svg>

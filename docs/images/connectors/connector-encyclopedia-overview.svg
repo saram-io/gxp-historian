@@ -1,0 +1,269 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 660" width="100%" height="100%" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg-enc" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <marker id="arr-c" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="660" rx="16" fill="url(#bg-enc)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Title -->
+  <text x="35" y="40" fill="#f8fafc" font-size="21" font-weight="800" letter-spacing="0.3">GXPHISTORIAN CONNECTORS ENCYCLOPEDIA: PHYSICAL PLUGS &amp; SOFTWARE PROTOCOLS</text>
+  <text x="35" y="62" fill="#94a3b8" font-size="13">How Physical Hardware Ports (Layer 1) &amp; Industrial Software Protocols (Layer 7) Normalize into GxPHistorian</text>
+
+  <!-- SECTION A: PHYSICAL CONNECTORS (TOP HALF) -->
+  <text x="35" y="92" fill="#38bdf8" font-size="13" font-weight="800" letter-spacing="0.5">PART 1: PHYSICAL HARDWARE CONNECTORS ON EQUIPMENT &amp; GATEWAYS (WHAT THEY LOOK LIKE)</text>
+
+  <!-- Card 1: RJ45 8P8C T568B -->
+  <g transform="translate(30, 104)">
+    <rect width="200" height="210" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+    <rect width="200" height="30" rx="10" fill="#0c4a6e"/>
+    <text x="100" y="20" text-anchor="middle" fill="#e0f2fe" font-size="11" font-weight="700">1. RJ45 (8P8C) ETHERNET</text>
+
+    <!-- RJ45 Jack Front View -->
+    <g transform="translate(45, 42)">
+      <rect x="0" y="0" width="110" height="72" rx="6" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+      <!-- Latch cutout -->
+      <rect x="35" y="0" width="40" height="14" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+      <!-- LEDs -->
+      <rect x="8" y="8" width="16" height="9" rx="2" fill="#22c55e"/>
+      <text x="16" y="26" text-anchor="middle" fill="#4ade80" font-size="7" font-weight="700">LINK</text>
+      <rect x="86" y="8" width="16" height="9" rx="2" fill="#f59e0b"/>
+      <text x="94" y="26" text-anchor="middle" fill="#fbbf24" font-size="7" font-weight="700">ACT</text>
+      <!-- 8 Gold Pins (T568B colors) -->
+      <rect x="19" y="44" width="6" height="20" fill="#fb923c"/>
+      <rect x="29" y="44" width="6" height="20" fill="#ea580c"/>
+      <rect x="39" y="44" width="6" height="20" fill="#4ade80"/>
+      <rect x="49" y="44" width="6" height="20" fill="#3b82f6"/>
+      <rect x="59" y="44" width="6" height="20" fill="#93c5fd"/>
+      <rect x="69" y="44" width="6" height="20" fill="#16a34a"/>
+      <rect x="79" y="44" width="6" height="20" fill="#d97706"/>
+      <rect x="89" y="44" width="6" height="20" fill="#92400e"/>
+    </g>
+
+    <text x="14" y="132" fill="#7dd3fc" font-size="9.5" font-weight="700">T568B Pinout (100/1000BASE-T):</text>
+    <text x="14" y="147" fill="#cbd5e1" font-size="9">• Pin 1/2: TX+ / TX- (Orange pair)</text>
+    <text x="14" y="161" fill="#cbd5e1" font-size="9">• Pin 3/6: RX+ / RX- (Green pair)</text>
+    <text x="14" y="175" fill="#cbd5e1" font-size="9">• PoE (802.3af): +48V DC over cable</text>
+    <text x="14" y="191" fill="#38bdf8" font-size="9" font-weight="700">Used by: OPC UA, Modbus TCP, BACnet/IP</text>
+  </g>
+
+  <!-- Card 2: M12 Circular (D-Coded, X-Coded, A-Coded) -->
+  <g transform="translate(240, 104)">
+    <rect width="200" height="210" rx="10" fill="#1e293b" stroke="#06b6d4" stroke-width="2"/>
+    <rect width="200" height="30" rx="10" fill="#164e63"/>
+    <text x="100" y="20" text-anchor="middle" fill="#cffafe" font-size="11" font-weight="700">2. M12 CIRCULAR WASHDOWN</text>
+
+    <!-- 2 M12 Faceplates: D-Coded (4-pin) & A-Coded (8-pin) -->
+    <g transform="translate(18, 42)">
+      <!-- D-Coded 4-pin -->
+      <circle cx="38" cy="36" r="30" fill="#0f172a" stroke="#22d3ee" stroke-width="2"/>
+      <circle cx="26" cy="24" r="4.5" fill="#fbbf24"/>
+      <circle cx="50" cy="24" r="4.5" fill="#fbbf24"/>
+      <circle cx="26" cy="48" r="4.5" fill="#fbbf24"/>
+      <circle cx="50" cy="48" r="4.5" fill="#fbbf24"/>
+      <text x="38" y="76" text-anchor="middle" fill="#67e8f9" font-size="8" font-weight="700">D-Coded (4-Pin)</text>
+
+      <!-- A-Coded 8-pin (Hamilton Arc) -->
+      <circle cx="126" cy="36" r="30" fill="#0f172a" stroke="#a855f7" stroke-width="2"/>
+      <circle cx="126" cy="16" r="3.5" fill="#fbbf24"/>
+      <circle cx="143" cy="24" r="3.5" fill="#fbbf24"/>
+      <circle cx="146" cy="42" r="3.5" fill="#fbbf24"/>
+      <circle cx="135" cy="54" r="3.5" fill="#fbbf24"/>
+      <circle cx="117" cy="54" r="3.5" fill="#fbbf24"/>
+      <circle cx="106" cy="42" r="3.5" fill="#fbbf24"/>
+      <circle cx="109" cy="24" r="3.5" fill="#fbbf24"/>
+      <circle cx="126" cy="36" r="3.5" fill="#fbbf24"/>
+      <text x="126" y="76" text-anchor="middle" fill="#d8b4fe" font-size="8" font-weight="700">A-Coded (8-Pin)</text>
+    </g>
+
+    <text x="14" y="132" fill="#67e8f9" font-size="9.5" font-weight="700">3 Key Keyway Codings (IP67):</text>
+    <text x="14" y="147" fill="#cbd5e1" font-size="9">• D-Coded (4-pin): 100 Mbps Ethernet</text>
+    <text x="14" y="161" fill="#cbd5e1" font-size="9">• X-Coded (8-pin): 1/10 Gbps Ethernet</text>
+    <text x="14" y="175" fill="#cbd5e1" font-size="9">• A-Coded (8-pin): Smart Probes (RS-485)</text>
+    <text x="14" y="191" fill="#22d3ee" font-size="9" font-weight="700">Used by: Stainless Skids &amp; Hamilton Arc</text>
+  </g>
+
+  <!-- Card 3: DB9 (DE-9) Serial RS-232 / MPI -->
+  <g transform="translate(450, 104)">
+    <rect width="200" height="210" rx="10" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+    <rect width="200" height="30" rx="10" fill="#78350f"/>
+    <text x="100" y="20" text-anchor="middle" fill="#fef3c7" font-size="11" font-weight="700">3. DB9 (9-PIN D-SUB) SERIAL</text>
+
+    <!-- D-Sub Trapezoid -->
+    <g transform="translate(32, 46)">
+      <polygon points="10,0 126,0 114,54 22,54" fill="#0f172a" stroke="#f59e0b" stroke-width="2.5"/>
+      <!-- Top Row: Pins 1-5 -->
+      <circle cx="30" cy="18" r="4" fill="#64748b"/>
+      <circle cx="49" cy="18" r="5" fill="#fbbf24"/><text x="49" y="11" text-anchor="middle" fill="#fbbf24" font-size="7" font-weight="700">2:RX</text>
+      <circle cx="68" cy="18" r="5" fill="#38bdf8"/><text x="68" y="11" text-anchor="middle" fill="#38bdf8" font-size="7" font-weight="700">3:TX</text>
+      <circle cx="87" cy="18" r="4" fill="#64748b"/>
+      <circle cx="106" cy="18" r="5" fill="#10b981"/><text x="106" y="11" text-anchor="middle" fill="#10b981" font-size="7" font-weight="700">5:GND</text>
+      <!-- Bottom Row: Pins 6-9 -->
+      <circle cx="39" cy="38" r="4" fill="#64748b"/>
+      <circle cx="58" cy="38" r="4" fill="#64748b"/>
+      <circle cx="77" cy="38" r="4" fill="#64748b"/>
+      <circle cx="96" cy="38" r="4" fill="#64748b"/>
+    </g>
+
+    <text x="14" y="132" fill="#fcd34d" font-size="9.5" font-weight="700">RS-232 &amp; Siemens MPI Pinout:</text>
+    <text x="14" y="147" fill="#cbd5e1" font-size="9">• Pin 2: Receive (RX) | Pin 3: Transmit (TX)</text>
+    <text x="14" y="161" fill="#cbd5e1" font-size="9">• Pin 5: Signal Ground (GND)</text>
+    <text x="14" y="175" fill="#cbd5e1" font-size="9">• Male (Pins) = DTE | Female (Holes) = DCE</text>
+    <text x="14" y="191" fill="#fbbf24" font-size="9" font-weight="700">Used by: Balances, Osmometers, S7-300</text>
+  </g>
+
+  <!-- Card 4: Phoenix Pluggable Screw Terminal (RS-485 & 4-20 mA) -->
+  <g transform="translate(660, 104)">
+    <rect width="200" height="210" rx="10" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+    <rect width="200" height="30" rx="10" fill="#064e3b"/>
+    <text x="100" y="20" text-anchor="middle" fill="#d1fae5" font-size="11" font-weight="700">4. GREEN SCREW TERMINAL</text>
+
+    <!-- 4-Pin Phoenix Block -->
+    <g transform="translate(26, 44)">
+      <rect x="0" y="0" width="148" height="62" rx="4" fill="#065f46" stroke="#10b981" stroke-width="2"/>
+      <!-- 4 Screw Heads -->
+      <circle cx="22" cy="24" r="10" fill="#cbd5e1" stroke="#334155" stroke-width="1.5"/>
+      <line x1="15" y1="24" x2="29" y2="24" stroke="#334155" stroke-width="2"/>
+      <circle cx="56" cy="24" r="10" fill="#cbd5e1" stroke="#334155" stroke-width="1.5"/>
+      <line x1="49" y1="24" x2="63" y2="24" stroke="#334155" stroke-width="2"/>
+      <circle cx="90" cy="24" r="10" fill="#cbd5e1" stroke="#334155" stroke-width="1.5"/>
+      <line x1="83" y1="24" x2="97" y2="24" stroke="#334155" stroke-width="2"/>
+      <circle cx="124" cy="24" r="10" fill="#cbd5e1" stroke="#334155" stroke-width="1.5"/>
+      <line x1="117" y1="24" x2="131" y2="24" stroke="#334155" stroke-width="2"/>
+
+      <text x="22" y="52" text-anchor="middle" fill="#fde68a" font-size="8" font-weight="700">D+ (B)</text>
+      <text x="56" y="52" text-anchor="middle" fill="#7dd3fc" font-size="8" font-weight="700">D- (A)</text>
+      <text x="90" y="52" text-anchor="middle" fill="#a7f3d0" font-size="8" font-weight="700">GND</text>
+      <text x="124" y="52" text-anchor="middle" fill="#fca5a5" font-size="8" font-weight="700">+24V</text>
+    </g>
+
+    <text x="14" y="132" fill="#6ee7b7" font-size="9.5" font-weight="700">Phoenix / Euroblock (3.81 / 5.08 mm):</text>
+    <text x="14" y="147" fill="#cbd5e1" font-size="9">• RS-485: Differential `D+` &amp; `D-` + `120 Ω`</text>
+    <text x="14" y="161" fill="#cbd5e1" font-size="9">• 4–20 mA Loop: `AI+` (Current) &amp; `AI-`</text>
+    <text x="14" y="175" fill="#cbd5e1" font-size="9">• PT100 RTD: 3-Wire or 4-Wire Kelvin</text>
+    <text x="14" y="191" fill="#34d399" font-size="9" font-weight="700">Used by: Modbus RTU, BACnet MS/TP, HART</text>
+  </g>
+
+  <!-- Card 5: DIN-Rail Protocol Gateways -->
+  <g transform="translate(870, 104)">
+    <rect width="200" height="210" rx="10" fill="#1e293b" stroke="#a855f7" stroke-width="2"/>
+    <rect width="200" height="30" rx="10" fill="#4c1d95"/>
+    <text x="100" y="20" text-anchor="middle" fill="#f3e8ff" font-size="11" font-weight="700">5. INDUSTRIAL GATEWAYS</text>
+
+    <!-- Gateway Box Graphic -->
+    <g transform="translate(20, 42)">
+      <rect x="0" y="0" width="160" height="68" rx="6" fill="#0f172a" stroke="#a855f7" stroke-width="2"/>
+      <text x="80" y="18" text-anchor="middle" fill="#e9d5ff" font-size="9" font-weight="700">DIN-RAIL BRIDGE BOX</text>
+      <rect x="12" y="26" width="60" height="32" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1"/>
+      <text x="42" y="40" text-anchor="middle" fill="#fbbf24" font-size="8" font-weight="700">DB9 / RS485</text>
+      <text x="42" y="51" text-anchor="middle" fill="#94a3b8" font-size="7">Field Side</text>
+      <path d="M 74 42 L 88 42" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr-c)"/>
+      <rect x="90" y="26" width="58" height="32" rx="3" fill="#082f49" stroke="#38bdf8" stroke-width="1"/>
+      <text x="119" y="40" text-anchor="middle" fill="#38bdf8" font-size="8" font-weight="700">RJ45 LAN</text>
+      <text x="119" y="51" text-anchor="middle" fill="#e0f2fe" font-size="7">TCP/UDP</text>
+    </g>
+
+    <text x="14" y="132" fill="#d8b4fe" font-size="9.5" font-weight="700">Standard Off-the-Shelf Bridges:</text>
+    <text x="14" y="147" fill="#cbd5e1" font-size="9">• Moxa NPort 5150: RS-232 → TCP :4001</text>
+    <text x="14" y="161" fill="#cbd5e1" font-size="9">• Moxa MGate MB3180: RTU → TCP :502</text>
+    <text x="14" y="175" fill="#cbd5e1" font-size="9">• Advantech ADAM-6017: 4–20mA → :502</text>
+    <text x="14" y="191" fill="#c084fc" font-size="9" font-weight="700">• Helmholz NETLink: S7 MPI → TCP :102</text>
+  </g>
+
+  <!-- SECTION B: SOFTWARE PROTOCOL CONNECTORS (BOTTOM HALF) -->
+  <text x="35" y="344" fill="#10b981" font-size="13" font-weight="800" letter-spacing="0.5">PART 2: SOFTWARE &amp; INDUSTRIAL PROTOCOL CONNECTORS (HOW THEY WORK UNDER THE HOOD)</text>
+
+  <!-- Protocol Grid: 2 Rows x 4 Columns -->
+  <!-- Row 1, Col 1: OPC UA -->
+  <g transform="translate(30, 356)">
+    <rect width="250" height="125" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="14" y="22" fill="#38bdf8" font-size="11" font-weight="800">1. OPC UA (`opc.tcp://:4840`)</text>
+    <text x="14" y="40" fill="#cbd5e1" font-size="9.5">• Model: Hierarchical NodeId Tree (`ns=2;s=...`)</text>
+    <text x="14" y="56" fill="#cbd5e1" font-size="9.5">• Mechanism: MonitoredItem Subscriptions</text>
+    <text x="14" y="72" fill="#cbd5e1" font-size="9.5">• Security: X.509 `Basic256Sha256` Sign+Encrypt</text>
+    <text x="14" y="88" fill="#cbd5e1" font-size="9.5">• Quality: Native 32-bit StatusCode (`192/64/0`)</text>
+    <text x="14" y="108" fill="#7dd3fc" font-size="9" font-weight="700">Bioreactors, Chromatography, Isolators, Lyo</text>
+  </g>
+
+  <!-- Row 1, Col 2: Classic OPC DA -->
+  <g transform="translate(293, 356)">
+    <rect width="250" height="125" rx="8" fill="#0f172a" stroke="#06b6d4" stroke-width="1.5"/>
+    <text x="14" y="22" fill="#22d3ee" font-size="11" font-weight="800">2. Classic OPC DA 2.05a (`COM`)</text>
+    <text x="14" y="40" fill="#cbd5e1" font-size="9.5">• Model: Windows COM `ProgID` + ItemID strings</text>
+    <text x="14" y="56" fill="#cbd5e1" font-size="9.5">• Mechanism: Localhost `127.0.0.1` COM Polling</text>
+    <text x="14" y="72" fill="#cbd5e1" font-size="9.5">• Security: Zero-DCOM Outbound HTTP JSON</text>
+    <text x="14" y="88" fill="#cbd5e1" font-size="9.5">• Spool: Local `opcda_spool.jsonl` on Windows</text>
+    <text x="14" y="108" fill="#67e8f9" font-size="9" font-weight="700">UNICORN 5/6/7, DeltaV OPC Mirror, RSLinx</text>
+  </g>
+
+  <!-- Row 1, Col 3: BACnet/IP & MS/TP -->
+  <g transform="translate(556, 356)">
+    <rect width="250" height="125" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="1.5"/>
+    <text x="14" y="22" fill="#10b981" font-size="11" font-weight="800">3. BACnet/IP &amp; MS/TP (`UDP :47808`)</text>
+    <text x="14" y="40" fill="#cbd5e1" font-size="9.5">• Model: Device ID + Object (`analog-input:1`)</text>
+    <text x="14" y="56" fill="#cbd5e1" font-size="9.5">• Mechanism: `SubscribeCOV` / `ReadPropertyMultiple`</text>
+    <text x="14" y="72" fill="#cbd5e1" font-size="9.5">• Routing: BBMD Foreign Device + `DNET:DADR`</text>
+    <text x="14" y="88" fill="#cbd5e1" font-size="9.5">• Quality: 4-Bit `Status_Flags` → `192 / 64 / 0`</text>
+    <text x="14" y="108" fill="#6ee7b7" font-size="9" font-weight="700">Cleanroom ΔP Cascades, HVAC BMS, Cold Rooms</text>
+  </g>
+
+  <!-- Row 1, Col 4: Modbus TCP & RTU -->
+  <g transform="translate(819, 356)">
+    <rect width="250" height="125" rx="8" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="14" y="22" fill="#f59e0b" font-size="11" font-weight="800">4. Modbus TCP/RTU (`TCP :502`)</text>
+    <text x="14" y="40" fill="#cbd5e1" font-size="9.5">• Model: Unit ID (`1..247`) + Register `3xxxx/4xxxx`</text>
+    <text x="14" y="56" fill="#cbd5e1" font-size="9.5">• Mechanism: Master/Slave Function Codes `01..04`</text>
+    <text x="14" y="72" fill="#cbd5e1" font-size="9.5">• Decoding: IEEE-754 Float32 (`ABCD` / `CDAB`)</text>
+    <text x="14" y="88" fill="#cbd5e1" font-size="9.5">• Quality: CRC/Exception Check → `192` or `0`</text>
+    <text x="14" y="108" fill="#fcd34d" font-size="9" font-weight="700">Particle Counters, Sievers TOC, Stability, Arc</text>
+  </g>
+
+  <!-- Row 2, Col 1: Siemens S7comm -->
+  <g transform="translate(30, 495)">
+    <rect width="250" height="125" rx="8" fill="#0f172a" stroke="#a855f7" stroke-width="1.5"/>
+    <text x="14" y="22" fill="#c084fc" font-size="11" font-weight="800">5. Siemens S7comm (`TCP :102`)</text>
+    <text x="14" y="40" fill="#cbd5e1" font-size="9.5">• Model: Rack/Slot + Data Block (`DB10.DBD0`)</text>
+    <text x="14" y="56" fill="#cbd5e1" font-size="9.5">• Mechanism: RFC 1006 ISO-on-TCP `PUT/GET`</text>
+    <text x="14" y="72" fill="#cbd5e1" font-size="9.5">• S7-300/400: Rack 0 Slot 2 (or NETLink MPI)</text>
+    <text x="14" y="88" fill="#cbd5e1" font-size="9.5">• S7-1200/1500: Rack 0 Slot 1 (Non-Optimized DB)</text>
+    <text x="14" y="108" fill="#e9d5ff" font-size="9" font-weight="700">Autoclaves, CIP Skids, Biostat D-DCU, Washers</text>
+  </g>
+
+  <!-- Row 2, Col 2: Allen-Bradley EtherNet/IP & DF1 -->
+  <g transform="translate(293, 495)">
+    <rect width="250" height="125" rx="8" fill="#0f172a" stroke="#ec4899" stroke-width="1.5"/>
+    <text x="14" y="22" fill="#f472b6" font-size="11" font-weight="800">6. EtherNet/IP &amp; CIP (`TCP :44818`)</text>
+    <text x="14" y="40" fill="#cbd5e1" font-size="9.5">• Model: Symbolic Controller Tags (`Tank_Temp`)</text>
+    <text x="14" y="56" fill="#cbd5e1" font-size="9.5">• Legacy PLC-5 / SLC 500: PCCC Files (`F8:0`, `N7:0`)</text>
+    <text x="14" y="72" fill="#cbd5e1" font-size="9.5">• Mechanism: CIP `ReadTagFragmented` Service</text>
+    <text x="14" y="88" fill="#cbd5e1" font-size="9.5">• Worker: Python `pycomm3` (`LogixDriver`)</text>
+    <text x="14" y="108" fill="#fbcfe8" font-size="9" font-weight="700">ControlLogix, CompactLogix, Mobius, Cogent TFF</text>
+  </g>
+
+  <!-- Row 2, Col 3: 4-20 mA Analog + HART -->
+  <g transform="translate(556, 495)">
+    <rect width="250" height="125" rx="8" fill="#0f172a" stroke="#f43f5e" stroke-width="1.5"/>
+    <text x="14" y="22" fill="#fb7185" font-size="11" font-weight="800">7. 4–20 mA Loop &amp; HART 7 FSK</text>
+    <text x="14" y="40" fill="#cbd5e1" font-size="9.5">• Model: 4.00 mA = 0%, 20.00 mA = 100% Span</text>
+    <text x="14" y="56" fill="#cbd5e1" font-size="9.5">• HART FSK: 1200/2200 Hz digital `PV/SV/TV/QV`</text>
+    <text x="14" y="72" fill="#cbd5e1" font-size="9.5">• NAMUR NE 43: `&lt; 3.6 mA` = Broken Wire (`q=0`)</text>
+    <text x="14" y="88" fill="#cbd5e1" font-size="9.5">• Gateway: Advantech ADAM-6017 / HART Mux</text>
+    <text x="14" y="108" fill="#fda4af" font-size="9" font-weight="700">Sanitary Pressure, Level, Coriolis, PT100 RTDs</text>
+  </g>
+
+  <!-- Row 2, Col 4: RS-232 Serial & File Watch-Folder (UFL) -->
+  <g transform="translate(819, 495)">
+    <rect width="250" height="125" rx="8" fill="#0f172a" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="14" y="22" fill="#4ade80" font-size="11" font-weight="800">8. RS-232 Serial &amp; File UFL</text>
+    <text x="14" y="40" fill="#cbd5e1" font-size="9.5">• Serial: Moxa NPort TCP `:4001` (`MT-SICS`, `ASTM`)</text>
+    <text x="14" y="56" fill="#cbd5e1" font-size="9.5">• Watchfolder: SMB/SFTP `.csv`, `.xml`, `.txt`</text>
+    <text x="14" y="72" fill="#cbd5e1" font-size="9.5">• Integrity: Cryptographic `SHA-256` of raw file</text>
+    <text x="14" y="88" fill="#cbd5e1" font-size="9.5">• Rules: `is_step_tag = true` (`LOCF`), `exc_dev = 0`</text>
+    <text x="14" y="108" fill="#86efac" font-size="9" font-weight="700">Balances, Osmometers, Sartocheck, Cedex Bio HT</text>
+  </g>
+</svg>

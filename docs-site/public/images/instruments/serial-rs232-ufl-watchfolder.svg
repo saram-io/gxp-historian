@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 620" width="100%" height="100%" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg-serial" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <marker id="arr-s-cyan" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arr-s-amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#f59e0b"/>
+    </marker>
+    <marker id="arr-s-emerald" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#10b981"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="620" rx="16" fill="url(#bg-serial)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Header -->
+  <text x="35" y="42" fill="#f8fafc" font-size="21" font-weight="800" letter-spacing="0.3">BENCHTOP RS-232 SERIAL INSTRUMENTS &amp; CSV/XML WATCH-FOLDER (PI UFL) GUIDE</text>
+  <text x="35" y="65" fill="#94a3b8" font-size="13">Mettler Toledo XPR / Sartorius Cubis II Balances • OsmoTECH PRO Osmometer • Moxa NPort 5150 Setup • Sartocheck 5 Filter Integrity Tester</text>
+
+  <!-- Top Row: RS-232 Serial to Moxa NPort 5150 Step-by-Step Pipeline -->
+  <g transform="translate(30, 88)">
+    <rect width="1040" height="245" rx="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+    <rect width="1040" height="34" rx="12" fill="#0c4a6e"/>
+    <text x="520" y="22" text-anchor="middle" fill="#e0f2fe" font-size="13" font-weight="700">PATH A: RS-232 SERIAL BENCHTOP INSTRUMENTS → MOXA NPORT 5150 → GXPHISTORIAN TCP DAEMON</text>
+
+    <!-- Step 1: Physical Benchtop Instrument -->
+    <g transform="translate(22, 48)">
+      <rect width="240" height="178" rx="8" fill="#0f172a" stroke="#64748b" stroke-width="1.5"/>
+      <text x="120" y="20" text-anchor="middle" fill="#7dd3fc" font-size="11" font-weight="700">1. BENCHTOP INSTRUMENT</text>
+      <!-- Balance Illustration -->
+      <rect x="35" y="30" width="170" height="52" rx="4" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>
+      <text x="120" y="48" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="800">S     124.5023 g</text>
+      <text x="120" y="64" text-anchor="middle" fill="#94a3b8" font-size="8">Mettler XPR / SevenExcellence /</text>
+      <text x="120" y="75" text-anchor="middle" fill="#94a3b8" font-size="8">OsmoTECH PRO / Palltronic Flowstar</text>
+
+      <text x="14" y="102" fill="#cbd5e1" font-size="9.5">• Locate Rear 9-Pin DB9 RS-232 Port</text>
+      <text x="14" y="118" fill="#cbd5e1" font-size="9.5">• Or plug FTDI USB-to-RS232 into USB-A</text>
+      <text x="14" y="134" fill="#cbd5e1" font-size="9.5">• Set Instrument Menu: `9600, 8, N, 1`</text>
+      <text x="14" y="150" fill="#38bdf8" font-size="9.5" font-weight="700">• Enable MT-SICS / Auto-Print on Stable</text>
+    </g>
+
+    <path d="M 262 135 L 302 135" stroke="#f59e0b" stroke-width="3" marker-end="url(#arr-s-amber)"/>
+
+    <!-- Step 2: Null-Modem Check & DB9 Pinout -->
+    <g transform="translate(308, 48)">
+      <rect width="215" height="178" rx="8" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="107" y="20" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="700">2. DB9 CABLE &amp; PINOUT</text>
+      <!-- Pin 2/3/5 Crossover Graphic -->
+      <rect x="18" y="32" width="178" height="62" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="1"/>
+      <text x="42" y="50" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="700">Pin 2 (RX)</text>
+      <text x="42" y="68" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="700">Pin 3 (TX)</text>
+      <text x="42" y="84" text-anchor="middle" fill="#10b981" font-size="9" font-weight="700">Pin 5 (GND)</text>
+
+      <line x1="72" y1="47" x2="132" y2="65" stroke="#fbbf24" stroke-width="2"/>
+      <line x1="72" y1="65" x2="132" y2="47" stroke="#38bdf8" stroke-width="2"/>
+      <line x1="72" y1="81" x2="132" y2="81" stroke="#10b981" stroke-width="2"/>
+
+      <text x="160" y="50" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="700">Pin 2</text>
+      <text x="160" y="68" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="700">Pin 3</text>
+      <text x="160" y="84" text-anchor="middle" fill="#10b981" font-size="9" font-weight="700">Pin 5</text>
+
+      <text x="14" y="114" fill="#cbd5e1" font-size="9.5">• If Instrument &amp; NPort are both DTE</text>
+      <text x="14" y="129" fill="#cbd5e1" font-size="9.5">  (Male DB9), insert a $5 Null-Modem</text>
+      <text x="14" y="144" fill="#cbd5e1" font-size="9.5">  adapter to swap Pin 2 &amp; Pin 3.</text>
+      <text x="14" y="162" fill="#fbbf24" font-size="9.5" font-weight="700">• Watch orange `Tx/Rx` LED blink!</text>
+    </g>
+
+    <path d="M 523 135 L 563 135" stroke="#38bdf8" stroke-width="3" marker-end="url(#arr-s-cyan)"/>
+
+    <!-- Step 3: Moxa NPort 5150 Web Setup -->
+    <g transform="translate(569, 48)">
+      <rect width="225" height="178" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+      <text x="112" y="20" text-anchor="middle" fill="#7dd3fc" font-size="11" font-weight="700">3. MOXA NPORT 5150 BOX</text>
+      <rect x="18" y="32" width="188" height="58" rx="6" fill="#082f49" stroke="#0284c7" stroke-width="1.5"/>
+      <text x="112" y="49" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="700">Web Console: 192.168.127.254</text>
+      <text x="112" y="64" text-anchor="middle" fill="#e0f2fe" font-size="9">Mode: TCP Server Mode</text>
+      <text x="112" y="79" text-anchor="middle" fill="#22d3ee" font-size="9" font-weight="700">Local TCP Port: 4001</text>
+
+      <text x="14" y="110" fill="#cbd5e1" font-size="9.5">• Plug DB9 into Port 1, RJ45 into LAN</text>
+      <text x="14" y="126" fill="#cbd5e1" font-size="9.5">• Set Static IP on Instrument VLAN</text>
+      <text x="14" y="142" fill="#cbd5e1" font-size="9.5">• Set Delimiter 1 = `0D` (CR), `0A` (LF)</text>
+      <text x="14" y="158" fill="#38bdf8" font-size="9.5" font-weight="700">• Test: `nc -zv &lt;NPORT_IP&gt; 4001`</text>
+    </g>
+
+    <path d="M 794 135 L 834 135" stroke="#10b981" stroke-width="3" marker-end="url(#arr-s-emerald)"/>
+
+    <!-- Step 4: GxPHistorian Serial Parser -->
+    <g transform="translate(840, 48)">
+      <rect width="178" height="178" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="1.5"/>
+      <text x="89" y="20" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="700">4. REGEX EXTRACTOR</text>
+      <rect x="12" y="32" width="154" height="58" rx="6" fill="#064e3b" stroke="#10b981" stroke-width="1"/>
+      <text x="89" y="49" text-anchor="middle" fill="#a7f3d0" font-size="9" font-weight="700">serial_rs232_collector</text>
+      <text x="89" y="64" text-anchor="middle" fill="#34d399" font-size="8">`S=192 (Good)`</text>
+      <text x="89" y="79" text-anchor="middle" fill="#fbbf24" font-size="8">`SD=64 (Dynamic)`</text>
+
+      <text x="12" y="110" fill="#cbd5e1" font-size="9">• Parses ASCII frames live</text>
+      <text x="12" y="126" fill="#cbd5e1" font-size="9">• Active polling (`SI\r\n`)</text>
+      <text x="12" y="142" fill="#cbd5e1" font-size="9">  or passive print capture</text>
+      <text x="12" y="158" fill="#10b981" font-size="9" font-weight="700">• Writes to ClickHouse</text>
+    </g>
+  </g>
+
+  <!-- Bottom Row: File-Based CSV / XML / PDF Report Instruments (PI UFL Replacement) -->
+  <g transform="translate(30, 355)">
+    <rect width="1040" height="235" rx="12" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+    <rect width="1040" height="34" rx="12" fill="#064e3b"/>
+    <text x="520" y="22" text-anchor="middle" fill="#d1fae5" font-size="13" font-weight="700">PATH B: FILE-BASED INSTRUMENTS (CSV / XML / JSON DROP FOLDER — OSIsoft PI UFL REPLACEMENT)</text>
+
+    <!-- Step 1: File-Exporting Instrument -->
+    <g transform="translate(22, 48)">
+      <rect width="290" height="168" rx="8" fill="#0f172a" stroke="#64748b" stroke-width="1.5"/>
+      <text x="145" y="20" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="700">1. FILE-EXPORTING GMP INSTRUMENTS</text>
+      <text x="16" y="42" fill="#e2e8f0" font-size="10" font-weight="700">• Filter Integrity Testers (USP &lt;1207&gt; / Annex 1):</text>
+      <text x="24" y="57" fill="#cbd5e1" font-size="9.5">Sartorius Sartocheck 4 / 5 Plus, Palltronic Flowstar V,</text>
+      <text x="24" y="71" fill="#cbd5e1" font-size="9.5">Millipore Integritest 5 (Bubble Point &amp; Diffusion curves)</text>
+      <text x="16" y="92" fill="#e2e8f0" font-size="10" font-weight="700">• Plate Readers, SoloVPE &amp; Viability Analyzers:</text>
+      <text x="24" y="107" fill="#cbd5e1" font-size="9.5">C Technologies SoloVPE, Molecular Devices SoftMax Pro,</text>
+      <text x="24" y="121" fill="#cbd5e1" font-size="9.5">Roche Cedex Bio HT, Beckman Vi-CELL XR CSV exports</text>
+      <text x="16" y="145" fill="#34d399" font-size="10" font-weight="700">• Physical Port: Rear RJ45 Ethernet → SMB/CIFS Share</text>
+    </g>
+
+    <path d="M 312 132 L 358 132" stroke="#10b981" stroke-width="3" marker-end="url(#arr-s-emerald)"/>
+
+    <!-- Step 2: Secure Read/Write Drop Folder -->
+    <g transform="translate(364, 48)">
+      <rect width="310" height="168" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="1.5"/>
+      <text x="155" y="20" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="700">2. SMB / SFTP WATCH FOLDER ARCHITECTURE</text>
+      <rect x="18" y="32" width="274" height="72" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      <text x="30" y="50" fill="#fbbf24" font-size="9.5" font-weight="700">📁 /var/spool/gxphistorian/ufl/</text>
+      <text x="45" y="66" fill="#38bdf8" font-size="9">├── incoming/   (Instrument drops CSV/XML here)</text>
+      <text x="45" y="81" fill="#10b981" font-size="9">├── archive/2026/10/ (Immutable .sha256 + file)</text>
+      <text x="45" y="96" fill="#f43f5e" font-size="9">└── quarantine/ (Malformed files trigger alert)</text>
+
+      <text x="18" y="124" fill="#cbd5e1" font-size="9.5">• Configure Instrument Menu: Auto-Export after run</text>
+      <text x="18" y="140" fill="#cbd5e1" font-size="9.5">• Service Account has Write-Only (No Delete/Modify)</text>
+      <text x="18" y="156" fill="#34d399" font-size="9.5" font-weight="700">• Satisfies 21 CFR Part 11 Original Record Integrity</text>
+    </g>
+
+    <path d="M 674 132 L 720 132" stroke="#38bdf8" stroke-width="3" marker-end="url(#arr-s-cyan)"/>
+
+    <!-- Step 3: UFL Collector + SHA-256 Audit -->
+    <g transform="translate(726, 48)">
+      <rect width="292" height="168" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+      <text x="146" y="20" text-anchor="middle" fill="#7dd3fc" font-size="11" font-weight="700">3. UFL FILE PARSER &amp; SHA-256 SEAL</text>
+      <text x="16" y="44" fill="#cbd5e1" font-size="9.5">1. Detects completed file write (`ufl_file_collector.py`)</text>
+      <text x="16" y="62" fill="#cbd5e1" font-size="9.5">2. Computes cryptographic `SHA-256` hash of raw file</text>
+      <text x="16" y="80" fill="#cbd5e1" font-size="9.5">3. Parses CSV/XML columns into `(tag_id, ts, val, 192)`</text>
+      <text x="16" y="98" fill="#cbd5e1" font-size="9.5">4. Creates ISA-88 Event Frame (e.g. Filter Test Pass/Fail)</text>
+      <text x="16" y="116" fill="#cbd5e1" font-size="9.5">5. Moves raw file + `.sha256` into immutable archive</text>
+      <rect x="16" y="128" width="260" height="28" rx="4" fill="#082f49" stroke="#0284c7" stroke-width="1"/>
+      <text x="146" y="146" text-anchor="middle" fill="#38bdf8" font-size="9.5" font-weight="700">Zero OSIsoft PI UFL License Cost ($0)</text>
+    </g>
+  </g>
+</svg>
