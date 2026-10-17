@@ -120,6 +120,15 @@ clickhouse-historian/
 │   └── dashboards/
 │       ├── dashboards.yml                            # Dashboard provider configuration
 │       └── openpi_bioreactor_hmi.json                # Asset-relative Bioreactor & Cleanroom HMI dashboard
+├── docs/
+│   ├── BIOPHARMA_INSTRUMENT_INTEGRATION_CATALOG.md   # Master matrix & signal archetypes for 20+ biopharma instruments
+│   ├── XCELLEREX_X_PLATFORM_INTEGRATION.md           # Cytiva Xcellerex X-Platform & Figurate integration guide
+│   ├── USP_BIOREACTORS_SARTORIUS_THERMO_EPPENDORF.md # Sartorius Biostat STR/Ambr, Thermo TruBio DV, Eppendorf DASGIP
+│   ├── PAT_CELL_ANALYZERS_AND_SPECTROSCOPY.md        # BioProfile FLEX2, Vi-CELL BLU, Cedex Bio HT, Raman Rxn, Hamilton Arc
+│   ├── DSP_CHROMATOGRAPHY_TFF_FILTRATION.md          # Cytiva ÄKTA (UNICORN 7), Sartorius Sartoflow, Millipore Mobius/Cogent
+│   ├── ASEPTIC_FILL_FINISH_LYO_AND_GMP_UTILITIES.md  # Lyophilizers, SKAN Isolators, LasAir EMS (BACnet/Modbus), Sievers M9 TOC
+│   ├── LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md    # Legacy BACnet MS/TP & IP, COM OPC DA, Modbus RTU/TCP, S7comm & HART
+│   └── LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md # RS-232 / Moxa NPort (MT-SICS balances, osmometers) & PI UFL watchfolders
 ├── excel-datalink-client/
 │   ├── openpi_datalink_udf.py                        # xlwings UDFs (=PI_SAMPLED_DATA, =PI_SUMMARY_DATA, etc.)
 │   └── README_EXCEL_SETUP.md                         # Power Query (zero-macro) & xlwings setup guide
@@ -145,6 +154,18 @@ clickhouse-historian/
         ├── 08_Validation_Summary_Report_VSR.md
         └── COMPLETE_GMP_VALIDATION_BINDER.html
 ```
+
+### Biopharma & Life Sciences Equipment Integration Guides (`docs/`)
+| Guide Document | Covered Instruments, Skids & Automation Platforms |
+| :--- | :--- |
+| [docs/BIOPHARMA_INSTRUMENT_INTEGRATION_CATALOG.md](docs/BIOPHARMA_INSTRUMENT_INTEGRATION_CATALOG.md) | **Master Catalog & Signal Archetypes:** 20+ GMP biopharma instruments, Purdue Level 1–3 zoning, and Continuous (`LINEAR`) vs. Discrete (`LOCF`) vs. Sparse At-Line PAT (`exc_dev=0`) rules. |
+| [docs/XCELLEREX_X_PLATFORM_INTEGRATION.md](docs/XCELLEREX_X_PLATFORM_INTEGRATION.md) | **Cytiva Xcellerex™ X-Platform (50–2000 L):** Figurate™ automation (Emerson DeltaV™ & Rockwell PlantPAx®) via OPC UA and OPC DA. |
+| [docs/USP_BIOREACTORS_SARTORIUS_THERMO_EPPENDORF.md](docs/USP_BIOREACTORS_SARTORIUS_THERMO_EPPENDORF.md) | **USP Bioreactors & High-Throughput Screening:** Sartorius Biostat® STR (BioPAT® MFCS / S7-1500), Sartorius Ambr® 15/250 multi-vessel DoE arrays, Thermo Fisher HyPerforma™ S.U.B. (TruBio® DV), and Eppendorf BioFlo® / DASGIP® (`DASware® connect`). |
+| [docs/PAT_CELL_ANALYZERS_AND_SPECTROSCOPY.md](docs/PAT_CELL_ANALYZERS_AND_SPECTROSCOPY.md) | **At-Line PAT & In-Line Spectroscopy:** Nova Biomedical BioProfile® FLEX2 (+ Seg-Flow®), Beckman Coulter Vi-CELL™ BLU, Roche Cedex® Bio HT, Endress+Hauser Raman Rxn2™/Rxn4™, and Hamilton Arc® / Mettler Toledo smart sensors. |
+| [docs/DSP_CHROMATOGRAPHY_TFF_FILTRATION.md](docs/DSP_CHROMATOGRAPHY_TFF_FILTRATION.md) | **Downstream Purification (Chromatography & TFF):** Cytiva ÄKTA™ process / ready / readyflux (`UNICORN™ 7`), Sartorius Sartoflow® / Resolute®, and MilliporeSigma Mobius® / Cogent® with LTTB UV280 peak preservation. |
+| [docs/ASEPTIC_FILL_FINISH_LYO_AND_GMP_UTILITIES.md](docs/ASEPTIC_FILL_FINISH_LYO_AND_GMP_UTILITIES.md) | **Fill-Finish, Lyophilization, Cleanroom EMS & WFI:** GMP Freeze Dryers (Capacitance Manometer / Pirani convergence), SKAN Isolators, PMS LasAir® III / Airnet® II particle counters, BACnet/IP EMS, and Veolia Sievers® M9 TOC / Thornton conductivity. |
+| [docs/LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md](docs/LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md) | **Legacy Fieldbus, BMS & PLC Protocols:** `BACnet/IP & MS/TP` (`DNET:DADR` routing & BBMD), Windows COM/DCOM `OPC DA 2.05a` zero-DCOM bridge, `Modbus RTU/TCP` (`ABCD`/`CDAB` endianness & scaling), Siemens `S7comm` (S7-300/400 autoclaves), and `4–20 mA HART` multiplexers. |
+| [docs/LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md](docs/LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md) | **Legacy RS-232 Serial & PI UFL Flat-File Replacement:** Moxa NPort TCP serial streaming for Mettler Toledo / Sartorius `MT-SICS` analytical balances and Advanced Instruments osmometers, plus ALCOA+ SHA-256 watchfolder ingestion for Sartocheck® / Palltronic® filter integrity testers. |
 
 ---
 
