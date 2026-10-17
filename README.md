@@ -128,7 +128,8 @@ clickhouse-historian/
 │   ├── DSP_CHROMATOGRAPHY_TFF_FILTRATION.md          # Cytiva ÄKTA (UNICORN 7), Sartorius Sartoflow, Millipore Mobius/Cogent
 │   ├── ASEPTIC_FILL_FINISH_LYO_AND_GMP_UTILITIES.md  # Lyophilizers, SKAN Isolators, LasAir EMS (BACnet/Modbus), Sievers M9 TOC
 │   ├── LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md    # Legacy BACnet MS/TP & IP, COM OPC DA, Modbus RTU/TCP, S7comm & HART
-│   └── LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md # RS-232 / Moxa NPort (MT-SICS balances, osmometers) & PI UFL watchfolders
+│   ├── LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md # RS-232 / Moxa NPort (MT-SICS balances, osmometers) & PI UFL watchfolders
+│   └── HARDWARE_SIZING_AND_CAPACITY_PLANNING.md      # Tier 1–4 server BOMs, 10yr NVMe + 15yr WORM sizing & Edge IPC specs
 ├── excel-datalink-client/
 │   ├── openhistorian_datalink_udf.py                 # xlwings UDFs (=OPENHISTORIAN_SAMPLED, =OPENHISTORIAN_PLOT_VALUES, etc.)
 │   └── README_EXCEL_SETUP.md                         # Power Query (zero-macro) & xlwings setup guide
@@ -155,7 +156,7 @@ clickhouse-historian/
         └── COMPLETE_GMP_VALIDATION_BINDER.html
 ```
 
-### Biopharma & Life Sciences Equipment Integration Guides (`docs/`)
+### Biopharma & Life Sciences Equipment Integration & Sizing Guides (`docs/`)
 | Guide Document | Covered Instruments, Skids & Automation Platforms |
 | :--- | :--- |
 | [docs/BIOPHARMA_INSTRUMENT_INTEGRATION_CATALOG.md](docs/BIOPHARMA_INSTRUMENT_INTEGRATION_CATALOG.md) | **Master Catalog & Signal Archetypes:** 20+ GMP biopharma instruments, Purdue Level 1–3 zoning, and Continuous (`LINEAR`) vs. Discrete (`LOCF`) vs. Sparse At-Line PAT (`exc_dev=0`) rules. |
@@ -166,6 +167,7 @@ clickhouse-historian/
 | [docs/ASEPTIC_FILL_FINISH_LYO_AND_GMP_UTILITIES.md](docs/ASEPTIC_FILL_FINISH_LYO_AND_GMP_UTILITIES.md) | **Fill-Finish, Lyophilization, Cleanroom EMS & WFI:** GMP Freeze Dryers (Capacitance Manometer / Pirani convergence), SKAN Isolators, PMS LasAir® III / Airnet® II particle counters, BACnet/IP EMS, and Veolia Sievers® M9 TOC / Thornton conductivity. |
 | [docs/LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md](docs/LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md) | **Legacy Fieldbus, BMS & PLC Protocols:** `BACnet/IP & MS/TP` (`DNET:DADR` routing & BBMD), Windows COM/DCOM `OPC DA 2.05a` zero-DCOM bridge, `Modbus RTU/TCP` (`ABCD`/`CDAB` endianness & scaling), Siemens `S7comm` (S7-300/400 autoclaves), and `4–20 mA HART` multiplexers. |
 | [docs/LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md](docs/LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md) | **Legacy RS-232 Serial & PI UFL Flat-File Replacement:** Moxa NPort TCP serial streaming for Mettler Toledo / Sartorius `MT-SICS` analytical balances and Advanced Instruments osmometers, plus ALCOA+ SHA-256 watchfolder ingestion for Sartocheck® / Palltronic® filter integrity testers. |
+| [docs/HARDWARE_SIZING_AND_CAPACITY_PLANNING.md](docs/HARDWARE_SIZING_AND_CAPACITY_PLANNING.md) | **Hardware Sizing & Capacity Planning:** Compression math (`1.5–2.5 B/sample`), 10k–25k tag clinical/pilot GMP reference BOM, 10-year NVMe + 15-year S3 WORM tiering, and Level 2.5 Industrial Edge IPC specs. |
 
 ---
 

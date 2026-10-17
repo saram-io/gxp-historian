@@ -1,0 +1,92 @@
+---
+title: OpenHistorian GxP Industrial Historian
+description: A 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 Qualified Open-Source Industrial Time-Series Historian & Asset Framework.
+template: splash
+hero:
+  title: OpenHistorian GxP Industrial Historian
+  tagline: A 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 Qualified 4-Pillar Open-Source Replacement for the OSIsoft / AVEVA PI System — Powered by ClickHouse 24.8 LTS & PostgreSQL 16.
+  image:
+    file: ../../assets/logo.svg
+  actions:
+    - text: Quickstart & Deployment
+      link: /getting-started/quickstart/
+      icon: right-arrow
+    - text: 4-Pillar Architecture
+      link: /architecture/four-pillar-architecture/
+      icon: open-book
+      variant: minimal
+    - text: Print-Ready GMP Validation Binder (HTML)
+      link: /binder/COMPLETE_GMP_VALIDATION_BINDER.html
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+<div class="oh-badge-strip">
+  <span class="oh-badge">FDA 21 CFR Part 11 WORM Audit Trail</span>
+  <span class="oh-badge">EU GMP Annex 11 &amp; ALCOA+</span>
+  <span class="oh-badge">ISPE GAMP 5 (2nd Ed.) &amp; FDA CSA</span>
+  <span class="oh-badge">ClickHouse 24.8 LTS (DoubleDelta + Gorilla)</span>
+  <span class="oh-badge">PostgreSQL 16 ISA-95 ltree &amp; ISA-88 Event Frames</span>
+  <span class="oh-badge">15/15 Executable IQ/OQ Qualification Tests</span>
+</div>
+
+## 4-Pillar Industrial Historian Architecture
+
+<CardGrid stagger>
+  <Card title="Pillar 1: Multi-Protocol Edge Collector" icon="rocket">
+    **Telegraf 1.32 + Python Edge Workers** normalize **OPC UA**, **BACnet/IP (`COV`)**, **Siemens S7**, **Modbus RTU/TCP**, **Windows COM OPC DA**, and **RS-232 / PI UFL watchfolders** with in-memory Stage 1 Exception/Deadband filtering (`ExcDev` / `ExcMax`) and a **1M-metric disk-backed Store-and-Forward WAL**.
+  </Card>
+  <Card title="Pillar 2: Immutable Telemetry Archive" icon="seti:db">
+    **ClickHouse 24.8 LTS (`pi_historian.sensor_data`)** stores raw telemetry with lossless **`DoubleDelta`**, **`Gorilla`**, and **`T64` + `ZSTD(1)`** codecs, real-time 1-minute **`AggregatingMergeTree`** rollups (`WHERE quality >= 192`), and native **`largestTriangleThreeBuckets` (LTTB)** visual peak preservation.
+  </Card>
+  <Card title="Pillar 3: 21 CFR Part 11 Control Plane" icon="approve-check-circle">
+    **PostgreSQL 16 + FastAPI (`historian-api`)** manages the **ISA-95 `ltree` Asset Hierarchy**, **Tag Catalog**, and **ISA-88 Event Frames**, backed by PL/pgSQL WORM triggers, a **cryptographic SHA-256 hash-chained audit trail**, and **§11.200 dual-challenge HMAC-SHA256 electronic signatures**.
+  </Card>
+  <Card title="Pillar 4: Operator HMI, Excel DataLink & Lakehouse" icon="laptop">
+    Pre-provisioned **Grafana OSS 11.2** Bioreactor &amp; Cleanroom HMI with Event Frame overlays, drop-in **Excel DataLink UDFs (`xlwings`) &amp; zero-macro Power Query CSV** respecting `LINEAR` vs. `LOCF` step tags, and **Zero-ETL Snappy Apache Parquet** exports.
+  </Card>
+</CardGrid>
+
+---
+
+## Explore the Documentation Portal
+
+<CardGrid>
+  <LinkCard
+    title="Overview & OSIsoft PI Parity Matrix"
+    description="Compare every legacy OSIsoft / AVEVA PI System subsystem against its OpenHistorian GxP open-source counterpart."
+    href="/getting-started/overview/"
+  />
+  <LinkCard
+    title="21 CFR Part 11 & ALCOA+ Technical Controls"
+    description="Inspect the PostgreSQL WORM triggers, SHA-256 cryptographic hash chain, §11.200 electronic signatures, and OPC quality >= 192 rules."
+    href="/architecture/part11-compliance/"
+  />
+  <LinkCard
+    title="REST API Reference & Excel DataLink"
+    description="Query LTTB downsampled trends, Linear/LOCF sampled DataLink streams, ISA-88 Event Frames, and Apache Parquet exports."
+    href="/clients-and-api/rest-api-reference/"
+  />
+  <LinkCard
+    title="Biopharma Equipment Integration Catalog"
+    description="8 engineering guides covering 20+ instruments: Cytiva Xcellerex & ÄKTA, Sartorius Biostat & Ambr, BioProfile FLEX2, Vi-CELL BLU, Raman, Lyophilizers, and BACnet EMS."
+    href="/biopharma-integration/catalog/"
+  />
+  <LinkCard
+    title="Legacy Fieldbus, Serial RS-232 & PI UFL"
+    description="Zero-DCOM Windows OPC DA bridge, BACnet MS/TP BBMD routing, Modbus word-swapping, Moxa NPort MT-SICS balances, and Sartocheck filter testers."
+    href="/biopharma-integration/legacy-protocols/"
+  />
+  <LinkCard
+    title="Hardware Sizing & Capacity Planning"
+    description="Compression math (1.5–2.5 B/sample), 10k–25k tag clinical/pilot GMP reference BOM, 10-year NVMe + 15-year S3 WORM tiering, and Level 2.5 Industrial Edge IPC specs."
+    href="/architecture/hardware-sizing/"
+  />
+  <LinkCard
+    title="GAMP 5 & FDA CSA Validation Binder"
+    description="Browse all 8 executed commercial GMP Validation Binder documents (VMP, URS, FDS, FRA, SOUP Dossier, IQ/OQ Evidence, RTM, and VSR)."
+    href="/gxp-validation/overview/"
+  />
+</CardGrid>

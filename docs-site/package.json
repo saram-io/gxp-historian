@@ -1,0 +1,37 @@
+{
+  "name": "openhistorian-docs",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Official Documentation Portal for OpenHistorian GxP Industrial Historian",
+  "scripts": {
+    "sync": "node scripts/sync-docs.mjs",
+    "dev": "node scripts/sync-docs.mjs && astro dev",
+    "build": "node scripts/sync-docs.mjs && astro build",
+    "preview": "node scripts/sync-docs.mjs && astro build && wrangler dev",
+    "cf:dev": "node scripts/sync-docs.mjs && astro build && wrangler dev",
+    "cf:deploy": "node scripts/sync-docs.mjs && astro build && wrangler deploy",
+    "deploy": "node scripts/sync-docs.mjs && astro build && wrangler deploy",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.32.0",
+    "astro": "^5.5.0",
+    "katex": "^0.16.21",
+    "mermaid": "^11.4.1",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
+    "sharp": "^0.33.5",
+    "unist-util-visit": "^5.0.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.14.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "workerd"
+    ]
+  }
+}

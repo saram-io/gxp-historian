@@ -1,0 +1,58 @@
+---
+import Default from '@astrojs/starlight/components/Footer.astro';
+---
+
+<Default><slot /></Default>
+
+<div class="oh-trademark-footer">
+  <p>
+    <strong>Regulatory &amp; Trademark Notice:</strong> OpenHistorian GxP Industrial Historian is an independent open-source project engineered for 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 (2nd Ed.) compliance. <em>PI System</em>, <em>PI Vision</em>, <em>PI DataLink</em>, <em>PI Asset Framework</em>, <em>PI UFL</em>, <em>OSIsoft</em>, and <em>AVEVA</em> are trademarks of AVEVA Group Limited / OSIsoft, LLC and are referenced strictly for comparative interoperability documentation.
+  </p>
+</div>
+
+<script>
+  async function renderMermaidDiagrams() {
+    const blocks = document.querySelectorAll<HTMLElement>('pre.mermaid');
+    if (!blocks.length) return;
+
+    const { default: mermaid } = await import('mermaid');
+    const isLight = document.documentElement.dataset.theme === 'light';
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: isLight ? 'neutral' : 'dark',
+      securityLevel: 'loose',
+      fontFamily: 'var(--__sl-font, system-ui, sans-serif)',
+    });
+
+    for (const block of blocks) {
+      const rawSrc = block.getAttribute('data-mermaid-src');
+      if (rawSrc) {
+        block.removeAttribute('data-processed');
+        block.textContent = rawSrc;
+      }
+    }
+
+    try {
+      await mermaid.run({
+        nodes: Array.from(blocks),
+      });
+    } catch (err) {
+      console.error('Mermaid rendering error:', err);
+    }
+  }
+
+  renderMermaidDiagrams();
+  document.addEventListener('astro:after-swap', renderMermaidDiagrams);
+
+  const observer = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      if (m.attributeName === 'data-theme') {
+        renderMermaidDiagrams();
+      }
+    }
+  });
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme'],
+  });
+</script>

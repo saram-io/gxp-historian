@@ -1,0 +1,128 @@
+@import 'katex/dist/katex.min.css';
+
+:root {
+  --sl-color-accent-low: #0c2d48;
+  --sl-color-accent: #0284c7;
+  --sl-color-accent-high: #bae6fd;
+  --sl-content-width: 58rem;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #e0f2fe;
+  --sl-color-accent: #0369a1;
+  --sl-color-accent-high: #0c4a6e;
+}
+
+/* Modern Web Guidance: improve-text-layout-and-legibility
+   Target short heading elements (h1-h6) for balanced line-breaking,
+   and multi-line text blocks (p, blockquote, li) for pretty line-breaking. */
+.sl-markdown-content :is(h1, h2, h3, h4, h5, h6),
+.hero h1 {
+  text-wrap: balance;
+}
+
+.sl-markdown-content :is(p, blockquote, li) {
+  text-wrap: pretty;
+}
+
+/* Modern Web Guidance: responsive-table
+   Keep dense GxP comparison, URS/RTM, and Biopharma Instrument tables readable
+   with container queries, sticky column headers, and sticky first-column context. */
+.sl-markdown-content table {
+  display: block;
+  overflow: auto;
+  max-inline-size: 100%;
+  max-block-size: min(640px, 78vh);
+  container-type: inline-size;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.sl-markdown-content thead {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 2;
+  background: var(--sl-color-gray-6);
+}
+
+.sl-markdown-content th,
+.sl-markdown-content td {
+  padding: 0.625rem 0.85rem;
+  border-block-end: 1px solid var(--sl-color-gray-5);
+  vertical-align: top;
+}
+
+.sl-markdown-content tbody tr:last-child td,
+.sl-markdown-content tbody tr:last-child th {
+  border-block-end: none;
+}
+
+.sl-markdown-content tbody td:first-child,
+.sl-markdown-content tbody th:first-child {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: 1;
+  background: var(--sl-color-bg);
+  border-inline-end: 1px solid var(--sl-color-gray-5);
+}
+
+@container (width < 600px) {
+  .sl-markdown-content tbody td:first-child,
+  .sl-markdown-content tbody th:first-child {
+    position: static;
+    border-inline-end: none;
+  }
+}
+
+/* Mermaid diagram container styling */
+.mermaid-wrapper {
+  margin-block: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.625rem;
+  background: var(--sl-color-bg-nav);
+  overflow-x: auto;
+}
+
+.mermaid-wrapper pre.mermaid {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  display: flex;
+  justify-content: center;
+}
+
+/* GxP Compliance Pillar Badges on Landing Page */
+.oh-badge-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block: 1rem 1.75rem;
+}
+
+.oh-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: var(--sl-color-accent-low);
+  color: var(--sl-color-accent-high);
+  border: 1px solid var(--sl-color-accent);
+}
+
+/* Footer notice */
+.oh-trademark-footer {
+  margin-block-start: 2rem;
+  padding-block-start: 1rem;
+  border-block-start: 1px solid var(--sl-color-gray-5);
+  font-size: 0.78rem;
+  color: var(--sl-color-gray-3);
+}
