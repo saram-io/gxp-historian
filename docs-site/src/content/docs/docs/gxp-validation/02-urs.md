@@ -1,10 +1,10 @@
 ---
 title: "Document 02 — User Requirements Specification (URS)"
-description: "Document 02 — User Requirements Specification (URS-001 through URS-015) for GxPHistorian GxP."
+description: "Document 02 — User Requirements Specification (URS-001 through URS-017) for GxPHistorian GxP."
 ---
-**Document ID:** `URS-GXPHISTORIAN-2026-002` | **Generated (UTC):** `2026-10-17T20:21:45Z` | **Total Requirements:** `15`
+**Document ID:** `URS-GXPHISTORIAN-2026-002` | **Generated (UTC):** `2026-10-17T21:20:51Z` | **Total Requirements:** `17`
 
-## 1. Formal User Requirements Catalog (URS-001 to URS-015)
+## 1. Formal User Requirements Catalog (URS-001 to URS-017)
 
 | URS ID | Requirement Title & Operational Statement | GxP Risk | ALCOA+ Attributes | Regulation Ref | Acceptance Criteria (FRS) |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -23,4 +23,6 @@ description: "Document 02 — User Requirements Specification (URS-001 through U
 | **URS-013** | **PI DataLink Parity: Linear Interpolation vs. Discrete Step (LOCF) Sampling**<br>The sampled data endpoint shall linearly interpolate continuous analog tags (is_step_tag=False) and apply Last Observation Carried Forward (LOCF) to discrete step tags (is_step_tag=True). | `High` | Accurate, Complete | 21 CFR §11.10(b), GAMP 5 | `FRS-DL-013`: GET /api/v1/datalink/sampled computes exact linear midpoints for continuous tags and strict integer LOCF states for step tags without fractional artifacts. |
 | **URS-014** | **PI Vision PlotValues Parity: LTTB Visual Downsampling Peak Preservation**<br>Visual trend downsampling shall use ClickHouse largestTriangleThreeBuckets (LTTB) to preserve exact local excursion peaks and valleys. | `Medium` | Accurate, Legible | 21 CFR §11.10(b) | `FRS-LTTB-014`: GET /api/v1/trends/plot-values preserves the exact timestamp and magnitude of a synthetic spike when downsampling high-density telemetry. |
 | **URS-015** | **ISA-88 Event Frame Excursion Capture & Zero-ETL Apache Parquet Lakehouse Export**<br>The system shall automatically detect parameter excursions into Event Frames with summary KPIs and export enriched telemetry to Apache Parquet files with 100% fidelity. | `High` | Available, Enduring, Complete | 21 CFR §11.10(b), ISA-88 | `FRS-LAKE-015`: POST /api/v1/event-frames/evaluate captures excursion metrics in PostgreSQL and POST /api/v1/lakehouse/export-parquet writes a valid Snappy-compressed Parquet file verified via pyarrow. |
+| **URS-016** | **Pydantic AI Advisory Deviation Investigator & Read-Only Model Context Protocol (gxphistorian-mcp)**<br>The AI Co-Pilot and MCP Server shall execute all time-series and audit queries deterministically in ClickHouse (WHERE quality >= 192, LINEAR vs LOCF_STEP) and PostgreSQL while loading specialist forensic capabilities on demand. | `High` | Accurate, Consistent, Available | ISPE GAMP 5 Appendix D11, 21 CFR §11.10(e) | `FRS-AI-016`: POST /api/v1/ai/event-frames/{event_id}/investigate and GET /api/v1/ai/mcp/manifest return a validated DeviationInvestigationBrief with part11-forensics capability and unbroken SHA-256 chain verification. |
+| **URS-017** | **Pydantic AI Human-in-the-Loop 21 CFR Part 11 Deferred Tool Approval Gate**<br>Any AI-proposed GxP tag provisioning shall validate engineering bounds via args_validator, pause execution with ApprovalRequired (DeferredToolRequests), and require human approval with X-Actor-Id and X-Change-Reason headers. | `High` | Attributable, Contemporaneous, Original | 21 CFR §11.10(e), EU GMP Annex 11 §11, FDA CSA | `FRS-AI-017`: POST /api/v1/ai/copilot/propose-tag pauses with approval_required when approved=False, rejects missing Part 11 headers with HTTP 400, and records WORM audit logs upon approved=True. |
 

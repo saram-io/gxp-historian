@@ -1,33 +1,34 @@
 # Document 08 — Validation Summary Report (VSR) & Release Certificate
 
-**Document ID:** `VSR-GXPHISTORIAN-2026-008` | **Release Date (UTC):** `2026-10-17T20:21:45Z` | **System Release Status:** **QUALIFIED FOR GxP PRODUCTION USE**
+**Document ID:** `VSR-GXPHISTORIAN-2026-008` | **Release Date (UTC):** `2026-10-17T21:20:51Z` | **System Release Status:** **QUALIFIED FOR GxP PRODUCTION USE**
 
 ---
 
 ## 1. Executive Qualification Summary
 
-The **GxPHistorian GxP Industrial Historian** (ClickHouse 24.8 Telemetry Archive, PostgreSQL 16 Part 11 Control Plane, Telegraf 1.32 Edge Collector, FastAPI Control Plane, and Grafana 11.2 HMI) has completed all Installation Qualification (IQ), Operational Qualification (OQ), and Performance Qualification (PQ) activities in accordance with `VMP-GXPHISTORIAN-2026-001`.
+The **GxPHistorian GxP Industrial Historian** (ClickHouse 24.8 Telemetry Archive, PostgreSQL 16 Part 11 Control Plane, Telegraf 1.32 Edge Collector, FastAPI Control Plane + Pydantic AI / `gxphistorian-mcp`, and Grafana 11.2 HMI) has completed all Installation Qualification (IQ), Operational Qualification (OQ), and Performance Qualification (PQ) activities in accordance with `VMP-GXPHISTORIAN-2026-001`.
 
 | Metric | Target Acceptance Criterion | Actual Executed Result | Status |
 | :--- | :--- | :--- | :--- |
-| **User Requirements Coverage (URS-001..015)** | 100% Bidirectional Traceability | `15 / 15` Requirements Mapped & Verified | **PASS** |
-| **Automated IQ/OQ Test Suite (`pytest`)** | 100% Pass Rate (0 Failures) | `15 / 15` Passed (`100.0%`) | **PASS** |
-| **21 CFR Part 11 Cryptographic Hash Chain** | `chain_valid == true` from `GENESIS` | `6514` Audit Records Verified (`head: 6caa62139f61287283675436...`) | **PASS** |
+| **User Requirements Coverage (URS-001..017)** | 100% Bidirectional Traceability | `17 / 17` Requirements Mapped & Verified | **PASS** |
+| **Automated IQ/OQ Test Suite (`pytest`)** | 100% Pass Rate (0 Failures) | `17 / 17` Passed (`100.0%`) | **PASS** |
+| **21 CFR Part 11 Cryptographic Hash Chain** | `chain_valid == true` from `GENESIS` | `7336` Audit Records Verified (`head: eb0b5d30764ae40941f9a745...`) | **PASS** |
 | **Validation Deviations / CAPAs** | 0 Open Critical/Major Deviations | `0` Deviations Encountered | **PASS** |
 
 ## 2. Deviation & Non-Conformance Log
 
 - **Open Deviations:** `0`
 - **Closed Deviations:** `0`
-- All 15 IQ/OQ test cases passed on execution without protocol exceptions or data integrity discrepancies.
+- All 17 IQ/OQ test cases passed on execution without protocol exceptions or data integrity discrepancies.
 
 ## 3. Statement of Fitness for Intended GxP Use
 
 Based on the objective cryptographic evidence captured in `oq_execution_results.json` and the unbroken SHA-256 WORM audit trail in `part11_audit_log`, the GxPHistorian GxP Industrial Historian is hereby declared **fit for its intended GxP manufacturing use** under FDA 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 (Second Edition).
 
+
 ## 4. 21 CFR Part 11 §11.50 Electronic Release Signatures
 
 | Signer Role | Printed Name | User ID | Signature Meaning | Signed Timestamp (UTC) | Cryptographic Verification |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **System Owner (IT/OT)** | Sarah Jenkins | `operator_01` | System Technical Qualification & Operational Handover Approval | `2026-10-17T20:21:45Z` | Verified via `pgcrypto` & Part 11 Audit Chain |
-| **Quality Assurance (QP)** | Dr. Marcus Vance | `qa_approver_01` | Final QA Validation Release & 21 CFR Part 11 Compliance Approval | `2026-10-17T20:21:45Z` | HMAC-SHA256 Bound (`6caa62139f61287283675436be696b45...`) |
+| **System Owner (IT/OT)** | Sarah Jenkins | `operator_01` | System Technical Qualification & Operational Handover Approval | `2026-10-17T21:20:51Z` | Verified via `pgcrypto` & Part 11 Audit Chain |
+| **Quality Assurance (QP)** | Dr. Marcus Vance | `qa_approver_01` | Final QA Validation Release & 21 CFR Part 11 Compliance Approval | `2026-10-17T21:20:51Z` | HMAC-SHA256 Bound (`eb0b5d30764ae40941f9a7453d85d9c4...`) |

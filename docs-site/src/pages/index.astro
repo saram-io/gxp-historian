@@ -81,6 +81,12 @@ const parityRows = [
     capability:
       'Single-call POST /api/v1/lakehouse/export-parquet generating Snappy-compressed Apache Parquet files enriched with ISA-95 asset context.',
   },
+  {
+    pi: 'AVEVA Industrial AI Assistant / PI Web API',
+    gxp: 'Pydantic AI Co-Pilot & gxphistorian-mcp Server',
+    capability:
+      'Typed ISA-88 Excursion Investigator (quality >= 192), Part 11 ApprovalRequired human-in-the-loop tag provisioning, and 6-tool FastMCP server.',
+  },
 ];
 
 const equipmentGuides = [
@@ -160,11 +166,11 @@ const equipmentGuides = [
 
 const validationDocs = [
   { id: 'VMP-GXPHISTORIAN-2026-001', title: '01 — Validation Master Plan (VMP)', href: '/docs/gxp-validation/01-vmp/' },
-  { id: 'URS-GXPHISTORIAN-2026-002', title: '02 — User Requirements Specification (URS-001..015)', href: '/docs/gxp-validation/02-urs/' },
+  { id: 'URS-GXPHISTORIAN-2026-002', title: '02 — User Requirements Specification (URS-001..017)', href: '/docs/gxp-validation/02-urs/' },
   { id: 'FDS-GXPHISTORIAN-2026-003', title: '03 — Functional & Design Specification (FDS)', href: '/docs/gxp-validation/03-fds/' },
   { id: 'FRA-GXPHISTORIAN-2026-004', title: '04 — FDA CSA Functional Risk Assessment (FRA)', href: '/docs/gxp-validation/04-fra/' },
   { id: 'SOUP-GXPHISTORIAN-2026-005', title: '05 — SOUP / OSS Vendor Qualification Dossier', href: '/docs/gxp-validation/05-soup-dossier/' },
-  { id: 'IQOQ-GXPHISTORIAN-2026-006', title: '06 — Executed IQ/OQ Evidence Report (15/15 Passed)', href: '/docs/gxp-validation/06-iq-oq-evidence/' },
+  { id: 'IQOQ-GXPHISTORIAN-2026-006', title: '06 — Executed IQ/OQ Evidence Report (17/17 Passed)', href: '/docs/gxp-validation/06-iq-oq-evidence/' },
   { id: 'RTM-GXPHISTORIAN-2026-007', title: '07 — Bidirectional Requirements Traceability Matrix', href: '/docs/gxp-validation/07-rtm/' },
   { id: 'VSR-GXPHISTORIAN-2026-008', title: '08 — Validation Summary Report & QA Release', href: '/docs/gxp-validation/08-vsr/' },
 ];
@@ -205,7 +211,7 @@ const validationDocs = [
       <div class="container top-banner-inner">
         <span class="status-dot" aria-hidden="true"></span>
         <span>
-          <strong>GxPHistorian 2026 LTS Qualified Release:</strong> 15/15 Automated IQ/OQ Pytest Verification Checks Passing &amp; 8-Document GAMP 5 / FDA CSA Validation Binder Included.
+          <strong>GxPHistorian 2026 LTS Qualified Release:</strong> 17/17 Automated IQ/OQ Pytest Verification Checks Passing (Including Pydantic AI Co-Pilot &amp; MCP Server) &amp; 8-Document GAMP 5 / FDA CSA Validation Binder Included.
         </span>
         <a href="/binder/COMPLETE_GMP_VALIDATION_BINDER.html" class="top-banner-link">
           Inspect Executed GMP Binder →
@@ -277,7 +283,7 @@ const validationDocs = [
               The Open-Source GxP Industrial Historian &amp; Asset Framework for Regulated Biopharma
             </h1>
             <p class="hero-lead">
-              Replace proprietary <strong>OSIsoft / AVEVA PI System</strong> per-tag and per-seat licensing with a mathematically lossless, 4-Pillar industrial time-series historian powered by <strong>ClickHouse 24.8 LTS</strong> and <strong>PostgreSQL 16</strong>—complete with cryptographic SHA-256 WORM audit trails, §11.200 electronic signatures, and visual wiring playbooks for 35+ GMP instruments.
+              Replace proprietary <strong>OSIsoft / AVEVA PI System</strong> per-tag and per-seat licensing with a mathematically lossless, 4-Pillar industrial time-series historian powered by <strong>ClickHouse 24.8 LTS</strong> and <strong>PostgreSQL 16</strong>—complete with cryptographic SHA-256 WORM audit trails, §11.200 electronic signatures, a <strong>Pydantic AI Co-Pilot &amp; MCP Server</strong>, and visual wiring playbooks for 35+ GMP instruments.
             </p>
 
             <div class="hero-cta-row">
@@ -297,6 +303,7 @@ const validationDocs = [
               <span class="c-badge">✓ §11.200 HMAC-SHA256 E-Signatures</span>
               <span class="c-badge">✓ Lossless DoubleDelta + Gorilla Codecs</span>
               <span class="c-badge">✓ OPC Quality &ge; 192 Enforcement</span>
+              <span class="c-badge">✓ Pydantic AI Co-Pilot &amp; FastMCP</span>
               <span class="c-badge">✓ Excel DataLink UDFs &amp; Power Query</span>
             </div>
           </div>
@@ -322,9 +329,9 @@ const validationDocs = [
   <span class="t-key">"broken_links"</span>: []
 &#125;
 
-<span class="t-comment"># 3. Execute 15-test GAMP 5 / FDA CSA IQ &amp; OQ qualification suite</span>
+<span class="t-comment"># 3. Execute 17-test GAMP 5 / FDA CSA IQ &amp; OQ qualification suite</span>
 <span class="t-prompt">$</span> .venv/bin/pytest -v
-<span class="t-pass">15 passed in 2.41s — Evidence written to oq_execution_results.json</span></code></pre>
+<span class="t-pass">17 passed in 1.15s — Evidence written to oq_execution_results.json</span></code></pre>
             </div>
 
             <div class="hero-photo-card">
@@ -394,7 +401,7 @@ const validationDocs = [
             <span class="metric-sub">Rear-panel pinouts, gateways &amp; tag catalogs</span>
           </div>
           <div class="metric-item">
-            <span class="metric-val">15 / 15</span>
+            <span class="metric-val">17 / 17</span>
             <span class="metric-label">Executable IQ/OQ Tests</span>
             <span class="metric-sub">Automated pytest evidence &amp; 8-doc GMP binder</span>
           </div>
@@ -717,6 +724,7 @@ FOR EACH STATEMENT EXECUTE FUNCTION fn_prevent_audit_tampering();</code></pre>
             <h4>Clients &amp; Protocol Connectors</h4>
             <ul>
               <li><a href="/docs/clients-and-api/rest-api-reference/">REST API Reference</a></li>
+              <li><a href="/docs/clients-and-api/pydantic-ai-and-mcp/">Pydantic AI Co-Pilot &amp; MCP Server</a></li>
               <li><a href="/docs/clients-and-api/grafana-vision-hmi/">Grafana Vision Operator HMI</a></li>
               <li><a href="/docs/clients-and-api/excel-datalink/">Excel DataLink Client</a></li>
               <li><a href="/docs/connectors/overview/">Connectors Encyclopedia</a></li>

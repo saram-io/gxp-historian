@@ -1,6 +1,6 @@
 # Document 04 — FDA CSA Functional Risk Assessment (FRA)
 
-**Document ID:** `FRA-GXPHISTORIAN-2026-004` | **Generated (UTC):** `2026-10-17T20:21:45Z` | **Methodology:** ISPE GAMP 5 & FDA Computer Software Assurance (CSA)
+**Document ID:** `FRA-GXPHISTORIAN-2026-004` | **Generated (UTC):** `2026-10-17T21:20:51Z` | **Methodology:** ISPE GAMP 5 & FDA Computer Software Assurance (CSA)
 
 ## 1. Functional Risk Assessment Matrix
 
@@ -21,3 +21,5 @@
 | **URS-013** | Linear interpolation creating invalid fractional states (1.5) on discrete valve/agitator tags | `S=4, O=2, D=1` | **High** | Scripted OQ (Mathematical Boundary Verification) | Metadata-driven LOCF step vs. LINEAR interpolation in /api/v1/datalink/sampled (test_oq_08) |
 | **URS-014** | Visual trend downsampling hiding brief critical thermal excursion spikes | `S=4, O=2, D=1` | **Medium** | Scripted OQ | ClickHouse largestTriangleThreeBuckets(LTTB) preserves exact local peaks (test_oq_09) |
 | **URS-015** | Corrupted or incomplete batch telemetry export to enterprise data lakehouse | `S=4, O=1, D=1` | **High** | Scripted OQ | PyArrow Snappy Parquet export verified for 100% row/column fidelity (test_oq_10) |
+| **URS-016** | AI agent hallucinating time-series statistics or ignoring OPC quality < 192 | `S=4, O=2, D=1` | **High** | Scripted OQ (Deterministic FunctionModel & TestModel Qualification) | All telemetry math executed deterministically in ClickHouse via Pydantic AI tools & gxphistorian-mcp (test_oq_11) |
+| **URS-017** | Autonomous AI agent mutating GxP tag catalog without human Part 11 attribution | `S=5, O=2, D=1` | **High** | Scripted OQ (Negative & Positive Human-in-the-Loop Gate Testing) | Pydantic AI ApprovalRequired (DeferredToolRequests) + mandatory X-Actor-Id/X-Change-Reason gate (test_oq_12) |

@@ -9,6 +9,8 @@ RUN apt-get update && \
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
+COPY gxp_ai_agent.py /app/gxp_ai_agent.py
+COPY mcp_server.py /app/mcp_server.py
 COPY main.py /app/main.py
 RUN mkdir -p /app/exports
 

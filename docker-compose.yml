@@ -94,6 +94,7 @@ services:
       - "${API_PORT:-8020}:8000"
     volumes:
       - ./exports:/app/exports
+      - ./docs:/app/docs:ro
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8000/api/v1/health || exit 1"]
       interval: 5s

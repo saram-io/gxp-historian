@@ -24,6 +24,9 @@ Interactive OpenAPI / Swagger UI documentation is available at:
 | `POST /api/v1/event-frames/{event_id}/sign` | Part 11 E-Signature | Verifies dual-challenge credentials (`§11.200`) and applies an `HMAC-SHA256` signature. | **Yes** (`user_id`, `password`, `signature_meaning`) |
 | `POST /api/v1/lakehouse/export-parquet` | PI Integrator for BA | Exports Snappy-compressed Apache Parquet files enriched with ISA-95 metadata. | No |
 | `GET /api/v1/audit-trail/verify` | Part 11 Audit Verifier | Recomputes and verifies every SHA-256 hash link in `part11_audit_log` from genesis. | No |
+| `GET /api/v1/ai/mcp/manifest` | PI Web API / AI Gateway | Returns the `gxphistorian-mcp` server manifest (6 deterministic tools & 3 `gxphistorian://` resources) plus Pydantic AI agent metadata. | No |
+| `POST /api/v1/ai/event-frames/{event_id}/investigate` | Batch Excursion Co-Pilot | Runs `gxp_deviation_investigator_agent` to generate a structured `DeviationInvestigationBrief` over `quality >= 192` telemetry (advisory only; never calls `/sign`). | No (Read-only advisory) |
+| `POST /api/v1/ai/copilot/propose-tag` | Tag Builder Co-Pilot | Stages a validated tag provisioning proposal and pauses behind `ApprovalRequired` (`DeferredToolRequests`) until explicit human Part 11 approval. | **Yes** (Requires human `approved=true`, `actor_id`, `change_reason`) |
 
 ---
 
@@ -180,3 +183,49 @@ curl -s -X POST http://localhost:8020/api/v1/lakehouse/export-parquet \
     "end_time": "2026-10-18T00:00:00Z"
   }' | jq .
 ```
+
+---
+
+## 9. Pydantic AI GxP Co-Pilot & `gxphistorian-mcp` Server (`/api/v1/ai/*`)
+
+For complete architectural details, Capabilities on Demand (`defer_loading=True`), and `FastMCP` client configuration, see **[Pydantic AI Co-Pilot & MCP Server](/docs/clients-and-api/pydantic-ai-and-mcp/)**.
+
+### Inspect `gxphistorian-mcp` Tools & Resources (`GET /api/v1/ai/mcp/manifest`)
+
+```bash
+curl -s http://localhost:8020/api/v1/ai/mcp/manifest | jq .
+```
+
+### Generate Advisory ISA-88 Excursion Investigation Brief (`POST /api/v1/ai/event-frames/{event_id}/investigate`)
+
+Executes `gxp_deviation_investigator_agent` (`output_type=DeviationInvestigationBrief`) over ClickHouse `WHERE quality >= 192` telemetry and PostgreSQL `part11_audit_log` context (`URS-016` / `OQ-11`). Read-only and advisory—never modifies `event_frames` or invokes `/sign`.
+
+```bash
+curl -s -X POST "http://localhost:8020/api/v1/ai/event-frames/<EVENT_UUID>/investigate" \
+  -H "Content-Type: application/json" \
+  -d '{"use_deterministic_fallback": false}' | jq .
+```
+
+### Stage & Approve Part 11 Tag Proposal (`POST /api/v1/ai/copilot/propose-tag`)
+
+Validates tag limits and deadband via `@gxp_copilot_agent.tool(args_validator=validate_part11_tag_args)` and enforces a mandatory human-in-the-loop `ApprovalRequired` (`DeferredToolRequests`) pause before any PostgreSQL `tags` mutation (`URS-017` / `OQ-12`).
+
+```bash
+# Stage 1: Unapproved request -> returns HTTP 202 Accepted (DeferredToolRequests) with zero DB mutations
+curl -s -X POST http://localhost:8020/api/v1/ai/copilot/propose-tag \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tag_id": 105,
+    "tag_name": "BR201_PRESS_PV",
+    "asset_id": 1,
+    "attribute_name": "Headspace_Pressure_PV",
+    "eng_units": "bar",
+    "is_step_tag": false,
+    "exc_dev": 0.02,
+    "low_limit": 0.0,
+    "high_limit": 2.5,
+    "source_protocol": "OPC_UA",
+    "approved": false
+  }' | jq .
+```
+

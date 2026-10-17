@@ -1117,3 +1117,117 @@ def verify_audit_trail() -> Dict[str, Any]:
         "head_row_hash": expected_prev_hash,
         "broken_at_audit_id": broken_at_audit_id,
     }
+
+
+# ---------------------------------------------------------------------------
+# 8. Pydantic AI Co-Pilot & Model Context Protocol (`gxphistorian-mcp`)
+# ---------------------------------------------------------------------------
+
+from gxp_ai_agent import (
+    DeviationInvestigationBrief,
+    GxPHistorianDeps,
+    StagedTagProposalItem,
+    configure_gxp_ai_observability,
+    run_event_frame_investigation,
+    run_part11_tag_onboarding_workflow,
+)
+from mcp_server import create_gxphistorian_mcp_server, get_mcp_manifest_summary
+
+configure_gxp_ai_observability()
+
+
+def build_gxp_ai_deps(
+    actor_id: Optional[str] = None,
+    change_reason: Optional[str] = None,
+) -> GxPHistorianDeps:
+    return GxPHistorianDeps(
+        get_pg_conn=get_pg_conn,
+        get_ch_client=get_ch_client,
+        get_assets_tree_fn=lambda root: get_assets_tree(root_path=root),
+        get_plot_values_fn=lambda tid, st, et, iv: get_plot_values(
+            tag_id=tid,
+            start_time=st,
+            end_time=et,
+            intervals=iv,
+        ),
+        get_datalink_sampled_fn=lambda tname, st, et, step: get_datalink_sampled(
+            tag_name=tname,
+            start_time=st,
+            end_time=et,
+            step_seconds=step,
+            format="json",
+        ),  # type: ignore[return-value]
+        list_event_frames_fn=list_event_frames,
+        verify_audit_trail_fn=verify_audit_trail,
+        create_tag_fn=lambda payload_dict, act, rsn: create_tag(
+            payload=TagCreateRequest(**payload_dict),
+            x_actor_id=act,
+            x_change_reason=rsn,
+        ),
+        actor_id=actor_id,
+        change_reason=change_reason,
+    )
+
+
+gxphistorian_mcp_server = create_gxphistorian_mcp_server(deps_factory=build_gxp_ai_deps)
+
+
+class TagOnboardingApprovalRequest(BaseModel):
+    proposal: StagedTagProposalItem
+    approved: bool = Field(
+        default=False,
+        description="False to stage and return DeferredToolRequests; True to approve and commit with Part 11 headers.",
+    )
+
+
+@app.get("/api/v1/ai/mcp/manifest")
+def get_ai_mcp_manifest() -> Dict[str, Any]:
+    """Return the `gxphistorian-mcp` tools, resources, and Pydantic AI capabilities catalog."""
+    return get_mcp_manifest_summary()
+
+
+@app.post(
+    "/api/v1/ai/event-frames/{event_id}/investigate",
+    response_model=DeviationInvestigationBrief,
+)
+def investigate_event_frame_with_ai(event_id: uuid.UUID) -> DeviationInvestigationBrief:
+    """
+    Run the Pydantic AI `gxp_deviation_investigator_agent` on an ISA-88 Event Frame to correlate
+    sibling tags (`WHERE quality >= 192`), diagnose excluded bad-quality spikes (`quality < 192`),
+    verify the PostgreSQL `part11_audit_log` SHA-256 chain, and produce an advisory CAPA brief.
+    """
+    deps = build_gxp_ai_deps()
+    try:
+        return run_event_frame_investigation(deps=deps, event_id=str(event_id))
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/api/v1/ai/copilot/propose-tag")
+def propose_or_approve_tag_with_ai(
+    body: TagOnboardingApprovalRequest,
+    x_actor_id: Optional[str] = Header(default=None, alias="X-Actor-Id"),
+    x_change_reason: Optional[str] = Header(default=None, alias="X-Change-Reason"),
+) -> Dict[str, Any]:
+    """
+    Execute the Pydantic AI `gxp_copilot_agent` Human-in-the-Loop 21 CFR Part 11 tag onboarding flow:
+      - `approved=False`: Validates tag limits via `args_validator` and pauses with `ApprovalRequired`
+        (`DeferredToolRequests`).
+      - `approved=True`: Requires `X-Actor-Id` and `X-Change-Reason`, resumes with `DeferredToolResults`,
+        and commits the tag to PostgreSQL with SHA-256 WORM audit logging.
+    """
+    if body.approved:
+        clean_actor = (x_actor_id or "").strip()
+        clean_reason = (x_change_reason or "").strip()
+        if not clean_actor or not clean_reason:
+            raise HTTPException(
+                status_code=400,
+                detail="21 CFR Part 11 Violation: X-Actor-Id and X-Change-Reason headers are mandatory when approving a deferred tag creation.",
+            )
+    deps = build_gxp_ai_deps(actor_id=x_actor_id, change_reason=x_change_reason)
+    return run_part11_tag_onboarding_workflow(
+        deps=deps,
+        proposal=body.proposal,
+        approved=body.approved,
+    )
+

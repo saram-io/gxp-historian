@@ -62,22 +62,24 @@ clickhouse-historian/
 │       └── bacnet_cov_worker.py                      # Async BACnet/IP COV / ReadPropertyMultiple worker
 ├── app/
 │   ├── Dockerfile                                    # FastAPI control plane container definition
-│   ├── requirements.txt                              # FastAPI, Psycopg 3, ClickHouse Connect, PyArrow
-│   └── main.py                                       # Unified REST API, Event Frame Engine, DataLink & Part 11
+│   ├── requirements.txt                              # FastAPI, Psycopg 3, ClickHouse Connect, PyArrow, Pydantic AI, FastMCP
+│   ├── main.py                                       # Unified REST API, Event Frame Engine, DataLink & Part 11
+│   ├── gxp_ai_agent.py                               # Pydantic AI Excursion Investigator & Part 11 Co-Pilot Agents
+│   └── mcp_server.py                                 # FastMCP (gxphistorian-mcp) read-only GxP historian server
 ├── provisioning/grafana/
 │   ├── datasources/datasources.yml                   # Auto-provisioned ClickHouse & PostgreSQL datasources
 │   └── dashboards/
 │       ├── dashboards.yml                            # Dashboard provider configuration
 │       └── gxphistorian_bioreactor_hmi.json         # Asset-relative Bioreactor & Cleanroom HMI dashboard
-├── docs/                                             # 8 Biopharma & Legacy Equipment Integration Guides
+├── docs/                                             # Biopharma Equipment, Connector & Pydantic AI Guides
 ├── docs-site/                                        # Astro Starlight Documentation Portal
 ├── excel-datalink-client/
 │   ├── gxphistorian_datalink_udf.py                 # xlwings UDFs (=GXPHISTORIAN_SAMPLED, etc.)
 │   └── README_EXCEL_SETUP.md                         # Power Query (zero-macro) & xlwings setup guide
 └── gxp-validation-package/
     ├── generate_gmp_binder.py                        # Automated 8-Document GMP Validation Binder generator
-    ├── specs/urs_risk_catalog.yaml                   # 15 URS items mapped to FRS, GAMP Cat, CSA Risk & pytest
-    ├── tests/                                        # Executable IQ/OQ pytest qualification suite (15 tests)
+    ├── specs/urs_risk_catalog.yaml                   # 17 URS items mapped to FRS, GAMP Cat, CSA Risk & pytest
+    ├── tests/                                        # Executable IQ/OQ pytest qualification suite (17 tests)
     ├── evidence/oq_execution_results.json            # Timestamped pytest execution evidence log
     └── dist_binder/                                  # Generated 8 Markdown deliverables + HTML/PDF binder
 ```

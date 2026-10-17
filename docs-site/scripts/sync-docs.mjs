@@ -135,6 +135,14 @@ const biopharmaFiles = [
     description:
       'How Siemens S7comm (:102), Allen-Bradley EtherNet/IP (:44818), 4–20 mA HART loops, RS-232 DB9 serial (MT-SICS), and SMB File Watch-Folder (PI UFL) connectors work.',
   },
+  {
+    src: 'docs/PYDANTIC_AI_COPILOT_AND_MCP_SERVER.md',
+    dest: 'src/content/docs/docs/clients-and-api/pydantic-ai-and-mcp.md',
+    slug: '/docs/clients-and-api/pydantic-ai-and-mcp/',
+    fileName: 'PYDANTIC_AI_COPILOT_AND_MCP_SERVER.md',
+    description:
+      'Pydantic AI GxP Co-Pilot (gxp_deviation_investigator_agent & gxp_copilot_agent), Capabilities on Demand, Human-in-the-Loop 21 CFR Part 11 DeferredToolRequests approvals, and gxphistorian-mcp FastMCP server.',
+  },
 ];
 
 const validationFiles = [
@@ -146,7 +154,7 @@ const validationFiles = [
   {
     src: 'gxp-validation-package/dist_binder/02_User_Requirements_Specification_URS.md',
     dest: 'src/content/docs/docs/gxp-validation/02-urs.md',
-    description: 'Document 02 — User Requirements Specification (URS-001 through URS-015) for GxPHistorian GxP.',
+    description: 'Document 02 — User Requirements Specification (URS-001 through URS-017) for GxPHistorian GxP.',
   },
   {
     src: 'gxp-validation-package/dist_binder/03_Functional_And_Design_Specification_FDS.md',
@@ -166,7 +174,7 @@ const validationFiles = [
   {
     src: 'gxp-validation-package/dist_binder/06_Executed_IQ_OQ_Protocol_And_Evidence_Report.md',
     dest: 'src/content/docs/docs/gxp-validation/06-iq-oq-evidence.md',
-    description: 'Document 06 — Executed IQ/OQ Protocol & Cryptographic Evidence Report (15 Automated Tests).',
+    description: 'Document 06 — Executed IQ/OQ Protocol & Cryptographic Evidence Report (17 Automated Tests).',
   },
   {
     src: 'gxp-validation-package/dist_binder/07_Requirements_Traceability_Matrix_RTM.md',

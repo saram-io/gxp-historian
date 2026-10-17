@@ -1,6 +1,6 @@
 # Document 03 — Functional & Design Specification (FDS)
 
-**Document ID:** `FDS-GXPHISTORIAN-2026-003` | **Effective Date (UTC):** `2026-10-17T20:21:45Z`
+**Document ID:** `FDS-GXPHISTORIAN-2026-003` | **Effective Date (UTC):** `2026-10-17T21:20:51Z`
 
 ---
 
@@ -21,11 +21,12 @@
      - `status_code UInt16 DEFAULT 0 CODEC(T64, ZSTD(1))`
    - Real-time 1-minute rollup table `pi_historian.sensor_rollup_1m` (`AggregatingMergeTree()`) populated by `mv_sensor_rollup_1m` (`WHERE quality >= 192`).
    - In-memory dictionary `pi_historian.pg_asset_tags` (`LAYOUT(FLAT()) LIFETIME(MIN 5 MAX 15)`) and external table `pi_historian.pg_event_frames`.
-3. **Pillar 3 — PostgreSQL 16 Part 11 Control Plane & FastAPI (`postgres-control` + `historian-api`):**
+3. **Pillar 3 — PostgreSQL 16 Part 11 Control Plane, FastAPI & Pydantic AI / MCP (`postgres-control` + `historian-api`):**
    - PostgreSQL 16 extensions: `ltree`, `btree_gist`, `pgcrypto`.
    - Tables: `asset_templates`, `assets` (GiST index on `asset_path`), `tags`, `event_frames`, `users`, and `part11_audit_log`.
    - Trigger `fn_enforce_part11_audit()` enforces `current_setting('app.actor_id', true)` and `current_setting('app.change_reason', true)` and computes `row_hash = encode(digest(prev_hash || recorded_at::text || actor_id || operation || coalesce(new_payload::text, ''), 'sha256'), 'hex')`.
    - Trigger `fn_prevent_audit_tampering()` blocks `UPDATE`, `DELETE`, and `TRUNCATE` on `part11_audit_log`.
+   - Pydantic AI Co-Pilot (`gxp_ai_agent.py`) & `gxphistorian-mcp` (`mcp_server.py`) provide read-only deterministic tools, progressive disclosure capabilities (`part11-forensics`, `brownfield-onboarding`), and human-in-the-loop `ApprovalRequired` (`DeferredToolRequests`) Part 11 change control.
 4. **Pillar 4 — Operator HMI & Excel DataLink (`grafana-vision` + `excel-datalink-client`):**
    - Grafana OSS 11.2.0 pre-provisioned with `clickhouse_core` and `postgres_control` datasources and the asset-relative dashboard `GxPHistorian Vision — GxP Bioreactor & Cleanroom HMI`.
    - Excel DataLink UDF module (`gxphistorian_datalink_udf.py`) and native Power Query CSV endpoint (`/api/v1/datalink/sampled?format=csv`).

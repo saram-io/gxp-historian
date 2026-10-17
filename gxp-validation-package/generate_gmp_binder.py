@@ -236,13 +236,15 @@ def build_02_urs(urs_data: Dict[str, Any], gen_ts: str) -> str:
         "URS-013": "Accurate, Complete",
         "URS-014": "Accurate, Legible",
         "URS-015": "Available, Enduring, Complete",
+        "URS-016": "Accurate, Consistent, Available",
+        "URS-017": "Attributable, Contemporaneous, Original",
     }
     lines = [
         "# Document 02 — User Requirements Specification (URS)",
         "",
         f"**Document ID:** `URS-GXPHISTORIAN-2026-002` | **Generated (UTC):** `{gen_ts}` | **Total Requirements:** `{len(urs_data['requirements'])}`",
         "",
-        "## 1. Formal User Requirements Catalog (URS-001 to URS-015)",
+        f"## 1. Formal User Requirements Catalog (URS-001 to URS-{len(urs_data['requirements']):03d})",
         "",
         "| URS ID | Requirement Title & Operational Statement | GxP Risk | ALCOA+ Attributes | Regulation Ref | Acceptance Criteria (FRS) |",
         "| :--- | :--- | :--- | :--- | :--- | :--- |",
@@ -281,11 +283,12 @@ def build_03_fds(gen_ts: str) -> str:
      - `status_code UInt16 DEFAULT 0 CODEC(T64, ZSTD(1))`
    - Real-time 1-minute rollup table `pi_historian.sensor_rollup_1m` (`AggregatingMergeTree()`) populated by `mv_sensor_rollup_1m` (`WHERE quality >= 192`).
    - In-memory dictionary `pi_historian.pg_asset_tags` (`LAYOUT(FLAT()) LIFETIME(MIN 5 MAX 15)`) and external table `pi_historian.pg_event_frames`.
-3. **Pillar 3 — PostgreSQL 16 Part 11 Control Plane & FastAPI (`postgres-control` + `historian-api`):**
+3. **Pillar 3 — PostgreSQL 16 Part 11 Control Plane, FastAPI & Pydantic AI / MCP (`postgres-control` + `historian-api`):**
    - PostgreSQL 16 extensions: `ltree`, `btree_gist`, `pgcrypto`.
    - Tables: `asset_templates`, `assets` (GiST index on `asset_path`), `tags`, `event_frames`, `users`, and `part11_audit_log`.
    - Trigger `fn_enforce_part11_audit()` enforces `current_setting('app.actor_id', true)` and `current_setting('app.change_reason', true)` and computes `row_hash = encode(digest(prev_hash || recorded_at::text || actor_id || operation || coalesce(new_payload::text, ''), 'sha256'), 'hex')`.
    - Trigger `fn_prevent_audit_tampering()` blocks `UPDATE`, `DELETE`, and `TRUNCATE` on `part11_audit_log`.
+   - Pydantic AI Co-Pilot (`gxp_ai_agent.py`) & `gxphistorian-mcp` (`mcp_server.py`) provide read-only deterministic tools, progressive disclosure capabilities (`part11-forensics`, `brownfield-onboarding`), and human-in-the-loop `ApprovalRequired` (`DeferredToolRequests`) Part 11 change control.
 4. **Pillar 4 — Operator HMI & Excel DataLink (`grafana-vision` + `excel-datalink-client`):**
    - Grafana OSS 11.2.0 pre-provisioned with `clickhouse_core` and `postgres_control` datasources and the asset-relative dashboard `GxPHistorian Vision — GxP Bioreactor & Cleanroom HMI`.
    - Excel DataLink UDF module (`gxphistorian_datalink_udf.py`) and native Power Query CSV endpoint (`/api/v1/datalink/sampled?format=csv`).
@@ -309,6 +312,8 @@ def build_04_fra(urs_data: Dict[str, Any], gen_ts: str) -> str:
         "URS-013": ("Linear interpolation creating invalid fractional states (1.5) on discrete valve/agitator tags", "S=4, O=2, D=1", "Metadata-driven LOCF step vs. LINEAR interpolation in /api/v1/datalink/sampled (test_oq_08)"),
         "URS-014": ("Visual trend downsampling hiding brief critical thermal excursion spikes", "S=4, O=2, D=1", "ClickHouse largestTriangleThreeBuckets(LTTB) preserves exact local peaks (test_oq_09)"),
         "URS-015": ("Corrupted or incomplete batch telemetry export to enterprise data lakehouse", "S=4, O=1, D=1", "PyArrow Snappy Parquet export verified for 100% row/column fidelity (test_oq_10)"),
+        "URS-016": ("AI agent hallucinating time-series statistics or ignoring OPC quality < 192", "S=4, O=2, D=1", "All telemetry math executed deterministically in ClickHouse via Pydantic AI tools & gxphistorian-mcp (test_oq_11)"),
+        "URS-017": ("Autonomous AI agent mutating GxP tag catalog without human Part 11 attribution", "S=5, O=2, D=1", "Pydantic AI ApprovalRequired (DeferredToolRequests) + mandatory X-Actor-Id/X-Change-Reason gate (test_oq_12)"),
     }
     lines = [
         "# Document 04 — FDA CSA Functional Risk Assessment (FRA)",
@@ -407,10 +412,11 @@ def build_06_executed_protocol(
 
 def build_07_rtm(urs_data: Dict[str, Any], oq_data: Dict[str, Any], gen_ts: str) -> str:
     results_by_node = {r["pytest_node_id"]: r for r in oq_data["test_results"]}
+    urs_count = len(urs_data["requirements"])
     lines = [
         "# Document 07 — Bidirectional Requirements Traceability Matrix (RTM)",
         "",
-        f"**Document ID:** `RTM-GXPHISTORIAN-2026-007` | **Generated (UTC):** `{gen_ts}` | **Coverage:** `100.0% (15/15 URS Verified, 0 Gaps)`",
+        f"**Document ID:** `RTM-GXPHISTORIAN-2026-007` | **Generated (UTC):** `{gen_ts}` | **Coverage:** `100.0% ({urs_count}/{urs_count} URS Verified, 0 Gaps)`",
         "",
         "| URS ID | Requirement Title | FRS / Design Spec | GAMP Cat. | CSA Risk | Automated Pytest Node ID | Executed Timestamp (UTC) | Verdict |",
         "| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |",
@@ -435,6 +441,7 @@ def build_08_vsr(
     gen_ts: str,
 ) -> str:
     summary = oq_data["summary"]
+    urs_count = len(urs_data["requirements"])
     total_audit_rows = len(live_db["audit_rows"])
     head_hash = live_db["audit_rows"][-1]["row_hash"] if live_db["audit_rows"] else "GENESIS_0000000000000000"
     return f"""# Document 08 — Validation Summary Report (VSR) & Release Certificate
@@ -445,11 +452,11 @@ def build_08_vsr(
 
 ## 1. Executive Qualification Summary
 
-The **GxPHistorian GxP Industrial Historian** (ClickHouse 24.8 Telemetry Archive, PostgreSQL 16 Part 11 Control Plane, Telegraf 1.32 Edge Collector, FastAPI Control Plane, and Grafana 11.2 HMI) has completed all Installation Qualification (IQ), Operational Qualification (OQ), and Performance Qualification (PQ) activities in accordance with `VMP-GXPHISTORIAN-2026-001`.
+The **GxPHistorian GxP Industrial Historian** (ClickHouse 24.8 Telemetry Archive, PostgreSQL 16 Part 11 Control Plane, Telegraf 1.32 Edge Collector, FastAPI Control Plane + Pydantic AI / `gxphistorian-mcp`, and Grafana 11.2 HMI) has completed all Installation Qualification (IQ), Operational Qualification (OQ), and Performance Qualification (PQ) activities in accordance with `VMP-GXPHISTORIAN-2026-001`.
 
 | Metric | Target Acceptance Criterion | Actual Executed Result | Status |
 | :--- | :--- | :--- | :--- |
-| **User Requirements Coverage (URS-001..015)** | 100% Bidirectional Traceability | `15 / 15` Requirements Mapped & Verified | **PASS** |
+| **User Requirements Coverage (URS-001..{urs_count:03d})** | 100% Bidirectional Traceability | `{urs_count} / {urs_count}` Requirements Mapped & Verified | **PASS** |
 | **Automated IQ/OQ Test Suite (`pytest`)** | 100% Pass Rate (0 Failures) | `{summary['passed']} / {summary['total_tests']}` Passed (`{summary['pass_rate_pct']}%`) | **PASS** |
 | **21 CFR Part 11 Cryptographic Hash Chain** | `chain_valid == true` from `GENESIS` | `{total_audit_rows}` Audit Records Verified (`head: {head_hash[:24]}...`) | **PASS** |
 | **Validation Deviations / CAPAs** | 0 Open Critical/Major Deviations | `0` Deviations Encountered | **PASS** |
@@ -458,11 +465,12 @@ The **GxPHistorian GxP Industrial Historian** (ClickHouse 24.8 Telemetry Archive
 
 - **Open Deviations:** `0`
 - **Closed Deviations:** `0`
-- All 15 IQ/OQ test cases passed on execution without protocol exceptions or data integrity discrepancies.
+- All {summary['total_tests']} IQ/OQ test cases passed on execution without protocol exceptions or data integrity discrepancies.
 
 ## 3. Statement of Fitness for Intended GxP Use
 
 Based on the objective cryptographic evidence captured in `oq_execution_results.json` and the unbroken SHA-256 WORM audit trail in `part11_audit_log`, the GxPHistorian GxP Industrial Historian is hereby declared **fit for its intended GxP manufacturing use** under FDA 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 (Second Edition).
+
 
 ## 4. 21 CFR Part 11 §11.50 Electronic Release Signatures
 

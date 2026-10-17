@@ -19,6 +19,7 @@ GxPHistorian GxP Industrial Historian is a production-ready, 4-Pillar open-sourc
 | **PI Vision** (`PlotValues` Trends & EF Overlays) | **Grafana OSS 11.2 + ClickHouse `largestTriangleThreeBuckets`** | Asset-relative dashboard (`${asset_path}`) with native ClickHouse LTTB visual peak preservation, 1-minute rollup bands, Event Frame shaded region annotations, and live Part 11 audit trail inspection. |
 | **PI DataLink** (Excel `PISampDat`, `PIAdvCalcDat`) | **FastAPI `/api/v1/datalink/sampled` + `xlwings` UDF / Power Query** | Drop-in `=GXPHISTORIAN_SAMPLED()`, `=GXPHISTORIAN_PLOT_VALUES()`, and `=GXPHISTORIAN_EVENT_SUMMARY()` Excel functions plus zero-macro Power Query CSV streams respecting continuous (`LINEAR`) vs. discrete (`LOCF` step) tag metadata. |
 | **PI Integrator for Business Analytics** | **FastAPI + PyArrow Zero-ETL Lakehouse Exporter** | One-call (`POST /api/v1/lakehouse/export-parquet`) Snappy-compressed Apache Parquet export enriched with ISA-95 asset hierarchy and engineering units. |
+| **AVEVA Industrial AI Assistant / PI Web API** | **Pydantic AI Co-Pilot (`app/gxp_ai_agent.py`) & `gxphistorian-mcp` (`app/mcp_server.py`)** | Typed ISA-88 Batch Excursion Investigator (`output_type=DeviationInvestigationBrief`, `WHERE quality >= 192`), Part 11 human-in-the-loop `ApprovalRequired` tag provisioning, Capabilities on Demand (`defer_loading=True`), and 6-tool `FastMCP` server. |
 
 ---
 
@@ -115,8 +116,10 @@ clickhouse-historian/
 │       └── bacnet_cov_worker.py                      # Async BACnet/IP COV / ReadPropertyMultiple worker
 ├── app/
 │   ├── Dockerfile                                    # FastAPI control plane container definition
-│   ├── requirements.txt                              # FastAPI, Psycopg 3, ClickHouse Connect, PyArrow
-│   └── main.py                                       # Unified REST API, Event Frame Engine, DataLink & Part 11
+│   ├── requirements.txt                              # FastAPI, Psycopg 3, ClickHouse Connect, PyArrow, Pydantic AI, FastMCP
+│   ├── main.py                                       # Unified REST API, Event Frame Engine, DataLink & Part 11
+│   ├── gxp_ai_agent.py                               # Pydantic AI Excursion Investigator & Part 11 Co-Pilot Agents
+│   └── mcp_server.py                                 # FastMCP (gxphistorian-mcp) read-only GxP historian server
 ├── provisioning/grafana/
 │   ├── datasources/datasources.yml                   # Auto-provisioned ClickHouse & PostgreSQL datasources
 │   └── dashboards/
@@ -126,6 +129,7 @@ clickhouse-historian/
 │   ├── images/photos/                                # 9 high-res photorealistic instrument & connector product galleries
 │   ├── images/instruments/                           # 10 SVG visual equipment, rear-panel connector & wiring guides
 │   ├── images/connectors/                            # 6 SVG physical pinout, protocol packet & state-machine diagrams
+│   ├── PYDANTIC_AI_COPILOT_AND_MCP_SERVER.md         # Pydantic AI GxP Co-Pilot & gxphistorian-mcp Server Guide
 │   ├── CONNECTORS_AND_PROTOCOLS_ENCYCLOPEDIA.md      # Visual Encyclopedia of Physical Hardware & Software Connectors
 │   ├── CONNECTOR_GUIDE_OPC_UA_AND_OPC_DA.md          # OPC UA (IEC 62541) & Classic OPC DA (Zero-DCOM Bridge) deep dive
 │   ├── CONNECTOR_GUIDE_BACNET_IP_AND_MSTP.md         # BACnet/IP & BACnet MS/TP (ASHRAE 135, DNET:DADR, COV) deep dive
@@ -148,12 +152,13 @@ clickhouse-historian/
 └── gxp-validation-package/
     ├── generate_gmp_binder.py                        # Automated 8-Document GMP Validation Binder generator
     ├── specs/
-    │   └── urs_risk_catalog.yaml                     # 15 URS items mapped to FRS, GAMP Cat, CSA Risk & pytest
+    │   └── urs_risk_catalog.yaml                     # 17 URS items mapped to FRS, GAMP Cat, CSA Risk & pytest
     ├── tests/
     │   ├── conftest.py                               # Fixtures & JSON evidence collector hook
     │   ├── test_01_iq_infrastructure.py              # IQ-01..05: Credentials, schemas, codecs, dict, WAL
     │   ├── test_02_oq_part11_compliance.py           # OQ-01..05: Part 11 attribution, WORM, e-sig, hash chain
-    │   └── test_03_oq_historian_core.py              # OQ-06..10: Multi-protocol, bad quality, LOCF, LTTB, Parquet
+    │   ├── test_03_oq_historian_core.py              # OQ-06..10: Multi-protocol, bad quality, LOCF, LTTB, Parquet
+    │   └── test_04_ai_agent_and_mcp.py               # OQ-11..12: Pydantic AI Co-Pilot, FastMCP & ApprovalRequired
     ├── evidence/
     │   └── oq_execution_results.json                 # Timestamped pytest execution evidence log
     └── dist_binder/                                  # Generated 8 Markdown deliverables + HTML/PDF binder
@@ -171,6 +176,7 @@ clickhouse-historian/
 ### Connectors, Protocols, Biopharma Equipment & Sizing Guides (`docs/`)
 | Guide Document | Covered Connectors, Protocols, Instruments & Skids |
 | :--- | :--- |
+| [docs/PYDANTIC_AI_COPILOT_AND_MCP_SERVER.md](docs/PYDANTIC_AI_COPILOT_AND_MCP_SERVER.md) | **Pydantic AI GxP Co-Pilot & `gxphistorian-mcp` Server:** ISA-88 Batch Excursion Investigation Agent (`output_type=DeviationInvestigationBrief`, `WHERE quality >= 192`), Part 11 human-in-the-loop `ApprovalRequired` tag provisioning, Capabilities on Demand (`defer_loading=True`), and the 6-tool `FastMCP` server. |
 | [docs/CONNECTORS_AND_PROTOCOLS_ENCYCLOPEDIA.md](docs/CONNECTORS_AND_PROTOCOLS_ENCYCLOPEDIA.md) | **Connectors & Protocols Visual Encyclopedia:** Physical hardware connector identification & pinouts (`RJ45 T568B`, `M12 D/X/A-Coded`, `DB9 RS-232/MPI`, `Phoenix RS-485 & 4–20 mA`, `Moxa` / `Advantech` / `Helmholz` / `LOYTEC` gateways) and all 8 software protocol families. |
 | [docs/CONNECTOR_GUIDE_OPC_UA_AND_OPC_DA.md](docs/CONNECTOR_GUIDE_OPC_UA_AND_OPC_DA.md) | **OPC UA & Classic OPC DA Connectors:** `NodeId` Address Space, `Basic256Sha256` X.509 certificate lifecycle, `MonitoredItem` subscriptions, 32-bit `StatusCode` mapping (`192/64/0`), and the Zero-DCOM Windows Localhost COM Forwarder (`opcda_windows_forwarder.py`). |
 | [docs/CONNECTOR_GUIDE_BACNET_IP_AND_MSTP.md](docs/CONNECTOR_GUIDE_BACNET_IP_AND_MSTP.md) | **BACnet/IP & BACnet MS/TP Connectors:** Physical 3-pin RS-485 MS/TP wiring & 8-switch binary MAC DIP switches, `LOYTEC`/`BASrouter` `DNET:DADR` routing, BBMD Foreign Device registration (`UDP :47808`), ASHRAE 135 objects (`AI`, `AV`, `BI`, `MSV`), `SubscribeCOV`, and 4-bit `Status_Flags`. |
@@ -320,6 +326,34 @@ curl -s -X POST http://localhost:8020/api/v1/lakehouse/export-parquet \
   }' | jq .
 ```
 
+### Pydantic AI GxP Co-Pilot & `gxphistorian-mcp` Server (`/api/v1/ai/*`)
+```bash
+# 1. Inspect the gxphistorian-mcp FastMCP tool/resource manifest
+curl -s http://localhost:8020/api/v1/ai/mcp/manifest | jq .
+
+# 2. Generate an advisory ISA-88 Batch Excursion Investigation Brief (quality >= 192; never calls /sign)
+curl -s -X POST "http://localhost:8020/api/v1/ai/event-frames/<EVENT_UUID>/investigate" \
+  -H "Content-Type: application/json" \
+  -d '{"use_deterministic_fallback": false}' | jq .
+
+# 3. Stage a Part 11 Tag Proposal (pauses with HTTP 202 ApprovalRequired until human approval)
+curl -s -X POST http://localhost:8020/api/v1/ai/copilot/propose-tag \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tag_id": 105,
+    "tag_name": "BR201_PRESS_PV",
+    "asset_id": 1,
+    "attribute_name": "Headspace_Pressure_PV",
+    "eng_units": "bar",
+    "is_step_tag": false,
+    "exc_dev": 0.02,
+    "low_limit": 0.0,
+    "high_limit": 2.5,
+    "source_protocol": "OPC_UA",
+    "approved": false
+  }' | jq .
+```
+
 ---
 
 ## 7. Operator HMI (Grafana Vision) & GxPHistorian DataLink Client
@@ -347,7 +381,7 @@ See [excel-datalink-client/README_EXCEL_SETUP.md](file:///home/d3lee/my-repos/cl
 
 ## 8. Executable GAMP 5 / FDA CSA IQ/OQ Qualification & GMP Validation Binder
 
-The repository includes an automated 15-test IQ/OQ qualification suite mapped to `URS-001` through `URS-015` ([gxp-validation-package/specs/urs_risk_catalog.yaml](file:///home/d3lee/my-repos/clickhouse-historian/gxp-validation-package/specs/urs_risk_catalog.yaml)) and an automated generator that builds an 8-Document Commercial GMP Validation Binder.
+The repository includes an automated 17-test IQ/OQ qualification suite mapped to `URS-001` through `URS-017` ([gxp-validation-package/specs/urs_risk_catalog.yaml](file:///home/d3lee/my-repos/clickhouse-historian/gxp-validation-package/specs/urs_risk_catalog.yaml)) and an automated generator that builds an 8-Document Commercial GMP Validation Binder.
 
 ### 1. Run the Automated IQ/OQ Pytest Suite
 ```bash
@@ -355,7 +389,7 @@ python3 -m venv .venv
 .venv/bin/pip install -r app/requirements.txt pytest pyyaml
 .venv/bin/pytest -v
 ```
-Executing `pytest` runs all 15 IQ/OQ tests (`test_01_iq_infrastructure.py`, `test_02_oq_part11_compliance.py`, `test_03_oq_historian_core.py`) and records timestamped execution evidence to `gxp-validation-package/evidence/oq_execution_results.json`.
+Executing `pytest` runs all 17 IQ/OQ tests (`test_01_iq_infrastructure.py`, `test_02_oq_part11_compliance.py`, `test_03_oq_historian_core.py`, `test_04_ai_agent_and_mcp.py`) and records timestamped execution evidence to `gxp-validation-package/evidence/oq_execution_results.json`.
 
 ### 2. Generate the 8-Document Commercial GMP Validation Binder
 ```bash
