@@ -69,8 +69,10 @@ flowchart LR
 | :--- | :--- | :--- | :--- | :--- |
 | `postgres-control` | Pillar 3: Relational Control Plane & Part 11 WORM Audit Log | `5432` | `5435` (`PG_PORT`) | PostgreSQL 16 (`ltree`, `btree_gist`, `pgcrypto`) |
 | `clickhouse-archive` | Pillar 2: Immutable Time-Series Archive & Rollup Engine | `8123` / `9000` | `8125` / `9005` | ClickHouse Server 24.8 LTS (`Apache-2.0`) |
+| `instrument-mock-server` | Pillar 1: Multi-Protocol Biopharma Instrument Mock Server | `8095`, `4840`, `5020`, `47808/udp`, `1102`, `4001` | `8095`, `4840`, `5020`, `47808/udp`, `1102`, `4001` | Python 3.12 Asyncio (OPC UA, Modbus TCP, BACnet/IP, S7comm, RS-232 `MT-SICS`, OPC DA & UFL) |
 | `edge-collector` | Pillar 1: Multi-Protocol Collector & Store-and-Forward WAL | `8080` | `8080` (`EDGE_INGEST_PORT`) | Telegraf 1.32 Alpine + Python 3.12 |
 | `historian-api` | Pillar 3: GxP REST API, Event Frame Engine & DataLink Server | `8000` | `8020` (`API_PORT`) | FastAPI, Psycopg 3, ClickHouse Connect, PyArrow |
+| `gxphistorian-mcp` | Pillar 3: Pydantic AI Co-Pilot & FastMCP Streamable HTTP Server | `8030` | `8030` (`MCP_PORT`) | Pydantic AI 2.0, FastMCP, Pydantic Logfire |
 | `grafana-vision` | Pillar 4: Pre-Provisioned Operator HMI | `3000` | `3020` (`GRAFANA_PORT`) | Grafana OSS 11.2 + ClickHouse Datasource Plugin |
 
 ---
@@ -101,12 +103,15 @@ clickhouse-historian/
 ├── .antigravity/
 │   └── rules.md                                      # Architectural & 21 CFR Part 11 guardrails
 ├── .env / .env.example                               # Non-default GxP credentials & host port mappings
-├── docker-compose.yml                                # 5-service orchestrated stack with healthchecks
+├── docker-compose.yml                                # 6-service orchestrated stack (including gxphistorian-mcp)
 ├── pytest.ini                                        # Pytest configuration for IQ/OQ qualification
 ├── init-postgres/
 │   └── 01_control_plane_part11.sql                   # PostgreSQL 16 ltree, pgcrypto, WORM audit & seed data
 ├── init-clickhouse/
 │   └── 01_telemetry_core.sql                         # MergeTree codecs, 1m rollups, PG dictionary & bridges
+├── instrument-mock-server/
+│   ├── Dockerfile                                    # Multi-protocol biopharma instrument mock server image
+│   └── mock_instruments.py                           # Live OPC UA (:4840), Modbus (:5020), BACnet (:47808), S7 (:1102), RS-232 (:4001) & HTTP (:8095)
 ├── edge-collector/
 │   ├── Dockerfile                                    # Telegraf 1.32 Alpine + Python 3.12 edge collector image
 │   ├── telegraf-clickhouse.conf                      # Disk WAL buffer, HTTP ingest (:8080), execd & CH output
@@ -115,11 +120,11 @@ clickhouse-historian/
 │       ├── opcda_windows_forwarder.py                # Windows localhost COM OPC DA -> HTTP JSON bridge
 │       └── bacnet_cov_worker.py                      # Async BACnet/IP COV / ReadPropertyMultiple worker
 ├── app/
-│   ├── Dockerfile                                    # FastAPI control plane container definition
+│   ├── Dockerfile                                    # FastAPI control plane & gxphistorian-mcp container definition
 │   ├── requirements.txt                              # FastAPI, Psycopg 3, ClickHouse Connect, PyArrow, Pydantic AI, FastMCP
 │   ├── main.py                                       # Unified REST API, Event Frame Engine, DataLink & Part 11
 │   ├── gxp_ai_agent.py                               # Pydantic AI Excursion Investigator & Part 11 Co-Pilot Agents
-│   └── mcp_server.py                                 # FastMCP (gxphistorian-mcp) read-only GxP historian server
+│   └── mcp_server.py                                 # Standalone FastMCP (gxphistorian-mcp :8030) GxP historian server
 ├── provisioning/grafana/
 │   ├── datasources/datasources.yml                   # Auto-provisioned ClickHouse & PostgreSQL datasources
 │   └── dashboards/
@@ -130,6 +135,7 @@ clickhouse-historian/
 │   ├── images/instruments/                           # 10 SVG visual equipment, rear-panel connector & wiring guides
 │   ├── images/connectors/                            # 6 SVG physical pinout, protocol packet & state-machine diagrams
 │   ├── PYDANTIC_AI_COPILOT_AND_MCP_SERVER.md         # Pydantic AI GxP Co-Pilot & gxphistorian-mcp Server Guide
+│   ├── MOCK_INSTRUMENT_SERVER_TESTING_GUIDE.md       # Multi-Protocol Biopharma Instrument Mock Server & Testing Guide
 │   ├── CONNECTORS_AND_PROTOCOLS_ENCYCLOPEDIA.md      # Visual Encyclopedia of Physical Hardware & Software Connectors
 │   ├── CONNECTOR_GUIDE_OPC_UA_AND_OPC_DA.md          # OPC UA (IEC 62541) & Classic OPC DA (Zero-DCOM Bridge) deep dive
 │   ├── CONNECTOR_GUIDE_BACNET_IP_AND_MSTP.md         # BACnet/IP & BACnet MS/TP (ASHRAE 135, DNET:DADR, COV) deep dive
@@ -177,6 +183,7 @@ clickhouse-historian/
 | Guide Document | Covered Connectors, Protocols, Instruments & Skids |
 | :--- | :--- |
 | [docs/PYDANTIC_AI_COPILOT_AND_MCP_SERVER.md](docs/PYDANTIC_AI_COPILOT_AND_MCP_SERVER.md) | **Pydantic AI GxP Co-Pilot & `gxphistorian-mcp` Server:** ISA-88 Batch Excursion Investigation Agent (`output_type=DeviationInvestigationBrief`, `WHERE quality >= 192`), Part 11 human-in-the-loop `ApprovalRequired` tag provisioning, Capabilities on Demand (`defer_loading=True`), and the 6-tool `FastMCP` server. |
+| [docs/MOCK_INSTRUMENT_SERVER_TESTING_GUIDE.md](docs/MOCK_INSTRUMENT_SERVER_TESTING_GUIDE.md) | **Multi-Protocol Biopharma Instrument Mock Server (`instrument-mock-server`):** Live hardware-free socket & HTTP testing across OPC UA Binary (`:4840`), Modbus TCP `ABCD`/`CDAB`/`INT16` (`:5020`), BACnet/IP `BVLC` (`:47808/udp`), Siemens S7comm `RFC 1006` `DB10` (`:1102`), RS-232 Moxa `MT-SICS` (`:4001`), and Windows OPC DA 2.05a / `PI UFL` SHA-256 Watch-Folder (`:8095`) with live fault & excursion injection (`/control/override`). |
 | [docs/CONNECTORS_AND_PROTOCOLS_ENCYCLOPEDIA.md](docs/CONNECTORS_AND_PROTOCOLS_ENCYCLOPEDIA.md) | **Connectors & Protocols Visual Encyclopedia:** Physical hardware connector identification & pinouts (`RJ45 T568B`, `M12 D/X/A-Coded`, `DB9 RS-232/MPI`, `Phoenix RS-485 & 4–20 mA`, `Moxa` / `Advantech` / `Helmholz` / `LOYTEC` gateways) and all 8 software protocol families. |
 | [docs/CONNECTOR_GUIDE_OPC_UA_AND_OPC_DA.md](docs/CONNECTOR_GUIDE_OPC_UA_AND_OPC_DA.md) | **OPC UA & Classic OPC DA Connectors:** `NodeId` Address Space, `Basic256Sha256` X.509 certificate lifecycle, `MonitoredItem` subscriptions, 32-bit `StatusCode` mapping (`192/64/0`), and the Zero-DCOM Windows Localhost COM Forwarder (`opcda_windows_forwarder.py`). |
 | [docs/CONNECTOR_GUIDE_BACNET_IP_AND_MSTP.md](docs/CONNECTOR_GUIDE_BACNET_IP_AND_MSTP.md) | **BACnet/IP & BACnet MS/TP Connectors:** Physical 3-pin RS-485 MS/TP wiring & 8-switch binary MAC DIP switches, `LOYTEC`/`BASrouter` `DNET:DADR` routing, BBMD Foreign Device registration (`UDP :47808`), ASHRAE 135 objects (`AI`, `AV`, `BI`, `MSV`), `SubscribeCOV`, and 4-bit `Status_Flags`. |
@@ -209,11 +216,12 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-Verify that all 5 services are running and healthy:
+Verify that all 6 services (`postgres-control`, `clickhouse-archive`, `edge-collector`, `historian-api`, `gxphistorian-mcp`, `grafana-vision`) are running and healthy:
 
 ```bash
 docker compose ps
 curl -s http://localhost:8020/api/v1/health | jq .
+curl -s http://localhost:8030/health | jq .
 ```
 
 Expected health output:

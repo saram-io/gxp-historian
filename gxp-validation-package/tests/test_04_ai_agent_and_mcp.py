@@ -14,7 +14,7 @@ from pydantic_ai import DeferredToolRequests, ModelResponse, TextPart, ToolCallP
 from pydantic_ai.models.function import FunctionModel
 from pydantic_ai.models.test import TestModel
 
-from conftest import REPO_ROOT, EvidenceTracker
+from conftest import MCP_BASE_URL, REPO_ROOT, EvidenceTracker
 
 APP_DIR = REPO_ROOT / "app"
 if str(APP_DIR) not in sys.path:
@@ -34,13 +34,32 @@ def test_oq_11_pydantic_ai_deviation_investigator_and_mcp(
     Verify Pydantic AI `gxp_deviation_investigator_agent` Event Frame investigation,
     `part11-forensics` deferred capability loading, and `gxphistorian-mcp` manifest.
     """
-    # 1. Verify MCP & Pydantic AI manifest endpoint
+    # 1. Verify MCP & Pydantic AI manifest endpoint on historian-api and standalone gxphistorian-mcp container
     manifest_resp = api_client.get("/api/v1/ai/mcp/manifest")
     assert manifest_resp.status_code == 200
     manifest = manifest_resp.json()
     assert manifest["server_name"] == "gxphistorian-mcp"
+    assert manifest["container_service"] == "gxphistorian-mcp"
     assert "mcp_draft_deviation_brief" in manifest["mcp_tools"]
     assert manifest["gxp_guardrails"]["quality_filter"] == "WHERE quality >= 192"
+
+    mcp_container_resp = httpx.get(f"{MCP_BASE_URL}/mcp/manifest", timeout=10.0)
+    assert mcp_container_resp.status_code == 200
+    assert mcp_container_resp.json()["server_name"] == "gxphistorian-mcp"
+
+    # Verify live Streamable HTTP MCP protocol execution against the gxphistorian-mcp container
+    import asyncio
+    from fastmcp import Client as FastMCPClient
+
+    async def _verify_live_http_mcp() -> list[str]:
+        async with FastMCPClient(f"{MCP_BASE_URL}/mcp") as mcp_client:
+            tools = await mcp_client.list_tools()
+            audit_res = await mcp_client.call_tool("mcp_verify_part11_audit_chain", {})
+            assert audit_res.data["chain_valid"] is True
+            return [t.name for t in tools]
+
+    live_mcp_tools = asyncio.run(_verify_live_http_mcp())
+    assert "mcp_draft_deviation_brief" in live_mcp_tools
 
     # 2. Ensure at least one Event Frame exists and run AI Deviation Investigator
     eval_resp = api_client.post("/api/v1/event-frames/evaluate")

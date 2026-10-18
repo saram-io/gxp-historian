@@ -59,6 +59,8 @@ CH_PASSWORD = get_setting("CH_PASSWORD", "GxP_Ch_Secret_2026!")
 CH_DB = get_setting("CH_DB", "pi_historian")
 
 API_BASE_URL = get_setting("API_BASE_URL", f"http://localhost:{get_setting('API_PORT', '8020')}")
+MCP_BASE_URL = get_setting("MCP_BASE_URL", f"http://localhost:{get_setting('MCP_PORT', '8030')}")
+MOCK_SERVER_BASE_URL = get_setting("MOCK_SERVER_BASE_URL", f"http://localhost:{get_setting('MOCK_HTTP_PORT', '8095')}")
 GRAFANA_BASE_URL = get_setting("GRAFANA_BASE_URL", f"http://localhost:{get_setting('GRAFANA_PORT', '3020')}")
 GRAFANA_PASSWORD = get_setting("GRAFANA_PASSWORD", "GxP_Grafana_2026!")
 
@@ -183,6 +185,8 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
             "postgres_endpoint": f"{PG_HOST}:{PG_PORT}/{PG_DB}",
             "clickhouse_endpoint": f"{CH_HOST}:{CH_HTTP_PORT}/{CH_DB}",
             "historian_api_url": API_BASE_URL,
+            "mcp_server_url": MCP_BASE_URL,
+            "instrument_mock_server_url": MOCK_SERVER_BASE_URL,
             "grafana_url": GRAFANA_BASE_URL,
         },
         "session_start_utc": _SESSION_START_UTC,

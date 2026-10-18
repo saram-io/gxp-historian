@@ -90,6 +90,11 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
     href="/docs/connectors/overview/"
   />
   <LinkCard
+    title="Mock Instrument Server & 6-Protocol Live Testing"
+    description="Test live wire-level connections across OPC UA (:4840), Modbus TCP (:5020), BACnet/IP (:47808), Siemens S7comm (:1102), Moxa RS-232 MT-SICS (:4001), and OPC DA / PI UFL (:8095) with fault & excursion injection."
+    href="/docs/connectors/mock-instrument-testing/"
+  />
+  <LinkCard
     title="Biopharma Equipment Integration Catalog (Visual Guides)"
     description="10 visual step-by-step guides covering 35+ instruments: Cytiva Xcellerex & ÄKTA, Sartorius Biostat & Ambr, BioProfile FLEX2, Vi-CELL BLU, Raman, Lyophilizers, and BACnet EMS."
     href="/docs/biopharma-integration/catalog/"
@@ -120,3 +125,17 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
     href="/docs/gxp-validation/overview/"
   />
 </CardGrid>
+
+---
+
+## Hardware-Free Multi-Protocol Instrument Mock Testing (`instrument-mock-server`)
+
+Every `docker compose up -d` deployment includes **`instrument-mock-server`**, a containerized biopharma skid and laboratory instrument emulator exposing **6 live industrial protocol listeners** so you can verify wire-level connectivity, endianness decoding, `WHERE quality >= 192` bad-signal rejection, and ISA-88 thermal excursion Event Frames without physical PLC hardware:
+
+- **OPC UA Binary (`TCP :4840`):** IEC 62541 `HEL`/`ACK` handshake + Node Read (`ns=2;s=BR201.Temp.PV`, `ns=2;s=BR201.pH.PV`)
+- **Modbus TCP (`TCP :5020`):** MBAP + `FC 0x03`/`0x04` registers (`40101..40112`) in Float32 `ABCD`, Word-Swapped `CDAB`, and `INT16 × 10`
+- **BACnet/IP (`UDP :47808`):** ASHRAE 135 BVLC `0x81` `Complex-ACK` & JSON-UDP (`Device 30104`, `analog-input,1` `CR104_DIFF_PRESS`)
+- **Siemens S7comm (`TCP :1102`):** RFC 1006 ISO-on-TCP `TPKT` + `COTP` + `DB10` (`DB10.DBW0` LOCF step state & `DB10.DBD2` float32)
+- **RS-232 Serial-over-TCP (`TCP :4001`):** Moxa NPort 5150 TCP Server Mode for Mettler Toledo `MT-SICS` (`SI\r\n`, `ZI\r\n`, `T\r\n`) & `OSMO\r\n`
+- **HTTP Control Plane, OPC DA 2.05a Bridge & PI UFL Watch-Folder (`HTTP :8095`):** Run `curl -s -X POST http://localhost:8095/control/self-test | jq .` or open [Mock Instrument Server & Protocol Testing Guide](/docs/connectors/mock-instrument-testing/).
+

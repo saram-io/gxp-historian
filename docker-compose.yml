@@ -46,6 +46,35 @@ services:
     networks:
       - historian-net
 
+  instrument-mock-server:
+    build:
+      context: ./instrument-mock-server
+      dockerfile: Dockerfile
+    container_name: instrument-mock-server
+    restart: unless-stopped
+    environment:
+      MOCK_HTTP_PORT_INTERNAL: 8095
+      MOCK_OPCUA_PORT_INTERNAL: 4840
+      MOCK_MODBUS_PORT_INTERNAL: 5020
+      MOCK_BACNET_PORT_INTERNAL: 47808
+      MOCK_S7_PORT_INTERNAL: 1102
+      MOCK_SERIAL_PORT_INTERNAL: 4001
+      EDGE_INGEST_URL: http://edge-collector:8080/ingest
+    ports:
+      - "${MOCK_HTTP_PORT:-8095}:8095"
+      - "${MOCK_OPCUA_PORT:-4840}:4840"
+      - "${MOCK_MODBUS_PORT:-5020}:5020"
+      - "${MOCK_BACNET_PORT:-47808}:47808/udp"
+      - "${MOCK_S7_PORT:-1102}:1102"
+      - "${MOCK_SERIAL_PORT:-4001}:4001"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8095/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - historian-net
+
   edge-collector:
     build:
       context: ./edge-collector
@@ -55,10 +84,13 @@ services:
     depends_on:
       clickhouse-archive:
         condition: service_healthy
+      instrument-mock-server:
+        condition: service_healthy
     environment:
       CH_USER: ${CH_USER:-historian_admin}
       CH_PASSWORD: ${CH_PASSWORD:-GxP_Ch_Secret_2026!}
       CH_DB: ${CH_DB:-pi_historian}
+      MOCK_SERVER_URL: http://instrument-mock-server:8095
     ports:
       - "${EDGE_INGEST_PORT:-8080}:8080"
     volumes:
@@ -90,6 +122,14 @@ services:
       CH_DB: ${CH_DB:-pi_historian}
       ESIG_SECRET_KEY: ${ESIG_SECRET_KEY:-Part11_Hmac_Key_2026!}
       EXPORT_DIR: /app/exports
+      MCP_PORT: ${MCP_PORT:-8030}
+      GXPHISTORIAN_AI_MODEL: ${GXPHISTORIAN_AI_MODEL:-google:gemini-3-flash-preview}
+      GXPHISTORIAN_USE_LIVE_LLM: ${GXPHISTORIAN_USE_LIVE_LLM:-0}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      LOGFIRE_TOKEN: ${LOGFIRE_TOKEN:-}
     ports:
       - "${API_PORT:-8020}:8000"
     volumes:
@@ -97,6 +137,55 @@ services:
       - ./docs:/app/docs:ro
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8000/api/v1/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - historian-net
+
+  gxphistorian-mcp:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: gxphistorian-mcp
+    restart: unless-stopped
+    command: ["uvicorn", "mcp_server:build_standalone_mcp_app", "--factory", "--host", "0.0.0.0", "--port", "8030"]
+    depends_on:
+      postgres-control:
+        condition: service_healthy
+      clickhouse-archive:
+        condition: service_healthy
+      historian-api:
+        condition: service_healthy
+    environment:
+      PG_HOST: postgres-control
+      PG_PORT_INTERNAL: 5432
+      PG_USER: ${PG_USER:-historian_admin}
+      PG_PASSWORD: ${PG_PASSWORD:-GxP_Pg_Secret_2026!}
+      PG_DB: ${PG_DB:-pi_control_plane}
+      CH_HOST: clickhouse-archive
+      CH_PORT_INTERNAL: 8123
+      CH_USER: ${CH_USER:-historian_admin}
+      CH_PASSWORD: ${CH_PASSWORD:-GxP_Ch_Secret_2026!}
+      CH_DB: ${CH_DB:-pi_historian}
+      ESIG_SECRET_KEY: ${ESIG_SECRET_KEY:-Part11_Hmac_Key_2026!}
+      EXPORT_DIR: /app/exports
+      MCP_PORT: ${MCP_PORT:-8030}
+      MCP_PORT_INTERNAL: 8030
+      GXPHISTORIAN_AI_MODEL: ${GXPHISTORIAN_AI_MODEL:-google:gemini-3-flash-preview}
+      GXPHISTORIAN_USE_LIVE_LLM: ${GXPHISTORIAN_USE_LIVE_LLM:-0}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      LOGFIRE_TOKEN: ${LOGFIRE_TOKEN:-}
+    ports:
+      - "${MCP_PORT:-8030}:8030"
+    volumes:
+      - ./exports:/app/exports
+      - ./docs:/app/docs:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8030/health || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 10

@@ -12,7 +12,7 @@ from typing import Any, List
 import httpx
 import pyarrow.parquet as pq
 
-from conftest import REPO_ROOT, EvidenceTracker
+from conftest import MOCK_SERVER_BASE_URL, REPO_ROOT, EvidenceTracker
 
 
 def _ensure_synthetic_oq_dataset(ch_client: Any) -> None:
@@ -66,7 +66,17 @@ def test_oq_06_multi_protocol_telemetry_ingestion(
     ch_client: Any,
     evidence: EvidenceTracker,
 ) -> None:
-    """URS-011: Verify all 5 multi-protocol tags (101, 102, 103, 301, 401) actively populate sensor_data."""
+    """URS-011: Verify all 6 mock instrument connection listeners and active telemetry across all 5 GxP tags."""
+    self_test_resp = httpx.post(
+        f"{MOCK_SERVER_BASE_URL}/control/self-test",
+        json={"push_to_edge": True},
+        timeout=10.0,
+    )
+    assert self_test_resp.status_code == 200
+    self_test_data = self_test_resp.json()
+    assert self_test_data["all_protocols_verified"] is True
+    assert self_test_data["edge_collector_ingested"] is True
+
     rows = list(
         ch_client.query(
             """
@@ -86,9 +96,9 @@ def test_oq_06_multi_protocol_telemetry_ingestion(
         assert int(r["row_count"]) > 0
 
     evidence.record(
-        assertion_summary="Verified active telemetry ingestion across all 5 multi-protocol tags (101, 102, 103, 301, 401).",
-        input_payload={"tag_ids": [101, 102, 103, 301, 401]},
-        output_payload={"tag_counts": rows},
+        assertion_summary="Verified all 6 mock instrument protocol listeners (OPC UA, Modbus TCP, BACnet/IP, Siemens S7, RS-232 Serial, OPC DA) and active telemetry ingestion across all 5 GxP tags.",
+        input_payload={"tag_ids": [101, 102, 103, 301, 401], "mock_server_self_test": f"{MOCK_SERVER_BASE_URL}/control/self-test"},
+        output_payload={"tag_counts": rows, "mock_protocol_results": self_test_data["protocol_results"]},
     )
 
 

@@ -160,13 +160,22 @@ curl -s -X POST http://localhost:8020/api/v1/ai/copilot/propose-tag \
 
 ---
 
-## 3. Native `gxphistorian-mcp` Server (`app/mcp_server.py`)
+## 3. Native `gxphistorian-mcp` Server (`app/mcp_server.py` & Docker Compose Service)
 
-`app/mcp_server.py` exposes GxPHistorian as a **Model Context Protocol (MCP)** server (`gxphistorian-mcp`) using `FastMCP`.
+`app/mcp_server.py` exposes GxPHistorian as a **Model Context Protocol (MCP)** server (`gxphistorian-mcp`) using `FastMCP`. In `docker-compose.yml`, **`gxphistorian-mcp`** runs as a dedicated, health-checked container on port **`8030`** (`${MCP_PORT:-8030}:8030`), serving:
+- **`GET http://localhost:8030/health`** — Container health check, active AI model, and PostgreSQL/ClickHouse connectivity status.
+- **`GET http://localhost:8030/mcp/manifest`** — Full MCP & Pydantic AI capabilities catalog.
+- **`POST / GET http://localhost:8030/mcp`** — Native FastMCP **Streamable HTTP** protocol endpoint for Claude Desktop, Cursor, Antigravity, Windsurf, or remote Pydantic AI agents.
+- **`POST http://localhost:8030/api/v1/ai/event-frames/{event_id}/investigate`** & **`POST http://localhost:8030/api/v1/ai/copilot/propose-tag`** — Direct REST access to both Pydantic AI agents.
 
-### Inspect the Live MCP & Pydantic AI Manifest
+### Inspect the Live MCP & Pydantic AI Container Health and Manifest
 
 ```bash
+# Check the standalone gxphistorian-mcp container health (:8030)
+curl -s http://localhost:8030/health | jq .
+
+# Inspect the MCP & Pydantic AI manifest (available on both :8030 and :8020)
+curl -s http://localhost:8030/mcp/manifest | jq .
 curl -s http://localhost:8020/api/v1/ai/mcp/manifest | jq .
 ```
 
@@ -184,15 +193,16 @@ curl -s http://localhost:8020/api/v1/ai/mcp/manifest | jq .
 | `gxphistorian://audit/verify` | **Resource** | Real-time 21 CFR Part 11 cryptographic hash-chain verification report. |
 | `gxphistorian://docs/catalog` | **Resource** | Index of all biopharma instrument and hardware connector guides in `docs/*.md`. |
 
-### Connecting Another Pydantic AI Agent to `gxphistorian-mcp`
+### Connecting External Clients or Another Pydantic AI Agent to `gxphistorian-mcp`
 
-Because `create_gxphistorian_mcp_server` returns a `FastMCP` instance, any Pydantic AI agent can mount `gxphistorian-mcp` in-process via the `MCP` capability:
+External MCP clients (Claude Desktop, Cursor, Antigravity) can connect over Streamable HTTP to **`http://localhost:8030/mcp`**, and any Pydantic AI agent can mount `gxphistorian-mcp` either over HTTP or in-process:
 
 ```python
 from main import gxphistorian_mcp_server
 from pydantic_ai import Agent
 from pydantic_ai.capabilities import Caching, MCP
 
+# In-process or Streamable HTTP MCP connection (http://localhost:8030/mcp)
 plant_assistant = Agent(
     "google:gemini-3-flash-preview",
     name="plant_assistant_agent",

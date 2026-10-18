@@ -1,6 +1,6 @@
 ---
 title: Quickstart & Deployment
-description: Deploy the 5-service GxPHistorian GxP stack via Docker Compose, inspect seeded ISA-95 assets and Part 11 users, and verify system health.
+description: Deploy the 6-service GxPHistorian GxP stack (including the Pydantic AI Co-Pilot & gxphistorian-mcp Server) via Docker Compose, inspect seeded ISA-95 assets and Part 11 users, and verify system health.
 ---
 
 ## Prerequisites
@@ -12,7 +12,7 @@ description: Deploy the 5-service GxPHistorian GxP stack via Docker Compose, ins
 
 ## Step 1: Configure Environment & Launch the Stack
 
-Clone the [GxPHistorian GitHub repository](https://github.com/saram-io/gxp-historian), copy the GxP environment template, and start all 5 orchestrated services:
+Clone the [GxPHistorian GitHub repository](https://github.com/saram-io/gxp-historian), copy the GxP environment template, and start all 6 orchestrated services:
 
 ```bash
 git clone https://github.com/saram-io/gxp-historian.git
@@ -21,22 +21,38 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-Verify that all 5 containers (`postgres-control`, `clickhouse-archive`, `edge-collector`, `historian-api`, `grafana-vision`) are running and healthy:
+Verify that all 7 containers (`postgres-control`, `clickhouse-archive`, `instrument-mock-server`, `edge-collector`, `historian-api`, `gxphistorian-mcp`, `grafana-vision`) are running and healthy:
 
 ```bash
 docker compose ps
 curl -s http://localhost:8020/api/v1/health | jq .
+curl -s http://localhost:8030/health | jq .
+curl -s http://localhost:8095/health | jq .
+curl -s -X POST http://localhost:8095/control/self-test | jq .
 ```
 
-### Expected Health Response
+### Expected Health Response (`historian-api` & `gxphistorian-mcp`)
 
 ```json
 {
   "status": "healthy",
-  "postgres_control_plane": "connected",
-  "clickhouse_archive": "connected",
-  "part11_audit_records": 220,
-  "sensor_data_rows": 1450
+  "service": "gxphistorian-mcp",
+  "protocol": "Model Context Protocol (MCP) + Pydantic AI",
+  "mcp_endpoint": "/mcp",
+  "ai_model": "google:gemini-3-flash-preview",
+  "live_llm_enabled": false,
+  "postgres": {
+    "connected": true
+  },
+  "clickhouse": {
+    "connected": true
+  },
+  "pydantic_ai_agents": [
+    "gxp_deviation_investigator_agent",
+    "gxp_copilot_agent"
+  ],
+  "mcp_tools_count": 6,
+  "mcp_resources_count": 3
 }
 ```
 
@@ -80,14 +96,26 @@ On initial startup, `init-postgres/01_control_plane_part11.sql` seeds the ISA-95
 
 1. **Swagger / OpenAPI Interactive REST Docs:**
    - Open `http://localhost:8020/docs` in your browser.
-2. **Grafana Vision Operator HMI:**
+2. **Pydantic AI Co-Pilot & `gxphistorian-mcp` Server (`:8030`):**
+   - Streamable HTTP MCP endpoint: `http://localhost:8030/mcp`
+   - Manifest & OpenAPI Docs: `http://localhost:8030/mcp/manifest` and `http://localhost:8030/docs`
+3. **Multi-Protocol Biopharma Instrument Mock Server (`instrument-mock-server` on `:8095`, `:4840`, `:5020`, `:47808/udp`, `:1102`, `:4001`):**
+   - Open `http://localhost:8095/docs` for the interactive protocol control plane, or run the 6-protocol wire self-test and push live samples to `edge-collector`:
+     ```bash
+     curl -s -X POST http://localhost:8095/control/self-test \
+       -H "Content-Type: application/json" \
+       -d '{"push_to_edge_collector": true}' | jq .
+     ```
+   - See the full [Mock Instrument Server & Protocol Testing Guide](/docs/connectors/mock-instrument-testing/) for raw socket testing (`OPC UA`, `Modbus ABCD/CDAB`, `BACnet/IP`, `Siemens S7 DB10`, `Moxa RS-232 MT-SICS`, and `OPC DA / PI UFL`) and fault/excursion injection (`/control/override`).
+4. **Grafana Vision Operator HMI:**
    - Open `http://localhost:3020/d/gxphistorian-gxp-bioreactor-hmi`
    - Login with **`admin`** / **`GxP_Grafana_2026!`**
-3. **Verify 21 CFR Part 11 Audit Hash Chain:**
+5. **Verify 21 CFR Part 11 Audit Hash Chain:**
    ```bash
    curl -s http://localhost:8020/api/v1/audit-trail/verify | jq .
    ```
-4. **Run the 17-Test Automated IQ/OQ Qualification Suite:**
+6. **Run the 17-Test Automated IQ/OQ Qualification Suite:**
    ```bash
    .venv/bin/pytest -v
    ```
+

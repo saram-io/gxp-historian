@@ -1,6 +1,6 @@
 # Document 08 — Validation Summary Report (VSR) & Release Certificate
 
-**Document ID:** `VSR-GXPHISTORIAN-2026-008` | **Release Date (UTC):** `2026-10-18T16:25:37Z` | **System Release Status:** **QUALIFIED FOR GxP PRODUCTION USE**
+**Document ID:** `VSR-GXPHISTORIAN-2026-008` | **Release Date (UTC):** `2026-10-18T17:30:58Z` | **System Release Status:** **QUALIFIED FOR GxP PRODUCTION USE**
 
 ---
 
@@ -12,7 +12,7 @@ The **GxPHistorian GxP Industrial Historian** (ClickHouse 24.8 Telemetry Archive
 | :--- | :--- | :--- | :--- |
 | **User Requirements Coverage (URS-001..017)** | 100% Bidirectional Traceability | `17 / 17` Requirements Mapped & Verified | **PASS** |
 | **Automated IQ/OQ Test Suite (`pytest`)** | 100% Pass Rate (0 Failures) | `17 / 17` Passed (`100.0%`) | **PASS** |
-| **21 CFR Part 11 Cryptographic Hash Chain** | `chain_valid == true` from `GENESIS` | `23145` Audit Records Verified (`head: d14360474abfed9c1fee1b0e...`) | **PASS** |
+| **21 CFR Part 11 Cryptographic Hash Chain** | `chain_valid == true` from `GENESIS` | `24061` Audit Records Verified (`head: f5206a5e3a72323419a2eb21...`) | **PASS** |
 | **Validation Deviations / CAPAs** | 0 Open Critical/Major Deviations | `0` Deviations Encountered | **PASS** |
 
 ## 2. Deviation & Non-Conformance Log
@@ -30,5 +30,5 @@ Based on the objective cryptographic evidence captured in `oq_execution_results.
 
 | Signer Role | Printed Name | User ID | Signature Meaning | Signed Timestamp (UTC) | Cryptographic Verification |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **System Owner (IT/OT)** | Sarah Jenkins | `operator_01` | System Technical Qualification & Operational Handover Approval | `2026-10-18T16:25:37Z` | Verified via `pgcrypto` & Part 11 Audit Chain |
-| **Quality Assurance (QP)** | Dr. Marcus Vance | `qa_approver_01` | Final QA Validation Release & 21 CFR Part 11 Compliance Approval | `2026-10-18T16:25:37Z` | HMAC-SHA256 Bound (`d14360474abfed9c1fee1b0ec1f45557...`) |
+| **System Owner (IT/OT)** | Sarah Jenkins | `operator_01` | System Technical Qualification & Operational Handover Approval | `2026-10-18T17:30:58Z` | Verified via `pgcrypto` & Part 11 Audit Chain |
+| **Quality Assurance (QP)** | Dr. Marcus Vance | `qa_approver_01` | Final QA Validation Release & 21 CFR Part 11 Compliance Approval | `2026-10-18T17:30:58Z` | HMAC-SHA256 Bound (`f5206a5e3a72323419a2eb211f0a72c4...`) |

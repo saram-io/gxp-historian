@@ -347,19 +347,14 @@ const validationDocs = [
                 <span class="terminal-title">gxphistorian-control-plane — bash</span>
                 <span class="terminal-status">QUALIFIED</span>
               </div>
-              <pre class="terminal-body"><code><span class="t-comment"># 1. Launch all 5 GxP services (Edge WAL, ClickHouse, PG16, FastAPI, Grafana)</span>
+              <pre class="terminal-body"><code><span class="t-comment"># 1. Launch all 7 GxP services (Edge WAL, Mock Instruments, ClickHouse, PG16, FastAPI, MCP, Grafana)</span>
 <span class="t-prompt">$</span> cp .env.example .env &amp;&amp; docker compose up -d --build
 
-<span class="t-comment"># 2. Verify cryptographic SHA-256 WORM audit hash chain from GENESIS</span>
-<span class="t-prompt">$</span> curl -s http://localhost:8020/api/v1/audit-trail/verify | jq .
-&#123;
-  <span class="t-key">"chain_valid"</span>: <span class="t-bool">true</span>,
-  <span class="t-key">"verified_records"</span>: <span class="t-num">220</span>,
-  <span class="t-key">"genesis_anchor"</span>: <span class="t-str">"GENESIS_0000000000000000"</span>,
-  <span class="t-key">"broken_links"</span>: []
-&#125;
+<span class="t-comment"># 2. Verify live 6-protocol Instrument Mock Server (:4840, :5020, :47808, :1102, :4001, :8095)</span>
+<span class="t-prompt">$</span> curl -s -X POST http://localhost:8095/control/self-test | jq .overall_status
+<span class="t-str">"ALL_6_PROTOCOLS_PASSED"</span>
 
-<span class="t-comment"># 3. Execute 17-test GAMP 5 / FDA CSA IQ &amp; OQ qualification suite</span>
+<span class="t-comment"># 3. Verify cryptographic SHA-256 WORM audit hash chain &amp; execute 17-test IQ/OQ suite</span>
 <span class="t-prompt">$</span> .venv/bin/pytest -v
 <span class="t-pass">17 passed in 1.15s — Evidence written to oq_execution_results.json</span></code></pre>
             </div>
@@ -678,6 +673,20 @@ FOR EACH STATEMENT EXECUTE FUNCTION fn_prevent_audit_tampering();</code></pre>
               ))
             }
           </div>
+
+          <div class="section-cta-bar">
+            <span>
+              <strong>Hardware-Free 6-Protocol Mock Instrument Server Included:</strong> Test live wire connections across OPC UA (<code>:4840</code>), Modbus TCP (<code>:5020</code>), BACnet/IP (<code>:47808</code>), Siemens S7comm (<code>:1102</code>), Moxa RS-232 <code>MT-SICS</code> (<code>:4001</code>), and OPC DA / PI UFL (<code>:8095</code>).
+            </span>
+            <div class="cta-bar-buttons">
+              <a href="/docs/connectors/mock-instrument-testing/" class="btn btn-primary btn-sm">
+                Mock Instrument Testing Guide →
+              </a>
+              <a href="/docs/connectors/overview/" class="btn btn-secondary btn-sm">
+                Connectors Encyclopedia
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -855,6 +864,7 @@ FOR EACH STATEMENT EXECUTE FUNCTION fn_prevent_audit_tampering();</code></pre>
               <li><a href="/docs/clients-and-api/grafana-vision-hmi/">Grafana Vision Operator HMI</a></li>
               <li><a href="/docs/clients-and-api/excel-datalink/">Excel DataLink Client</a></li>
               <li><a href="/docs/connectors/overview/">Connectors Encyclopedia</a></li>
+              <li><a href="/docs/connectors/mock-instrument-testing/">Mock Instrument Server &amp; Testing</a></li>
               <li><a href="/docs/connectors/opc-ua-and-opc-da/">OPC UA &amp; Classic OPC DA</a></li>
               <li><a href="/docs/connectors/bacnet-ip-and-mstp/">BACnet/IP &amp; MS/TP</a></li>
               <li><a href="/docs/connectors/modbus-tcp-and-rtu/">Modbus TCP &amp; RTU</a></li>

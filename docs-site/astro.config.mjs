@@ -104,6 +104,7 @@ export default defineConfig({
           label: 'Connectors & Protocols Reference',
           items: [
             { label: 'Connectors & Wiring Encyclopedia', slug: 'docs/connectors/overview' },
+            { label: 'Mock Instrument Server & Protocol Testing', slug: 'docs/connectors/mock-instrument-testing' },
             { label: 'OPC UA (:4840) & Classic OPC DA (COM)', slug: 'docs/connectors/opc-ua-and-opc-da' },
             { label: 'BACnet/IP (:47808) & BACnet MS/TP', slug: 'docs/connectors/bacnet-ip-and-mstp' },
             { label: 'Modbus TCP (:502) & Modbus RTU (RS-485)', slug: 'docs/connectors/modbus-tcp-and-rtu' },

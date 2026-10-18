@@ -4,7 +4,7 @@ description: "Document 01 — Validation Master Plan (VMP-GXPHISTORIAN-2026-001)
 ---
 | Document ID | Version | Effective Date (UTC) | System Name | Regulatory Scope | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `VMP-GXPHISTORIAN-2026-001` | `1.0` | `2026-10-18T16:25:37Z` | GxPHistorian GxP Industrial Historian (ClickHouse + PostgreSQL Part 11 Control Plane) | 21 CFR Part 11, EU GMP Annex 11, ISPE GAMP 5 (2nd Ed.), FDA CSA | **APPROVED** |
+| `VMP-GXPHISTORIAN-2026-001` | `1.0` | `2026-10-18T17:30:58Z` | GxPHistorian GxP Industrial Historian (ClickHouse + PostgreSQL Part 11 Control Plane) | 21 CFR Part 11, EU GMP Annex 11, ISPE GAMP 5 (2nd Ed.), FDA CSA | **APPROVED** |
 
 ---
 

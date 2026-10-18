@@ -23,6 +23,8 @@ from conftest import (
     CH_PASSWORD,
     GRAFANA_BASE_URL,
     GRAFANA_PASSWORD,
+    MCP_BASE_URL,
+    MOCK_SERVER_BASE_URL,
     PG_PASSWORD,
     REPO_ROOT,
     EvidenceTracker,
@@ -40,6 +42,23 @@ def test_iq_01_services_and_non_default_credentials(
     assert health["status"] == "healthy"
     assert health["postgres"]["connected"] is True
     assert health["clickhouse"]["connected"] is True
+
+    # Verify standalone Pydantic AI & MCP Server (`gxphistorian-mcp`) container readiness
+    mcp_resp = httpx.get(f"{MCP_BASE_URL}/health", timeout=10.0)
+    assert mcp_resp.status_code == 200
+    mcp_health = mcp_resp.json()
+    assert mcp_health["status"] == "healthy"
+    assert mcp_health["service"] == "gxphistorian-mcp"
+    assert mcp_health["postgres"]["connected"] is True
+    assert mcp_health["clickhouse"]["connected"] is True
+
+    # Verify Multi-Protocol Biopharma Instrument Mock Server (`instrument-mock-server`) readiness
+    mock_resp = httpx.get(f"{MOCK_SERVER_BASE_URL}/health", timeout=10.0)
+    assert mock_resp.status_code == 200
+    mock_health = mock_resp.json()
+    assert mock_health["status"] == "healthy"
+    assert mock_health["service"] == "instrument-mock-server"
+    assert len(mock_health["active_listeners"]) == 6
 
     # Verify Grafana Vision readiness and authenticated access
     gf_resp = httpx.get(
@@ -59,9 +78,9 @@ def test_iq_01_services_and_non_default_credentials(
     assert GRAFANA_PASSWORD not in insecure_defaults
 
     evidence.record(
-        assertion_summary="Verified PostgreSQL, ClickHouse, FastAPI, and Grafana health with non-default GxP secrets.",
-        input_payload={"endpoints": ["/api/v1/health", f"{GRAFANA_BASE_URL}/api/search"]},
-        output_payload={"api_health": health, "grafana_dashboards": hmi_titles},
+        assertion_summary="Verified PostgreSQL, ClickHouse, FastAPI, gxphistorian-mcp, instrument-mock-server, and Grafana health with non-default GxP secrets.",
+        input_payload={"endpoints": ["/api/v1/health", f"{MCP_BASE_URL}/health", f"{MOCK_SERVER_BASE_URL}/health", f"{GRAFANA_BASE_URL}/api/search"]},
+        output_payload={"api_health": health, "mcp_health": mcp_health, "mock_server_health": mock_health, "grafana_dashboards": hmi_titles},
     )
 
 

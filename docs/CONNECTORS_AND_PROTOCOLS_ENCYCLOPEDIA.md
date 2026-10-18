@@ -100,9 +100,11 @@ Regardless of which physical cable or software protocol is used at the edge, **P
 
 ---
 
-## 5. Deep-Dive Connector Guides in This Section
+## 5. Deep-Dive Connector & Live Mock Protocol Testing Guides
 
-1. **[OPC UA (`:4840`) & Classic OPC DA (`COM/DCOM`) Connector Guide](CONNECTOR_GUIDE_OPC_UA_AND_OPC_DA.md)**
-2. **[BACnet/IP (`UDP :47808`) & BACnet MS/TP (`RS-485`) Connector Guide](CONNECTOR_GUIDE_BACNET_IP_AND_MSTP.md)**
-3. **[Modbus TCP (`:502`) & Modbus RTU (`RS-485`) Connector Guide](CONNECTOR_GUIDE_MODBUS_TCP_AND_RTU.md)**
-4. **[Siemens S7comm (`:102`), Allen-Bradley EtherNet/IP (`:44818`), 4–20 mA / HART, RS-232 Serial & File Watch-Folder (`PI UFL`) Connector Guide](CONNECTOR_GUIDE_PLC_S7_ETHERNETIP_HART_SERIAL_UFL.md)**
+1. **[Multi-Protocol Biopharma Instrument Mock Server & Connection Testing Guide (`instrument-mock-server` on `:8095`, `:4840`, `:5020`, `:47808`, `:1102`, `:4001`)](MOCK_INSTRUMENT_SERVER_TESTING_GUIDE.md)**
+2. **[OPC UA (`:4840`) & Classic OPC DA (`COM/DCOM`) Connector Guide](CONNECTOR_GUIDE_OPC_UA_AND_OPC_DA.md)**
+3. **[BACnet/IP (`UDP :47808`) & BACnet MS/TP (`RS-485`) Connector Guide](CONNECTOR_GUIDE_BACNET_IP_AND_MSTP.md)**
+4. **[Modbus TCP (`:502`) & Modbus RTU (`RS-485`) Connector Guide](CONNECTOR_GUIDE_MODBUS_TCP_AND_RTU.md)**
+5. **[Siemens S7comm (`:102`), Allen-Bradley EtherNet/IP (`:44818`), 4–20 mA / HART, RS-232 Serial & File Watch-Folder (`PI UFL`) Connector Guide](CONNECTOR_GUIDE_PLC_S7_ETHERNETIP_HART_SERIAL_UFL.md)**
+

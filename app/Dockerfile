@@ -14,6 +14,6 @@ COPY mcp_server.py /app/mcp_server.py
 COPY main.py /app/main.py
 RUN mkdir -p /app/exports
 
-EXPOSE 8000
+EXPOSE 8000 8030
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

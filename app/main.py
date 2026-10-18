@@ -52,7 +52,12 @@ CH_PASSWORD = os.getenv("CH_PASSWORD", "GxP_Ch_Secret_2026!")
 CH_DB = os.getenv("CH_DB", "pi_historian")
 
 ESIG_SECRET_KEY = os.getenv("ESIG_SECRET_KEY", "Part11_Hmac_Key_2026!")
-EXPORT_DIR = pathlib.Path(os.getenv("EXPORT_DIR", "/app/exports"))
+_DEFAULT_EXPORT_DIR = (
+    "/app/exports"
+    if pathlib.Path("/app").is_dir()
+    else str(pathlib.Path(__file__).resolve().parents[1] / "exports")
+)
+EXPORT_DIR = pathlib.Path(os.getenv("EXPORT_DIR", _DEFAULT_EXPORT_DIR))
 EXPORT_DIR.mkdir(parents=True, exist_ok=True)
 
 

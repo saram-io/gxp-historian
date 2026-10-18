@@ -13,14 +13,29 @@ to MCP clients (Claude Desktop, Cursor, Antigravity, or Pydantic AI `MCP(local=.
 from __future__ import annotations
 
 import json
+import os
+import uuid
 from typing import Any, Callable, Dict, Optional
 
+from fastapi import FastAPI, Header
 from fastmcp import FastMCP
+from pydantic import BaseModel, Field
 
 from gxp_ai_agent import (
+    DEFAULT_MODEL_NAME,
+    DeviationInvestigationBrief,
     GxPHistorianDeps,
+    StagedTagProposalItem,
     build_deterministic_deviation_brief,
 )
+
+
+class TagOnboardingApprovalRequest(BaseModel):
+    proposal: StagedTagProposalItem
+    approved: bool = Field(
+        default=False,
+        description="False to stage and return DeferredToolRequests; True to approve and commit with Part 11 headers.",
+    )
 
 
 def create_gxphistorian_mcp_server(deps_factory: Callable[[], GxPHistorianDeps]) -> FastMCP:
@@ -118,9 +133,18 @@ def create_gxphistorian_mcp_server(deps_factory: Callable[[], GxPHistorianDeps])
 
 def get_mcp_manifest_summary() -> Dict[str, Any]:
     """Return a structured manifest of `gxphistorian-mcp` tools, resources, and Pydantic AI capabilities."""
+    import os
+
+    use_live_llm = os.getenv("GXPHISTORIAN_USE_LIVE_LLM", "0").strip().lower() in ("1", "true", "yes")
+    mcp_port = os.getenv("MCP_PORT", "8030")
     return {
         "server_name": "gxphistorian-mcp",
+        "container_service": "gxphistorian-mcp",
         "protocol": "Model Context Protocol (MCP) + Pydantic AI",
+        "http_mcp_endpoint": f"http://localhost:{mcp_port}/mcp",
+        "health_endpoint": f"http://localhost:{mcp_port}/health",
+        "ai_model": DEFAULT_MODEL_NAME,
+        "live_llm_enabled": use_live_llm,
         "gxp_guardrails": {
             "quality_filter": "WHERE quality >= 192",
             "interpolation_modes": {
@@ -160,3 +184,127 @@ def get_mcp_manifest_summary() -> Dict[str, Any]:
             "gxphistorian://docs/catalog",
         ],
     }
+
+
+def build_standalone_mcp_app() -> Any:
+    """
+    Build the standalone ASGI application for the `gxphistorian-mcp` Docker Compose container
+    (`uvicorn mcp_server:build_standalone_mcp_app --factory --host 0.0.0.0 --port 8030`).
+
+    Exposes:
+      - `GET /health` & `GET /api/v1/health`: Container health and DB connectivity status
+      - `GET /mcp/manifest` & `GET /api/v1/ai/mcp/manifest`: MCP & Pydantic AI capabilities catalog
+      - `POST /api/v1/ai/event-frames/{event_id}/investigate`: `gxp_deviation_investigator_agent`
+      - `POST /api/v1/ai/copilot/propose-tag`: `gxp_copilot_agent` Human-in-the-Loop Part 11 gate
+      - `POST / GET /mcp`: Native FastMCP Streamable HTTP protocol endpoint
+    """
+    from main import (
+        build_gxp_ai_deps,
+        get_ch_client,
+        get_pg_conn,
+        investigate_event_frame_with_ai,
+        propose_or_approve_tag_with_ai,
+    )
+
+    mcp = create_gxphistorian_mcp_server(deps_factory=build_gxp_ai_deps)
+    mcp_http = mcp.http_app(path="/mcp")
+
+    service_app = FastAPI(
+        title="GxPHistorian Pydantic AI Co-Pilot & MCP Server (gxphistorian-mcp)",
+        description=(
+            "Standalone Pillar 3 Advisory AI Agent & Model Context Protocol (Streamable HTTP) Server "
+            "enforcing 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 guardrails."
+        ),
+        version="1.0.0",
+        lifespan=mcp_http.lifespan,
+    )
+
+    @service_app.get("/health")
+    @service_app.get("/api/v1/health")
+    def mcp_health() -> Dict[str, Any]:
+        with get_pg_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1 AS ok;")
+                pg_ok = cur.fetchone()["ok"] == 1
+        ch = get_ch_client()
+        ch_ok = ch.command("SELECT 1") == 1
+        manifest = get_mcp_manifest_summary()
+        return {
+            "status": "healthy" if (pg_ok and ch_ok) else "degraded",
+            "service": "gxphistorian-mcp",
+            "protocol": manifest["protocol"],
+            "mcp_endpoint": "/mcp",
+            "ai_model": manifest["ai_model"],
+            "live_llm_enabled": manifest["live_llm_enabled"],
+            "postgres": {"connected": pg_ok},
+            "clickhouse": {"connected": ch_ok},
+            "pydantic_ai_agents": [a["name"] for a in manifest["pydantic_ai_agents"]],
+            "mcp_tools_count": len(manifest["mcp_tools"]),
+            "mcp_resources_count": len(manifest["mcp_resources"]),
+        }
+
+    @service_app.get("/mcp/manifest")
+    @service_app.get("/api/v1/ai/mcp/manifest")
+    def mcp_manifest() -> Dict[str, Any]:
+        return get_mcp_manifest_summary()
+
+    @service_app.post(
+        "/api/v1/ai/event-frames/{event_id}/investigate",
+        response_model=DeviationInvestigationBrief,
+    )
+    def mcp_investigate_event_frame(event_id: uuid.UUID) -> DeviationInvestigationBrief:
+        return investigate_event_frame_with_ai(event_id=event_id)
+
+    @service_app.post("/api/v1/ai/copilot/propose-tag")
+    def mcp_propose_or_approve_tag(
+        body: TagOnboardingApprovalRequest,
+        x_actor_id: Optional[str] = Header(default=None, alias="X-Actor-Id"),
+        x_change_reason: Optional[str] = Header(default=None, alias="X-Change-Reason"),
+    ) -> Dict[str, Any]:
+        return propose_or_approve_tag_with_ai(
+            body=body,
+            x_actor_id=x_actor_id,
+            x_change_reason=x_change_reason,
+        )
+
+    service_app.mount("/", mcp_http)
+    return service_app
+
+
+if __name__ == "__main__":
+    import argparse
+    import os
+    import uvicorn
+    from main import build_gxp_ai_deps
+
+    parser = argparse.ArgumentParser(description="GxPHistorian MCP & Pydantic AI Server")
+    parser.add_argument(
+        "--transport",
+        choices=["http", "stdio"],
+        default=os.getenv("MCP_TRANSPORT", "http"),
+        help="Transport mode: 'http' (Streamable HTTP + REST on port 8030) or 'stdio'",
+    )
+    parser.add_argument(
+        "--host",
+        default="0.0.0.0",
+        help="Bind host for HTTP transport",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=int(os.getenv("MCP_PORT_INTERNAL", "8030")),
+        help="Bind port for HTTP transport",
+    )
+    args = parser.parse_args()
+
+    if args.transport == "stdio":
+        server = create_gxphistorian_mcp_server(deps_factory=build_gxp_ai_deps)
+        server.run(transport="stdio")
+    else:
+        uvicorn.run(
+            "mcp_server:build_standalone_mcp_app",
+            factory=True,
+            host=args.host,
+            port=args.port,
+        )
+

@@ -58,6 +58,14 @@ def collect_docker_soup_digests() -> List[Dict[str, str]]:
             "cve_controls": "Alpine minimal image, cryptographic pgcrypto SHA-256 & bcrypt triggers, WORM enforcement",
         },
         {
+            "service": "instrument-mock-server",
+            "component": "Multi-Protocol Biopharma Instrument Mock Server (OPC UA / Modbus / BACnet / S7 / Serial / OPC DA)",
+            "license": "MIT / Apache-2.0",
+            "vendor_backing": "GxPHistorian / Python Software Foundation",
+            "gamp_category": "Category 5 (Multi-Protocol Qualification Simulator)",
+            "cve_controls": "Isolated Docker network listeners (:4840, :5020, :47808/udp, :1102, :4001, :8095), deterministic wire-format verification",
+        },
+        {
             "service": "edge-collector",
             "component": "InfluxData Telegraf 1.32 + Python 3.12 Execd Worker",
             "license": "MIT License / PSF License",
@@ -72,6 +80,14 @@ def collect_docker_soup_digests() -> List[Dict[str, str]]:
             "vendor_backing": "FastAPI / Apache Software Foundation",
             "gamp_category": "Category 5 (Custom GxP Application Layer)",
             "cve_controls": "Pinned requirements.txt versions, mandatory Part 11 header enforcement, 100% OQ test coverage",
+        },
+        {
+            "service": "gxphistorian-mcp",
+            "component": "Pydantic AI 2.0 + FastMCP Streamable HTTP Server",
+            "license": "MIT / Apache-2.0",
+            "vendor_backing": "Pydantic Services Inc. / Prefect Technologies",
+            "gamp_category": "Category 5 (Advisory AI Co-Pilot & MCP Server)",
+            "cve_controls": "Read-only quality >= 192 queries, ApprovalRequired Part 11 mutation gate, zero e-signature bypass",
         },
         {
             "service": "grafana-vision",

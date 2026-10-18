@@ -143,6 +143,14 @@ const biopharmaFiles = [
     description:
       'Pydantic AI GxP Co-Pilot (gxp_deviation_investigator_agent & gxp_copilot_agent), Capabilities on Demand, Human-in-the-Loop 21 CFR Part 11 DeferredToolRequests approvals, and gxphistorian-mcp FastMCP server.',
   },
+  {
+    src: 'docs/MOCK_INSTRUMENT_SERVER_TESTING_GUIDE.md',
+    dest: 'src/content/docs/docs/connectors/mock-instrument-testing.md',
+    slug: '/docs/connectors/mock-instrument-testing/',
+    fileName: 'MOCK_INSTRUMENT_SERVER_TESTING_GUIDE.md',
+    description:
+      'Multi-Protocol Biopharma Instrument Mock Server (instrument-mock-server) and connection testing guide across OPC UA (:4840), Modbus TCP (:5020), BACnet/IP (:47808), Siemens S7comm (:1102), RS-232 MT-SICS (:4001), and OPC DA / PI UFL (:8095).',
+  },
 ];
 
 const validationFiles = [
