@@ -1,9 +1,9 @@
 # .antigravity/rules.md — GxPHistorian GxP Industrial Historian Guardrails
 
 1. **4-Pillar Architecture Invariant:**
-   - **Pillar 1 (`edge-collector`):** Telegraf + Python `execd` workers normalize all protocols (OPC UA, BACnet/IP, Modbus, Siemens S7, and Windows OPC DA HTTP batches) into `(tag_id, ts, val, quality, status_code)` with disk-backed store-and-forward buffering.
+   - **Pillar 1 (`edge-collector`):** Telegraf + Python `execd` workers normalize all protocols (OPC UA, BACnet/IP, Modbus, Siemens S7, and Windows OPC DA HTTP batches) into `(tag_id, ts, val, quality, status_code)` with Stage 1 Exception/Deadband (`ExcDev`/`ExcMax`), optional Stage 2 Swinging Door (`CompDev`/`CompMax`), and disk-backed store-and-forward buffering.
    - **Pillar 2 (`clickhouse-archive`):** ClickHouse Server (`Apache-2.0`) is the immutable time-series, real-time rollup (`AggregatingMergeTree`), visual downsampling (`largestTriangleThreeBuckets`), and S3/Parquet lakehouse engine. NEVER execute `ALTER TABLE ... UPDATE/DELETE` on ClickHouse telemetry tables.
-   - **Pillar 3 (`postgres-control` + `historian-api`):** Vanilla PostgreSQL 16 holds all mutable state: ISA-95 Asset Hierarchy (`ltree`), Tag Catalog (`tags`), ISA-88 Event Frames (`event_frames`), and the 21 CFR Part 11 Audit Trail (`part11_audit_log`). ClickHouse bridges to PostgreSQL via an in-memory `DICTIONARY` and `PostgreSQL` table engine. FastAPI serves the unified REST API, Event Frame state machine, Excel DataLink endpoints, and the Pydantic AI GxP Co-Pilot & `gxphistorian-mcp` endpoints (`app/gxp_ai_agent.py`, `app/mcp_server.py`).
+   - **Pillar 3 (`postgres-control` + `historian-api`):** Vanilla PostgreSQL 16 holds all mutable state: ISA-95 Asset Hierarchy (`ltree`), Tag Catalog (`tags`), ISA-88 Event Frames (`event_frames`), and the 21 CFR Part 11 Audit Trail (`part11_audit_log`). ClickHouse bridges to PostgreSQL via an in-memory `DICTIONARY` and `PostgreSQL` table engine. FastAPI (`app/main.py`, `app/pi_parity_engine.py`) serves the unified REST API, Event Frame state machine, AVEVA PI System Parity endpoints (DataLink, StreamSets, `MKT`/`F0`/`SQC`, Golden Batch Overlay, AF Template Auto-Instantiation, UOM, Digital States, Manual Logger, `TrueFor` Backfill, Multi-Stage Signatures, PI Notifications), and the Pydantic AI GxP Co-Pilot & `gxphistorian-mcp` endpoints (`app/gxp_ai_agent.py`, `app/mcp_server.py`). Whenever adding a new Python module in `app/`, always add it to the explicit `COPY` instruction in `app/Dockerfile`.
    - **Pillar 4 (`grafana-vision`):** Grafana OSS renders asset-relative dashboards and Event Frame annotations.
 
 2. **Signal Quality & Interpolation Discipline:**
@@ -12,22 +12,23 @@
    - Respect tag interpolation mode (`is_step_tag = true` -> Last Observation Carried Forward / step interpolation; `is_step_tag = false` -> Linear interpolation).
 
 3. **21 CFR Part 11 & ALCOA+ Technical Controls:**
-   - All mutations (`INSERT`, `UPDATE`, `DELETE`) on `asset_templates`, `assets`, `tags`, and `event_frames` in PostgreSQL MUST require session settings `app.actor_id` and `app.change_reason`. Missing context must raise a PostgreSQL exception.
+   - All mutations (`INSERT`, `UPDATE`, `DELETE`) on all 10 GxP state and configuration tables (`asset_templates`, `assets`, `tags`, `event_frames`, `digital_state_sets`, `event_frame_templates`, `event_frame_signatures`, `manual_logger_entries`, `notification_rules`, and `notification_deliveries`) in PostgreSQL MUST require session settings `app.actor_id` and `app.change_reason`. Missing context must raise a PostgreSQL exception.
    - `part11_audit_log` must compute a cryptographic `SHA-256` hash chain (`row_hash = encode(digest(prev_hash || recorded_at || actor_id || operation || coalesce(new_payload::text, ''), 'sha256'), 'hex')`) and enforce a `BEFORE UPDATE OR DELETE OR TRUNCATE` trigger that raises an exception unconditionally (even against superusers).
 
 4. **Brand & Identifier Invariant (`GxPHistorian`):**
    - Always use the exact casing **`GxPHistorian`** (capital `G`, lowercase `x`, capital `P`, capital `H`) in titles and prose. Never use deprecated names (`OpenPI`, `OpenHistorian`) or miscased variants (`GxpHistorian`).
    - Use lowercase `gxphistorian` for filenames, Grafana dashboard UIDs (`gxphistorian-gxp-bioreactor-hmi`), and Cloudflare Workers names (`gxphistorian-docs`).
-   - Use uppercase `GXPHISTORIAN` for Excel DataLink UDFs (`=GXPHISTORIAN_SAMPLED`, `=GXPHISTORIAN_PLOT_VALUES`, `=GXPHISTORIAN_EVENT_SUMMARY`) and GMP Validation Binder document IDs (`VMP-GXPHISTORIAN-2026-001` through `VSR-GXPHISTORIAN-2026-008`).
+   - Use uppercase `GXPHISTORIAN` for all 8 Excel DataLink UDFs (`=GXPHISTORIAN_SAMPLED`, `=GXPHISTORIAN_PLOT_VALUES`, `=GXPHISTORIAN_EVENT_SUMMARY`, `=GXPHISTORIAN_CURRENT_VALUE`, `=GXPHISTORIAN_ARCHIVE_VALUE`, `=GXPHISTORIAN_COMPRESSED_DATA`, `=GXPHISTORIAN_CALCULATED_DATA`, `=GXPHISTORIAN_TIME_FILTER`) and GMP Validation Binder document IDs (`VMP-GXPHISTORIAN-2026-001` through `VSR-GXPHISTORIAN-2026-008`).
 
 5. **Validation Binder & Documentation Site Synchronization Gate:**
-   - Whenever modifying `docs/*.md`, `provisioning/grafana/dashboards/`, or `gxp-validation-package/`, always run the full synchronization pipeline before completing the task:
+   - Whenever modifying backend APIs (`app/*.py`), Excel UDFs (`excel-datalink-client/`), `docs/*.md`, `provisioning/grafana/dashboards/`, or `gxp-validation-package/`, always run the full synchronization and deployment pipeline before completing the task:
      1. Preserve the split site routing: `https://gxphistorian.com/` is the custom Astro marketing homepage (`docs-site/src/pages/index.astro`), and `https://gxphistorian.com/docs/` is the Starlight documentation portal (`docs-site/src/content/docs/docs/`).
      2. When adding new `docs/*.md` files, `docs/images/<subdir>/*.svg` diagrams, or `docs/images/photos/*.{jpg,png}` product/HMI visuals, register them in `docs-site/scripts/sync-docs.mjs` (`DOC_MAPPINGS` under `docs/...`, `LINK_REWRITES` with `/docs/...` prefixes, and static asset copy), `docs-site/astro.config.mjs` (`/docs/...` sidebar slugs), `docs-site/public/_redirects` (if migrating paths), and `README.md`.
-     3. If backend services, AI/MCP tools, or Grafana dashboards changed, rebuild/restart the affected containers and run `.venv/bin/pytest -v` (verifying all 17/17 IQ/OQ tests across `URS-001` through `URS-017` pass) to update `gxp-validation-package/evidence/oq_execution_results.json`.
-     4. Regenerate the 8-document GMP binder and HTML artifact: `.venv/bin/python3 gxp-validation-package/generate_gmp_binder.py`.
-     5. Sync and build the Astro Starlight documentation site: `pnpm --dir docs-site build` (which runs `node scripts/sync-docs.mjs && astro build`).
-     6. When deploying to Cloudflare Workers (`https://gxphistorian.com`, `https://www.gxphistorian.com`, and `https://gxphistorian-docs.cloud-expert1666.workers.dev`), run `npx wrangler deploy` inside `docs-site/`.
+     3. Because `sync-docs.mjs` only overwrites `biopharmaFiles` (`docs/*.md`) and `validationFiles` (`dist_binder/*.md`), whenever REST API endpoints, Excel UDFs, database tables, or URS/IQ/OQ test counts change, also update the static pages directly (`docs-site/src/pages/index.astro`, `docs-site/scripts/sync-docs.mjs`, `rest-api-reference.md`, `excel-datalink.md`, `gxp-validation/overview.md`, `getting-started/overview.md`, `getting-started/quickstart.md`, `architecture/*.md`, `docs/index.mdx`, and `README.md`).
+     4. If backend services, AI/MCP tools, or Grafana dashboards changed, rebuild/restart the affected containers and run `.venv/bin/pytest -v` (verifying all 21/21 IQ/OQ tests across `URS-001` through `URS-021` pass) to update `gxp-validation-package/evidence/oq_execution_results.json`.
+     5. Regenerate the 8-document GMP binder and HTML artifact: `.venv/bin/python3 gxp-validation-package/generate_gmp_binder.py`.
+     6. Sync and build the Astro Starlight documentation site: `pnpm --dir docs-site build` (which runs `node scripts/sync-docs.mjs && astro build`).
+     7. Deploy the updated site to Cloudflare Workers (`https://gxphistorian.com`, `https://www.gxphistorian.com`, and `https://gxphistorian-docs.cloud-expert1666.workers.dev`) by running `npx wrangler deploy` inside `docs-site/`.
    - Never mark a phase complete until all terminal verification commands succeed with zero errors.
 
 6. **Instrument & Connector Documentation Standards (`docs/` & `docs-site/`):**
