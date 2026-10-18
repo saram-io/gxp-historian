@@ -39,6 +39,11 @@ h1[data-page-title] {
   text-wrap: pretty;
 }
 
+.right-sidebar-panel a {
+  font-size: 0.78rem;
+  overflow-wrap: break-word;
+}
+
 /* Modern Web Guidance: responsive-table
    Keep dense GxP comparison, URS/RTM, and Biopharma Instrument tables readable
    with container queries, sticky column headers, and sticky first-column context. */
