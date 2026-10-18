@@ -231,13 +231,14 @@ requirements:
     pytest_node_id: "gxp-validation-package/tests/test_05_oq_aveva_pi_parity.py::test_oq_15_pi_af_template_uom_digital_states_and_manual_logger"
 
   - urs_id: "URS-021"
-    title: "Stage 2 Swinging Door Compression, Event Frame TrueFor Debounce Backfill, Multi-Stage E-Signatures & PI Notifications"
-    description: "The system shall implement Stage 2 Swinging Door Trending (SDT) slope compression, Event Frame historical backfill with TrueFor duration debounce, multi-stage electronic signature chains, and automated PI Notifications delivery."
+    title: "Stage 2 Swinging Door Compression, Event Frame TrueFor Debounce Backfill, Multi-Stage E-Signatures & Multi-Channel PI Notifications (Email, SMS, Mobile Push)"
+    description: "The system shall implement Stage 2 Swinging Door Trending (SDT) slope compression, Event Frame historical backfill with TrueFor duration debounce, multi-stage electronic signature chains, and automated multi-channel PI Notifications (Email, SMS, Mobile Push, Webhook) with Escalation Teams, Non-Repetition/Resend intervals, Two-Way SMS ACK, and Send-on-Close."
     frs_id: "FRS-EF-021"
-    frs_specification: "POST /api/v1/compression/swinging-door-evaluate, POST /api/v1/event-frames/backfill, GET /api/v1/event-frames/{id}/signatures, and POST /api/v1/notifications/evaluate verify SDT compression, TrueFor spike suppression, multi-signer chains, and alert dispatch."
+    frs_specification: "POST /api/v1/compression/swinging-door-evaluate, POST /api/v1/event-frames/backfill, GET /api/v1/event-frames/{id}/signatures, and /api/v1/notifications/{channels,rules,preview,evaluate,acknowledge,sms-webhook,deliveries} verify SDT compression, TrueFor spike suppression, multi-signer chains, and multi-channel alert dispatch."
     gamp_category: "Category 5"
     csa_risk_level: "High"
     testing_strategy: "Scripted OQ"
     regulation_ref: "21 CFR §11.50, §11.200, ISA-88, ISA-18.2"
     pytest_node_id: "gxp-validation-package/tests/test_05_oq_aveva_pi_parity.py::test_oq_16_swinging_door_truefor_backfill_multisig_and_notifications"
+
 

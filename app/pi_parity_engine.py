@@ -293,8 +293,22 @@ def ensure_pi_parity_schema(get_pg_conn: Callable[[], psycopg.Connection[Dict[st
                     channel_type TEXT NOT NULL DEFAULT 'WEBHOOK',
                     target_endpoint TEXT NOT NULL,
                     escalation_minutes INT NOT NULL DEFAULT 15,
+                    non_repetition_minutes INT NOT NULL DEFAULT 5,
+                    resend_interval_minutes INT NOT NULL DEFAULT 30,
+                    notify_on_close BOOLEAN NOT NULL DEFAULT TRUE,
+                    message_template TEXT NOT NULL DEFAULT '[%Severity%] %Element% — %EventFrame% started at %StartTime% (Value: %Value% %EngUnits%, Limit: %HighLimit%)',
+                    escalation_team JSONB NOT NULL DEFAULT '[]'::jsonb,
+                    delivery_config JSONB NOT NULL DEFAULT '{}'::jsonb,
                     is_active BOOLEAN NOT NULL DEFAULT TRUE
                 );
+
+                ALTER TABLE notification_rules
+                    ADD COLUMN IF NOT EXISTS non_repetition_minutes INT NOT NULL DEFAULT 5,
+                    ADD COLUMN IF NOT EXISTS resend_interval_minutes INT NOT NULL DEFAULT 30,
+                    ADD COLUMN IF NOT EXISTS notify_on_close BOOLEAN NOT NULL DEFAULT TRUE,
+                    ADD COLUMN IF NOT EXISTS message_template TEXT NOT NULL DEFAULT '[%Severity%] %Element% — %EventFrame% started at %StartTime% (Value: %Value% %EngUnits%, Limit: %HighLimit%)',
+                    ADD COLUMN IF NOT EXISTS escalation_team JSONB NOT NULL DEFAULT '[]'::jsonb,
+                    ADD COLUMN IF NOT EXISTS delivery_config JSONB NOT NULL DEFAULT '{}'::jsonb;
 
                 CREATE TABLE IF NOT EXISTS notification_deliveries (
                     delivery_id SERIAL PRIMARY KEY,
@@ -304,9 +318,19 @@ def ensure_pi_parity_schema(get_pg_conn: Callable[[], psycopg.Connection[Dict[st
                     target_endpoint TEXT NOT NULL,
                     delivery_status TEXT NOT NULL DEFAULT 'DELIVERED',
                     escalation_triggered BOOLEAN NOT NULL DEFAULT FALSE,
+                    notification_phase TEXT NOT NULL DEFAULT 'TRIGGER',
+                    escalation_tier INT NOT NULL DEFAULT 1,
+                    recipient_name TEXT NOT NULL DEFAULT '',
+                    rendered_message TEXT NOT NULL DEFAULT '',
                     dispatched_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
                     payload JSONB NOT NULL DEFAULT '{}'::jsonb
                 );
+
+                ALTER TABLE notification_deliveries
+                    ADD COLUMN IF NOT EXISTS notification_phase TEXT NOT NULL DEFAULT 'TRIGGER',
+                    ADD COLUMN IF NOT EXISTS escalation_tier INT NOT NULL DEFAULT 1,
+                    ADD COLUMN IF NOT EXISTS recipient_name TEXT NOT NULL DEFAULT '',
+                    ADD COLUMN IF NOT EXISTS rendered_message TEXT NOT NULL DEFAULT '';
                 """
             )
 
@@ -462,18 +486,77 @@ def ensure_pi_parity_schema(get_pg_conn: Callable[[], psycopg.Connection[Dict[st
                     """
                 )
 
-            # Seed default Notification Rule if empty
-            cur.execute("SELECT count(*) AS cnt FROM notification_rules;")
-            if int((cur.fetchone() or {}).get("cnt", 0)) == 0:
-                cur.execute(
-                    """
-                    INSERT INTO notification_rules (
-                        rule_name, event_template_filter, min_severity, channel_type, target_endpoint, escalation_minutes, is_active
-                    ) VALUES
-                        ('QA_Critical_Excursion_Webhook', '*', 'CRITICAL', 'WEBHOOK', 'https://qa-alerts.biocorp.internal/api/v1/gxp-incidents', 15, TRUE)
-                    ON CONFLICT (rule_name) DO NOTHING;
-                    """
-                )
+            # Seed default Multi-Channel PI Notification Rules (WEBHOOK, SMS, MOBILE_PUSH, EMAIL)
+            cur.execute(
+                """
+                INSERT INTO notification_rules (
+                    rule_name, event_template_filter, min_severity, channel_type, target_endpoint,
+                    escalation_minutes, non_repetition_minutes, resend_interval_minutes, notify_on_close,
+                    message_template, escalation_team, delivery_config, is_active
+                ) VALUES
+                    (
+                        'QA_Critical_Excursion_Webhook',
+                        '*',
+                        'CRITICAL',
+                        'WEBHOOK',
+                        'https://qa-alerts.biocorp.internal/api/v1/gxp-incidents',
+                        15,
+                        5,
+                        30,
+                        TRUE,
+                        '[%Severity%] %Element% — %EventFrame% started at %StartTime% (Value: %Value% %EngUnits%, Limit: %HighLimit%)',
+                        '[{"tier": 1, "role": "QA Incident Webhook", "contact_name": "QA Automated Triage", "channel_type": "WEBHOOK", "target_endpoint": "https://qa-alerts.biocorp.internal/api/v1/gxp-incidents", "delay_minutes": 0}, {"tier": 2, "role": "QA Qualified Person", "contact_name": "Dr. Marcus Vance", "channel_type": "EMAIL", "target_endpoint": "marcus.vance@biocorp.internal", "delay_minutes": 15}]'::jsonb,
+                        '{"format": "PI_WEBSERVICE_JSON_AND_TEAMS_CARD", "include_grafana_trend_link": true}'::jsonb,
+                        TRUE
+                    ),
+                    (
+                        'USP_Operator_SMS_Twilio_Alert',
+                        '*',
+                        'CRITICAL',
+                        'SMS',
+                        '+14155550101',
+                        10,
+                        5,
+                        15,
+                        TRUE,
+                        '[GxP %Severity%] %Element% (%EventFrame%): %Value% %EngUnits% (Lim:%HighLimit%) @ %StartTime%. Reply ACK %EventShortId%',
+                        '[{"tier": 1, "role": "Lead USP Operator", "contact_name": "Sarah Jenkins", "channel_type": "SMS", "target_endpoint": "+14155550101", "delay_minutes": 0}, {"tier": 2, "role": "USP Shift Supervisor", "contact_name": "David Chen", "channel_type": "SMS", "target_endpoint": "+14155550102", "delay_minutes": 10}, {"tier": 3, "role": "QA Qualified Person", "contact_name": "Dr. Marcus Vance", "channel_type": "SMS", "target_endpoint": "+14155550199", "delay_minutes": 20}]'::jsonb,
+                        '{"gateway_provider": "TWILIO_REST_API", "fallback_gateway": "OT_SMPP_CELLULAR_MODEM", "carrier_email_to_sms": "4155550101@txt.att.net", "two_way_ack_enabled": true}'::jsonb,
+                        TRUE
+                    ),
+                    (
+                        'Bioreactor_Mobile_Push_PagerDuty',
+                        '*',
+                        'WARNING',
+                        'MOBILE_PUSH',
+                        'gxphistorian://mobile/push/usp-oncall-roster',
+                        15,
+                        5,
+                        30,
+                        TRUE,
+                        '[%Severity%] %Element% (%AssetPath%): %EventFrame% — Peak %MaxVal% %EngUnits% (Duration: %Duration%)',
+                        '[{"tier": 1, "role": "Lead USP Operator Mobile", "contact_name": "Sarah Jenkins", "channel_type": "MOBILE_PUSH", "target_endpoint": "fcm://device-usp-operator-01", "delay_minutes": 0}, {"tier": 2, "role": "QA On-Call PagerDuty", "contact_name": "Dr. Marcus Vance", "channel_type": "MOBILE_PUSH", "target_endpoint": "pagerduty://gxp-qa-critical-service", "delay_minutes": 15}]'::jsonb,
+                        '{"apns_interruption_level": "critical", "fcm_priority": "high", "pagerduty_events_v2": true, "deep_link_scheme": "gxphistorian://events/"}'::jsonb,
+                        TRUE
+                    ),
+                    (
+                        'QA_Rich_HTML_Email_Notification',
+                        '*',
+                        'WARNING',
+                        'EMAIL',
+                        'qa-compliance@biocorp.internal',
+                        15,
+                        5,
+                        30,
+                        TRUE,
+                        '[%Severity%] GxP Event Frame %EventFrame% on %Element% (%AssetPath%) started at %StartTime% (Peak: %MaxVal% %EngUnits%)',
+                        '[{"tier": 1, "role": "QA Compliance Distribution", "contact_name": "QA Compliance Team", "channel_type": "EMAIL", "target_endpoint": "qa-compliance@biocorp.internal", "delay_minutes": 0}, {"tier": 2, "role": "QA Qualified Person", "contact_name": "Dr. Marcus Vance", "channel_type": "EMAIL", "target_endpoint": "marcus.vance@biocorp.internal", "delay_minutes": 15}]'::jsonb,
+                        '{"smtp_host": "smtp.biocorp.internal", "smtp_port": 587, "mime_format": "multipart/alternative", "include_grafana_adhoc_trend_link": true, "include_one_click_ack_link": true}'::jsonb,
+                        TRUE
+                    )
+                ON CONFLICT (rule_name) DO NOTHING;
+                """
+            )
         conn.commit()
 
 
@@ -573,14 +656,479 @@ class EventFrameBackfillRequest(BaseModel):
     severity: str = Field(default="CRITICAL")
 
 
+class EscalationTierContact(BaseModel):
+    tier: int = Field(default=1, ge=1, le=10, description="1-based escalation sequence order")
+    role: str = Field(default="On-Call Engineer", description="Role or shift title")
+    contact_name: str = Field(default="Sarah Jenkins", description="Full name of contact")
+    channel_type: str = Field(
+        default="SMS",
+        pattern="^(EMAIL|SMS|MOBILE_PUSH|WEBHOOK|TEAMS_ADAPTIVE_CARD)$",
+        description="Delivery channel for this tier",
+    )
+    target_endpoint: str = Field(..., description="Email address, E.164 phone number, push token URI, or webhook URL")
+    delay_minutes: int = Field(default=0, ge=0, le=1440, description="Minutes after Event Frame start before paging this tier")
+
+
 class NotificationRuleCreateRequest(BaseModel):
-    rule_name: str
-    event_template_filter: str = "*"
-    min_severity: str = "WARNING"
-    channel_type: str = "WEBHOOK"
-    target_endpoint: str
-    escalation_minutes: int = 15
+    rule_name: str = Field(..., description="Unique PI Notification Rule name")
+    event_template_filter: str = Field(default="*", description="Event Frame template name or '*' wildcard")
+    min_severity: str = Field(default="WARNING", pattern="^(INFO|WARNING|CRITICAL)$")
+    channel_type: str = Field(
+        default="WEBHOOK",
+        pattern="^(EMAIL|SMS|MOBILE_PUSH|WEBHOOK|TEAMS_ADAPTIVE_CARD)$",
+        description="Primary PI Delivery Channel: EMAIL, SMS, MOBILE_PUSH, WEBHOOK, or TEAMS_ADAPTIVE_CARD",
+    )
+    target_endpoint: str = Field(..., description="Primary recipient address, E.164 phone, push URI, or webhook URL")
+    escalation_minutes: int = Field(default=15, ge=1, le=1440, description="Escalation threshold in minutes if unacknowledged")
+    non_repetition_minutes: int = Field(
+        default=5,
+        ge=0,
+        le=1440,
+        description="PI Non-Repetition Interval: quiet period suppressing duplicate chattering alerts",
+    )
+    resend_interval_minutes: int = Field(
+        default=30,
+        ge=0,
+        le=1440,
+        description="PI Resend Interval: repeat alert frequency while unacknowledged (must be >= non_repetition_minutes)",
+    )
+    notify_on_close: bool = Field(
+        default=True,
+        description="PI Send on Close: transmit a final recovery summary when the Event Frame closes",
+    )
+    message_template: str = Field(
+        default="[%Severity%] %Element% — %EventFrame% started at %StartTime% (Value: %Value% %EngUnits%, Limit: %HighLimit%)",
+        description="PI Notification message template with %Element%, %EventFrame%, %StartTime%, %Value% substitution tokens",
+    )
+    escalation_team: List[EscalationTierContact] = Field(
+        default_factory=list,
+        description="Ordered PI Escalation Team tiers stepped through sequentially until acknowledged",
+    )
+    delivery_config: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Channel-specific transport settings (SMTP, Twilio/SMPP/Carrier SMS, APNs/FCM/PagerDuty, Teams)",
+    )
     is_active: bool = True
+
+
+class NotificationPreviewRequest(BaseModel):
+    event_id: Optional[str] = Field(default=None, description="Optional existing Event Frame UUID to preview")
+    message_template: str = Field(
+        default="[%Severity%] %Element% (%AssetPath%): %EventFrame% started at %StartTime% — Peak %MaxVal% %EngUnits% (Limit: %HighLimit% %EngUnits%). Duration: %Duration%.",
+        description="PI Notification template using %Parameter% tokens",
+    )
+    notification_phase: str = Field(
+        default="TRIGGER",
+        pattern="^(TRIGGER|RESEND|ESCALATION|RECOVERY_CLOSE)$",
+    )
+    recipient_email: str = Field(default="qa-compliance@biocorp.internal")
+    recipient_phone_e164: str = Field(default="+14155550101")
+    recipient_mobile_uri: str = Field(default="fcm://device-usp-operator-01")
+
+
+class NotificationAcknowledgeRequest(BaseModel):
+    ack_channel: str = Field(
+        default="MOBILE_PUSH",
+        pattern="^(MOBILE_PUSH|SMS|EMAIL|WEB_HMI|PAGERDUTY|API)$",
+        description="Channel through which the operator acknowledged the Event Frame",
+    )
+    ack_comment: str = Field(
+        default="Operator acknowledged excursion alert; inspecting equipment on floor.",
+        description="Engineering or QA acknowledgment note",
+    )
+
+
+class SmsInboundWebhookRequest(BaseModel):
+    from_phone: str = Field(..., description="Originating E.164 phone number (e.g., +14155550101)")
+    to_phone: str = Field(default="+18005550199", description="Historian SMS gateway number")
+    message_body: str = Field(
+        ...,
+        description="Inbound two-way SMS command, e.g., 'ACK <EventShortId> Checked jacket valve'",
+    )
+    gateway_provider: str = Field(default="TWILIO_SMS_WEBHOOK", description="TWILIO_SMS_WEBHOOK or OT_SMPP_MODEM")
+
+
+def render_pi_notification_formats(
+    ef: Dict[str, Any],
+    message_template: str,
+    notification_phase: str = "TRIGGER",
+    recipient_email: str = "qa-compliance@biocorp.internal",
+    recipient_phone: str = "+14155550101",
+    recipient_mobile_uri: str = "fcm://device-usp-operator-01",
+    escalation_tier: int = 1,
+    recipient_name: str = "On-Call Operator",
+) -> Dict[str, Any]:
+    """
+    Deterministic AVEVA PI Notifications Dynamic Substitution & Multi-Channel Envelope Generator.
+    Resolves PI AF / Event Frame parameters (%Element%, %\\Element%, %..\\Element%, %AssetPath%,
+    %EventFrame%, %EventId%, %EventShortId%, %StartTime%, %EndTime%, %Duration%, %Severity%,
+    %Tag%, %Value%, %AvgVal%, %MaxVal%, %MinVal%, %EngUnits%, %HighLimit%, %LowLimit%,
+    %TrendUrl%, %AckUrl%, %SignUrl%) and builds ready-to-dispatch payloads for:
+      1. EMAIL (Native SMTP Multipart HTML + Plain Text with PI Vision / Grafana Ad-Hoc Trend & 1-Click Ack links)
+      2. SMS (160-char GSM-7 cellular text for Twilio REST API, Carrier Email-to-SMS, and OT SMPP Modems)
+      3. MOBILE_PUSH (Apple APNs Critical Alert, Android FCM High-Priority, and PagerDuty Events API v2)
+      4. TEAMS_ADAPTIVE_CARD & WEBHOOK (PI WebService REST JSON + Microsoft Teams AdaptiveCard v1.4)
+    """
+    event_id_str = str(ef.get("event_id") or "00000000-0000-0000-0000-000000000000")
+    event_short_id = event_id_str.split("-")[0].upper()
+    event_name = str(ef.get("event_name") or "BR201_TEMP_PV_High_Limit_Excursion")
+    event_template = str(ef.get("event_template") or "Temp_Excursion_TrueFor_30s")
+    severity = str(ef.get("severity") or "CRITICAL").upper()
+    asset_path = str(ef.get("asset_path") or "BioCorp.Fremont.USP.Bioreactor_201")
+    path_parts = asset_path.split(".")
+    element_name = str(ef.get("asset_name") or (path_parts[-1] if path_parts else "Bioreactor_201"))
+    root_element = path_parts[0] if path_parts else "BioCorp"
+    parent_element = path_parts[-2] if len(path_parts) >= 2 else root_element
+
+    now_utc = dt.datetime.now(dt.timezone.utc)
+    raw_start = ef.get("start_time")
+    if isinstance(raw_start, dt.datetime):
+        start_dt = raw_start if raw_start.tzinfo else raw_start.replace(tzinfo=dt.timezone.utc)
+    elif isinstance(raw_start, str) and raw_start:
+        start_dt = dt.datetime.fromisoformat(raw_start.replace("Z", "+00:00"))
+    else:
+        start_dt = now_utc
+
+    raw_end = ef.get("end_time")
+    end_dt: Optional[dt.datetime] = None
+    if isinstance(raw_end, dt.datetime):
+        end_dt = raw_end if raw_end.tzinfo else raw_end.replace(tzinfo=dt.timezone.utc)
+    elif isinstance(raw_end, str) and raw_end:
+        end_dt = dt.datetime.fromisoformat(raw_end.replace("Z", "+00:00"))
+
+    metrics = ef.get("captured_metrics") or {}
+    if isinstance(metrics, str):
+        try:
+            metrics = json.loads(metrics)
+        except Exception:
+            metrics = {}
+
+    dur_sec = float(
+        metrics.get("duration_seconds")
+        or ((end_dt - start_dt).total_seconds() if end_dt else max(0.0, (now_utc - start_dt).total_seconds()))
+    )
+    duration_str = f"{round(dur_sec, 1)}s" if dur_sec < 120 else f"{round(dur_sec / 60.0, 2)}m"
+
+    tag_name = str(metrics.get("tag_name") or "BR201_TEMP_PV")
+    eng_units = str(metrics.get("eng_units") or "degC")
+    val_num = float(
+        metrics.get("peak_val")
+        or metrics.get("latest_val")
+        or metrics.get("max_val")
+        or metrics.get("temp_max_c")
+        or 38.5
+    )
+    avg_num = float(metrics.get("avg_val") or metrics.get("temp_avg_c") or val_num)
+    max_num = float(metrics.get("peak_val") or metrics.get("max_val") or metrics.get("temp_max_c") or val_num)
+    min_num = float(metrics.get("min_val") or metrics.get("temp_min_c") or val_num)
+    high_lim = metrics.get("high_limit", 38.0)
+    low_lim = metrics.get("low_limit", 35.0)
+
+    start_iso = start_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    start_hm = start_dt.strftime("%H:%M:%SZ")
+    end_iso = end_dt.strftime("%Y-%m-%dT%H:%M:%SZ") if end_dt else "ACTIVE (OPEN)"
+
+    from_ms = int((start_dt - dt.timedelta(minutes=5)).timestamp() * 1000)
+    to_ms = int(((end_dt or now_utc) + dt.timedelta(minutes=5)).timestamp() * 1000)
+    trend_url = (
+        f"http://localhost:3000/d/gxphistorian-gxp-bioreactor-hmi"
+        f"?var-asset_path={asset_path}&var-tag_name={tag_name}&from={from_ms}&to={to_ms}"
+    )
+    ack_url = f"http://localhost:8000/api/v1/notifications/acknowledge/{event_id_str}"
+    sign_url = f"http://localhost:8000/api/v1/event-frames/{event_id_str}/sign"
+    mobile_deep_link = f"gxphistorian://events/{event_id_str}?asset={asset_path}&tag={tag_name}"
+
+    substitutions = {
+        "%Element%": element_name,
+        "%\\Element%": root_element,
+        "%..\\Element%": parent_element,
+        "%AssetPath%": asset_path,
+        "%EventFrame%": event_name,
+        "%EventId%": event_id_str,
+        "%EventShortId%": event_short_id,
+        "%EventTemplate%": event_template,
+        "%Severity%": severity,
+        "%Phase%": notification_phase,
+        "%StartTime%": start_iso,
+        "%EndTime%": end_iso,
+        "%Duration%": duration_str,
+        "%Tag%": tag_name,
+        "%Value%": str(round(val_num, 4)),
+        "%AvgVal%": str(round(avg_num, 4)),
+        "%MaxVal%": str(round(max_num, 4)),
+        "%MinVal%": str(round(min_num, 4)),
+        "%EngUnits%": eng_units,
+        "%HighLimit%": str(high_lim if high_lim is not None else "N/A"),
+        "%LowLimit%": str(low_lim if low_lim is not None else "N/A"),
+        "%TrendUrl%": trend_url,
+        "%AckUrl%": ack_url,
+        "%SignUrl%": sign_url,
+    }
+
+    rendered_msg = message_template
+    for token, replacement in substitutions.items():
+        rendered_msg = rendered_msg.replace(token, replacement)
+    if notification_phase == "RECOVERY_CLOSE" and not rendered_msg.startswith("[RECOVERY"):
+        rendered_msg = f"[RECOVERY / CLOSED at {end_iso}] {rendered_msg}"
+    elif notification_phase == "ESCALATION" and not rendered_msg.startswith("[ESCALATION"):
+        rendered_msg = f"[ESCALATION TIER {escalation_tier}] {rendered_msg}"
+
+    # 1. SMS GSM-7 Compact Format (<= 160 chars for single-segment cellular delivery)
+    phase_tag = "CLR" if notification_phase == "RECOVERY_CLOSE" else (f"ESC{escalation_tier}" if notification_phase == "ESCALATION" else severity[:4])
+    sms_compact = (
+        f"[GxP {phase_tag}] {element_name} {tag_name}={round(val_num, 2)}{eng_units} "
+        f"(Lim:{high_lim}) @{start_hm}. Reply ACK {event_short_id}"
+    )
+    if len(sms_compact) > 160:
+        sms_compact = sms_compact[:157] + "..."
+    digits_only = "".join(ch for ch in recipient_phone if ch.isdigit())[-10:] or "4155550101"
+
+    sms_envelope = {
+        "to_e164": recipient_phone if recipient_phone.startswith("+") else f"+1{digits_only}",
+        "sms_body": sms_compact,
+        "char_count": len(sms_compact),
+        "gsm7_single_segment": len(sms_compact) <= 160,
+        "gsm7_segments": 1 if len(sms_compact) <= 160 else math.ceil(len(sms_compact) / 153),
+        "two_way_ack_instruction": f"ACK {event_short_id}",
+        "inbound_ack_webhook": "http://localhost:8000/api/v1/notifications/sms-webhook",
+        "gateway_transports": {
+            "twilio_programmable_sms": {
+                "api_endpoint": "https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Messages.json",
+                "From": "+18005550199",
+                "To": recipient_phone,
+                "Body": sms_compact,
+            },
+            "carrier_email_to_sms_gateways": {
+                "att_sms": f"{digits_only}@txt.att.net",
+                "verizon_sms": f"{digits_only}@vtext.com",
+                "tmobile_sms": f"{digits_only}@tmomail.net",
+            },
+            "ot_cellular_hardware_modem": {
+                "hardware": "Sierra Wireless AirLink RV55 / Moxa OnCell G4302-LTE4",
+                "protocol": "SMPP v3.4 / AT+CMGS Over RS-232/Ethernet",
+                "purdue_zone": "Level 3.5 IDMZ Air-Gapped Failover",
+            },
+        },
+    }
+
+    # 2. EMAIL Native SMTP Multipart (HTML + Plain Text + Ad-Hoc Trend & 1-Click Ack Hyperlinks)
+    email_subject = f"[GxPHistorian {severity} - {notification_phase}] {event_name} on {element_name}"
+    email_text_body = (
+        f"GxPHistorian PI Notifications Service Alert ({notification_phase})\n"
+        f"==================================================================\n"
+        f"Summary       : {rendered_msg}\n"
+        f"Asset Element : {element_name} ({asset_path})\n"
+        f"Event Frame   : {event_name} (ID: {event_id_str})\n"
+        f"Template      : {event_template}\n"
+        f"Severity      : {severity} (Escalation Tier {escalation_tier} - {recipient_name})\n"
+        f"Start Time    : {start_iso}\n"
+        f"End Time      : {end_iso} (Duration: {duration_str})\n"
+        f"Primary Tag   : {tag_name} = {round(val_num, 4)} {eng_units} (Avg: {round(avg_num, 4)}, Peak: {round(max_num, 4)}, Limit: {high_lim})\n\n"
+        f"Actions:\n"
+        f"  1. Open Ad-Hoc LTTB Trend (Grafana Vision): {trend_url}\n"
+        f"  2. Acknowledge Event Frame (Stop Escalation): {ack_url}\n"
+        f"  3. Execute 21 CFR Part 11 E-Signature: {sign_url}\n"
+    )
+    badge_color = "#dc2626" if severity == "CRITICAL" else ("#d97706" if severity == "WARNING" else "#2563eb")
+    if notification_phase == "RECOVERY_CLOSE":
+        badge_color = "#16a34a"
+    email_html_body = (
+        f'<div style="font-family:Inter,Segoe UI,Arial,sans-serif;max-width:680px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">'
+        f'<div style="background:{badge_color};color:#ffffff;padding:14px 20px;font-weight:700;font-size:16px;">'
+        f'GxPHistorian {severity} Alert ({notification_phase}) &mdash; {element_name}</div>'
+        f'<div style="padding:20px;background:#ffffff;color:#1e293b;">'
+        f'<p style="margin-top:0;font-size:15px;line-height:1.5;"><strong>{rendered_msg}</strong></p>'
+        f'<table style="width:100%;border-collapse:collapse;font-size:13px;margin:16px 0;">'
+        f'<tr><td style="padding:6px 8px;border-bottom:1px solid #f1f5f9;color:#64748b;">ISA-95 Asset Path</td><td style="padding:6px 8px;border-bottom:1px solid #f1f5f9;font-family:monospace;">{asset_path}</td></tr>'
+        f'<tr><td style="padding:6px 8px;border-bottom:1px solid #f1f5f9;color:#64748b;">Event Frame</td><td style="padding:6px 8px;border-bottom:1px solid #f1f5f9;">{event_name} (<code>{event_short_id}</code>)</td></tr>'
+        f'<tr><td style="padding:6px 8px;border-bottom:1px solid #f1f5f9;color:#64748b;">Tag / Peak Value</td><td style="padding:6px 8px;border-bottom:1px solid #f1f5f9;"><strong>{tag_name}: {round(max_num, 4)} {eng_units}</strong> (Avg: {round(avg_num, 4)} {eng_units}, High Limit: {high_lim})</td></tr>'
+        f'<tr><td style="padding:6px 8px;border-bottom:1px solid #f1f5f9;color:#64748b;">Window &amp; Duration</td><td style="padding:6px 8px;border-bottom:1px solid #f1f5f9;">{start_iso} &rarr; {end_iso} ({duration_str})</td></tr>'
+        f'</table>'
+        f'<div style="margin-top:18px;">'
+        f'<a href="{trend_url}" style="display:inline-block;background:#0f172a;color:#ffffff;padding:9px 14px;border-radius:6px;text-decoration:none;font-size:13px;margin-right:8px;">Open Ad-Hoc Trend</a>'
+        f'<a href="{ack_url}" style="display:inline-block;background:{badge_color};color:#ffffff;padding:9px 14px;border-radius:6px;text-decoration:none;font-size:13px;margin-right:8px;">Acknowledge Alert ({event_short_id})</a>'
+        f'<a href="{sign_url}" style="display:inline-block;background:#334155;color:#ffffff;padding:9px 14px;border-radius:6px;text-decoration:none;font-size:13px;">21 CFR Part 11 E-Sign</a>'
+        f'</div></div></div>'
+    )
+    email_envelope = {
+        "to": recipient_email,
+        "from": "pi-notifications@biocorp.internal",
+        "subject": email_subject,
+        "mime_type": "multipart/alternative",
+        "headers": {
+            "X-Priority": "1 (Highest)" if severity == "CRITICAL" else "3 (Normal)",
+            "X-GxPHistorian-Event-Id": event_id_str,
+            "X-GxPHistorian-Short-Id": event_short_id,
+            "X-GxPHistorian-Phase": notification_phase,
+        },
+        "text_body": email_text_body,
+        "html_body": email_html_body,
+        "embedded_links": {
+            "adhoc_trend_url": trend_url,
+            "one_click_acknowledge_url": ack_url,
+            "part11_esign_url": sign_url,
+        },
+    }
+
+    # 3. MOBILE_PUSH Envelope (iOS APNs Critical Alert, Android FCM High-Priority & PagerDuty Events v2)
+    pd_action = "resolve" if notification_phase == "RECOVERY_CLOSE" else "trigger"
+    mobile_push_envelope = {
+        "target_device_uri": recipient_mobile_uri,
+        "mobile_deep_link": mobile_deep_link,
+        "apns_payload": {
+            "aps": {
+                "alert": {
+                    "title": f"[{severity}] {element_name} ({notification_phase})",
+                    "subtitle": f"{asset_path} • {tag_name}",
+                    "body": rendered_msg,
+                },
+                "sound": {
+                    "critical": 1 if severity == "CRITICAL" else 0,
+                    "name": "gxp_excursion_alarm.caf",
+                    "volume": 1.0,
+                },
+                "interruption-level": "critical" if severity == "CRITICAL" else "time-sensitive",
+                "category": "GXP_EVENT_FRAME_ACTIONS",
+            },
+            "gxphistorian": {
+                "event_id": event_id_str,
+                "event_short_id": event_short_id,
+                "deep_link": mobile_deep_link,
+                "adhoc_trend_url": trend_url,
+                "acknowledge_url": ack_url,
+            },
+        },
+        "fcm_payload": {
+            "android": {
+                "priority": "high",
+                "notification": {
+                    "channel_id": "gxp_critical_excursions",
+                    "click_action": "OPEN_GXP_EVENT_FRAME",
+                },
+            },
+            "notification": {
+                "title": f"[{severity}] {element_name} — {event_name}",
+                "body": rendered_msg,
+            },
+            "data": {
+                "event_id": event_id_str,
+                "event_short_id": event_short_id,
+                "deep_link": mobile_deep_link,
+                "adhoc_trend_url": trend_url,
+                "acknowledge_url": ack_url,
+            },
+        },
+        "pagerduty_events_v2": {
+            "routing_key": "gxp-biocorp-usp-oncall-routing-key",
+            "event_action": pd_action,
+            "dedup_key": f"gxphistorian-ef-{event_id_str}",
+            "payload": {
+                "summary": rendered_msg,
+                "severity": severity.lower() if severity.lower() in {"critical", "warning", "info"} else "error",
+                "source": asset_path,
+                "timestamp": start_iso,
+                "component": element_name,
+                "group": event_template,
+                "class": "ISA88_EventFrame_Excursion",
+                "custom_details": {
+                    "event_id": event_id_str,
+                    "event_short_id": event_short_id,
+                    "tag_name": tag_name,
+                    "peak_val": round(max_num, 4),
+                    "avg_val": round(avg_num, 4),
+                    "eng_units": eng_units,
+                    "high_limit": high_lim,
+                    "duration": duration_str,
+                    "escalation_tier": escalation_tier,
+                },
+            },
+            "links": [
+                {"href": trend_url, "text": "Open Grafana LTTB Ad-Hoc Trend"},
+                {"href": ack_url, "text": "Acknowledge Event Frame (21 CFR Part 11)"},
+            ],
+        },
+        "interactive_actions": [
+            {
+                "action_id": "ACK_EVENT_FRAME",
+                "label": "Acknowledge Alert",
+                "http_method": "POST",
+                "endpoint": ack_url,
+            },
+            {
+                "action_id": "OPEN_ADHOC_TREND",
+                "label": "Open Live Trend",
+                "http_method": "GET",
+                "endpoint": trend_url,
+            },
+            {
+                "action_id": "RUN_AI_INVESTIGATION",
+                "label": "AI Deviation Brief",
+                "http_method": "POST",
+                "endpoint": f"http://localhost:8000/api/v1/ai/event-frames/{event_id_str}/investigate",
+            },
+        ],
+    }
+
+    # 4. TEAMS_ADAPTIVE_CARD & WEBHOOK Envelope (PI WebService REST Delivery Channel)
+    teams_card_envelope = {
+        "type": "message",
+        "attachments": [
+            {
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "content": {
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "type": "AdaptiveCard",
+                    "version": "1.4",
+                    "body": [
+                        {
+                            "type": "TextBlock",
+                            "size": "Large",
+                            "weight": "Bolder",
+                            "text": f"[GxPHistorian {severity} - {notification_phase}] {element_name}",
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": rendered_msg,
+                            "wrap": True,
+                        },
+                        {
+                            "type": "FactSet",
+                            "facts": [
+                                {"title": "Asset Path", "value": asset_path},
+                                {"title": "Event Frame", "value": f"{event_name} ({event_short_id})"},
+                                {"title": "Tag / Peak", "value": f"{tag_name}: {round(max_num, 4)} {eng_units}"},
+                                {"title": "Start Time", "value": start_iso},
+                                {"title": "End Time", "value": end_iso},
+                                {"title": "Duration", "value": duration_str},
+                                {"title": "Escalation Tier", "value": f"Tier {escalation_tier} ({recipient_name})"},
+                            ],
+                        },
+                    ],
+                    "actions": [
+                        {"type": "Action.OpenUrl", "title": "Open Ad-Hoc Trend", "url": trend_url},
+                        {"type": "Action.OpenUrl", "title": "Acknowledge Alert", "url": ack_url},
+                        {"type": "Action.OpenUrl", "title": "21 CFR Part 11 E-Sign", "url": sign_url},
+                    ],
+                },
+            }
+        ],
+    }
+
+    return {
+        "event_id": event_id_str,
+        "event_short_id": event_short_id,
+        "notification_phase": notification_phase,
+        "escalation_tier": escalation_tier,
+        "recipient_name": recipient_name,
+        "rendered_message": rendered_msg,
+        "substitutions": substitutions,
+        "channels": {
+            "email": email_envelope,
+            "sms": sms_envelope,
+            "mobile_push": mobile_push_envelope,
+            "teams_adaptive_card": teams_card_envelope,
+        },
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -2279,16 +2827,477 @@ def build_pi_parity_router(
             "signatures": rows,
         }
 
+    @router.get("/api/v1/notifications/channels")
+    def get_notification_channels_catalog() -> Dict[str, Any]:
+        """
+        Return the AVEVA PI Notifications Delivery Channel catalog (Email SMTP, SMS Twilio/Carrier/SMPP,
+        Mobile Push APNs/FCM/PagerDuty, WebService REST / Microsoft Teams Adaptive Cards), dynamic
+        AF/Event Frame substitution parameters, and anti-fatigue escalation controls.
+        """
+        return {
+            "service": "GxPHistorian PI Notifications & Multi-Channel Alerting Engine",
+            "supported_channels": [
+                {
+                    "channel_type": "EMAIL",
+                    "pi_equivalent": "PI Notifications Native SMTP Delivery Channel (HTML + Plain Text)",
+                    "features": [
+                        "Multipart MIME (HTML + Plain Text) with dynamic %Parameter% substitution",
+                        "Embedded PI Vision / Grafana Vision Ad-Hoc LTTB Trend deep-link (%TrendUrl%)",
+                        "Embedded 1-Click Event Frame Acknowledge link (%AckUrl%) & 21 CFR Part 11 E-Sign link (%SignUrl%)",
+                    ],
+                },
+                {
+                    "channel_type": "SMS",
+                    "pi_equivalent": "Twilio REST API / Carrier Email-to-SMS / Exele TopView & OT SMPP Cellular Modem",
+                    "features": [
+                        "Compact <=160-character GSM-7 single-segment cellular text formatting",
+                        "Cloud Twilio Programmable SMS + Carrier Email-to-SMS (@txt.att.net, @vtext.com, @tmomail.net)",
+                        "Purdue Level 3.5 Air-Gapped OT Hardware Cellular Modem (Sierra Wireless AirLink / Moxa OnCell SMPP)",
+                        "Two-Way SMS Acknowledgment ('Reply ACK <EventShortId>' via POST /api/v1/notifications/sms-webhook)",
+                    ],
+                },
+                {
+                    "channel_type": "MOBILE_PUSH",
+                    "pi_equivalent": "AVEVA Mobile Operations / PagerDuty Events API v2 / iOS APNs & Android FCM",
+                    "features": [
+                        "Apple APNs Critical Alert (interruption-level=critical, bypasses iOS Focus/Mute for GMP alarms)",
+                        "Android FCM High-Priority notification channel with gxphistorian://events/{id} deep-link",
+                        "PagerDuty Events API v2 integration (dedup_key, trigger/acknowledge/resolve lifecycle)",
+                        "Interactive mobile action buttons (Acknowledge Alert, Open Live Trend, Run AI Deviation Brief)",
+                    ],
+                },
+                {
+                    "channel_type": "WEBHOOK",
+                    "pi_equivalent": "PI Notifications WebService (REST JSON) Delivery Channel",
+                    "features": [
+                        "Outbound HTTPS POST JSON payload for ServiceNow, IBM Maximo, LIMS, or QMS CAPA intake",
+                    ],
+                },
+                {
+                    "channel_type": "TEAMS_ADAPTIVE_CARD",
+                    "pi_equivalent": "Microsoft Teams / ChatOps Adaptive Card v1.4 Webhook",
+                    "features": [
+                        "Rich FactSet table with ISA-95 Asset Path, Tag Peak/Avg KPIs, and Action.OpenUrl buttons",
+                    ],
+                },
+            ],
+            "substitution_parameters": [
+                "%Element%",
+                "%\\Element%",
+                "%..\\Element%",
+                "%AssetPath%",
+                "%EventFrame%",
+                "%EventId%",
+                "%EventShortId%",
+                "%EventTemplate%",
+                "%Severity%",
+                "%Phase%",
+                "%StartTime%",
+                "%EndTime%",
+                "%Duration%",
+                "%Tag%",
+                "%Value%",
+                "%AvgVal%",
+                "%MaxVal%",
+                "%MinVal%",
+                "%EngUnits%",
+                "%HighLimit%",
+                "%LowLimit%",
+                "%TrendUrl%",
+                "%AckUrl%",
+                "%SignUrl%",
+            ],
+            "anti_fatigue_controls": {
+                "true_for_seconds": "Event Frame start trigger debounce suppressing transient noise spikes",
+                "non_repetition_minutes": "Quiet period suppressing duplicate notifications from chattering alarms",
+                "resend_interval_minutes": "Repeat notification cadence while an Event Frame remains unacknowledged (must be >= non_repetition_minutes)",
+                "escalation_team": "Ordered multi-tier contact roster stepped through sequentially until acknowledged",
+                "notify_on_close": "Send on Close / Recovery notification dispatched when Event Frame end_time is set",
+            },
+        }
+
     @router.get("/api/v1/notifications/rules")
-    def list_notification_rules() -> Dict[str, Any]:
+    def list_notification_rules(
+        channel_type: Optional[str] = Query(default=None, description="Optional channel_type filter"),
+    ) -> Dict[str, Any]:
         with get_pg_conn() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT * FROM notification_rules ORDER BY rule_id;")
+                if channel_type:
+                    cur.execute(
+                        "SELECT * FROM notification_rules WHERE channel_type = %s ORDER BY rule_id;",
+                        (channel_type.upper(),),
+                    )
+                else:
+                    cur.execute("SELECT * FROM notification_rules ORDER BY rule_id;")
                 rows = cur.fetchall()
         return {"count": len(rows), "rules": rows}
 
+    @router.post("/api/v1/notifications/rules", status_code=201)
+    def create_or_update_notification_rule(
+        req: NotificationRuleCreateRequest,
+        x_actor_id: Optional[str] = Header(default=None, alias="X-Actor-Id"),
+        x_change_reason: Optional[str] = Header(default=None, alias="X-Change-Reason"),
+    ) -> Dict[str, Any]:
+        """
+        Create or update a PI Notification Rule in `notification_rules` with 21 CFR Part 11
+        `X-Actor-Id` and `X-Change-Reason` attribution. Enforces the AVEVA PI Notifications rule
+        that `resend_interval_minutes >= non_repetition_minutes` when both intervals are positive.
+        """
+        if (
+            req.non_repetition_minutes > 0
+            and req.resend_interval_minutes > 0
+            and req.resend_interval_minutes < req.non_repetition_minutes
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"PI Notifications Interval Rule Violation: resend_interval_minutes "
+                    f"({req.resend_interval_minutes}) must be >= non_repetition_minutes "
+                    f"({req.non_repetition_minutes})."
+                ),
+            )
+
+        with get_pg_conn() as conn:
+            try:
+                with conn.cursor() as cur:
+                    apply_part11_context(cur, x_actor_id, x_change_reason)
+                    cur.execute(
+                        """
+                        INSERT INTO notification_rules (
+                            rule_name, event_template_filter, min_severity, channel_type,
+                            target_endpoint, escalation_minutes, non_repetition_minutes,
+                            resend_interval_minutes, notify_on_close, message_template,
+                            escalation_team, delivery_config, is_active
+                        ) VALUES (
+                            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, %s::jsonb, %s
+                        )
+                        ON CONFLICT (rule_name) DO UPDATE SET
+                            event_template_filter = EXCLUDED.event_template_filter,
+                            min_severity = EXCLUDED.min_severity,
+                            channel_type = EXCLUDED.channel_type,
+                            target_endpoint = EXCLUDED.target_endpoint,
+                            escalation_minutes = EXCLUDED.escalation_minutes,
+                            non_repetition_minutes = EXCLUDED.non_repetition_minutes,
+                            resend_interval_minutes = EXCLUDED.resend_interval_minutes,
+                            notify_on_close = EXCLUDED.notify_on_close,
+                            message_template = EXCLUDED.message_template,
+                            escalation_team = EXCLUDED.escalation_team,
+                            delivery_config = EXCLUDED.delivery_config,
+                            is_active = EXCLUDED.is_active
+                        RETURNING *;
+                        """,
+                        (
+                            req.rule_name.strip(),
+                            req.event_template_filter.strip(),
+                            req.min_severity.upper(),
+                            req.channel_type.upper(),
+                            req.target_endpoint.strip(),
+                            req.escalation_minutes,
+                            req.non_repetition_minutes,
+                            req.resend_interval_minutes,
+                            req.notify_on_close,
+                            req.message_template,
+                            json.dumps([t.model_dump() for t in req.escalation_team]),
+                            json.dumps(req.delivery_config),
+                            req.is_active,
+                        ),
+                    )
+                    rule_row = cur.fetchone()
+                conn.commit()
+            except HTTPException:
+                conn.rollback()
+                raise
+            except Exception as exc:
+                conn.rollback()
+                raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+        return {"status": "configured", "rule": rule_row}
+
+    @router.post("/api/v1/notifications/preview")
+    def preview_multi_channel_notification(req: NotificationPreviewRequest) -> Dict[str, Any]:
+        """
+        Render a live multi-channel PI Notification preview (Email HTML+Text, 160-char GSM-7 SMS,
+        Mobile Push APNs/FCM/PagerDuty, and Microsoft Teams Adaptive Card) for an Event Frame.
+        """
+        ef_row: Optional[Dict[str, Any]] = None
+        with get_pg_conn() as conn:
+            with conn.cursor() as cur:
+                if req.event_id:
+                    cur.execute(
+                        """
+                        SELECT
+                            ef.event_id::text AS event_id,
+                            ef.event_name,
+                            ef.event_template,
+                            ef.severity,
+                            ef.start_time,
+                            ef.end_time,
+                            ef.captured_metrics,
+                            ef.signed_by,
+                            a.asset_name,
+                            a.asset_path::text AS asset_path
+                        FROM event_frames ef
+                        JOIN assets a ON ef.asset_id = a.asset_id
+                        WHERE ef.event_id = %s;
+                        """,
+                        (req.event_id,),
+                    )
+                    ef_row = cur.fetchone()
+                else:
+                    cur.execute(
+                        """
+                        SELECT
+                            ef.event_id::text AS event_id,
+                            ef.event_name,
+                            ef.event_template,
+                            ef.severity,
+                            ef.start_time,
+                            ef.end_time,
+                            ef.captured_metrics,
+                            ef.signed_by,
+                            a.asset_name,
+                            a.asset_path::text AS asset_path
+                        FROM event_frames ef
+                        JOIN assets a ON ef.asset_id = a.asset_id
+                        ORDER BY ef.start_time DESC
+                        LIMIT 1;
+                        """
+                    )
+                    ef_row = cur.fetchone()
+
+        if not ef_row:
+            ef_row = {
+                "event_id": "a1b2c3d4-0000-4000-8000-000000000001",
+                "event_name": "BR201_TEMP_PV_High_Limit_Excursion",
+                "event_template": "Temp_Excursion_TrueFor_30s",
+                "severity": "CRITICAL",
+                "start_time": dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=5),
+                "end_time": None,
+                "asset_name": "Bioreactor_201",
+                "asset_path": "BioCorp.Fremont.USP.Bioreactor_201",
+                "captured_metrics": {
+                    "tag_id": 101,
+                    "tag_name": "BR201_TEMP_PV",
+                    "eng_units": "degC",
+                    "peak_val": 41.4,
+                    "avg_val": 40.7667,
+                    "high_limit": 38.0,
+                    "low_limit": 35.0,
+                    "duration_seconds": 120.0,
+                },
+            }
+
+        return render_pi_notification_formats(
+            ef=dict(ef_row),
+            message_template=req.message_template,
+            notification_phase=req.notification_phase,
+            recipient_email=req.recipient_email,
+            recipient_phone=req.recipient_phone_e164,
+            recipient_mobile_uri=req.recipient_mobile_uri,
+        )
+
+    @router.post("/api/v1/notifications/acknowledge/{event_id}")
+    def acknowledge_event_frame_notification(
+        event_id: uuid.UUID,
+        req: NotificationAcknowledgeRequest = NotificationAcknowledgeRequest(),
+        x_actor_id: Optional[str] = Header(default=None, alias="X-Actor-Id"),
+        x_change_reason: Optional[str] = Header(default=None, alias="X-Change-Reason"),
+    ) -> Dict[str, Any]:
+        """
+        PI Notifications Event Frame Acknowledgment ('Event Frame Can Be Acknowledged'):
+        Records a 21 CFR Part 11 attributed acknowledgment on the Event Frame, immediately
+        halting further Resend and Escalation Team dispatches while keeping the Event Frame
+        available for formal 21 CFR §11.200 electronic signature disposition.
+        """
+        with get_pg_conn() as conn:
+            try:
+                with conn.cursor() as cur:
+                    apply_part11_context(cur, x_actor_id, x_change_reason)
+                    cur.execute(
+                        "SELECT event_id::text AS event_id, event_name, captured_metrics FROM event_frames WHERE event_id = %s;",
+                        (str(event_id),),
+                    )
+                    ef_row = cur.fetchone()
+                    if not ef_row:
+                        raise HTTPException(status_code=404, detail=f"Event Frame {event_id} not found")
+
+                    metrics = dict(ef_row.get("captured_metrics") or {})
+                    ack_ts = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+                    ack_info = {
+                        "acknowledged": True,
+                        "acknowledged_by": (x_actor_id or "").strip(),
+                        "acknowledged_at": ack_ts,
+                        "ack_channel": req.ack_channel,
+                        "ack_comment": req.ack_comment,
+                        "change_reason": (x_change_reason or "").strip(),
+                    }
+                    metrics["acknowledgment"] = ack_info
+
+                    cur.execute(
+                        """
+                        UPDATE event_frames
+                        SET captured_metrics = %s::jsonb
+                        WHERE event_id = %s
+                        RETURNING
+                            event_id::text AS event_id,
+                            event_name,
+                            event_template,
+                            severity,
+                            captured_metrics;
+                        """,
+                        (json.dumps(metrics), str(event_id)),
+                    )
+                    updated_ef = cur.fetchone()
+                conn.commit()
+            except HTTPException:
+                conn.rollback()
+                raise
+            except Exception as exc:
+                conn.rollback()
+                raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+        return {
+            "status": "acknowledged",
+            "escalation_halted": True,
+            "acknowledgment": ack_info,
+            "event_frame": updated_ef,
+        }
+
+    @router.post("/api/v1/notifications/sms-webhook")
+    def handle_inbound_two_way_sms_ack(
+        req: SmsInboundWebhookRequest,
+        x_actor_id: Optional[str] = Header(default=None, alias="X-Actor-Id"),
+        x_change_reason: Optional[str] = Header(default=None, alias="X-Change-Reason"),
+    ) -> Dict[str, Any]:
+        """
+        Two-Way SMS Inbound Webhook (Twilio / Exele TopView / OT SMPP Cellular Modem parity):
+        Parses inbound SMS replies ('ACK <EventShortId> [notes]') from an authorized on-call
+        phone number, maps the phone number to the subscribed operator, and executes a
+        21 CFR Part 11 attributed acknowledgment that halts further alert escalations.
+        """
+        body_clean = req.message_body.strip()
+        parts = body_clean.split(maxsplit=2)
+        if not parts or parts[0].upper() not in {"ACK", "ACKNOWLEDGE"}:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid two-way SMS command. Expected format: 'ACK <EventShortId> [optional notes]'",
+            )
+
+        target_token = parts[1].strip().lower() if len(parts) >= 2 else "latest"
+        sms_notes = parts[2].strip() if len(parts) >= 3 else "Acknowledged via Two-Way SMS reply"
+
+        phone_roster = {
+            "+14155550101": ("operator_01", "Sarah Jenkins (Lead USP Operator)"),
+            "+14155550102": ("operator_01", "David Chen (USP Shift Supervisor)"),
+            "+14155550199": ("qa_approver_01", "Dr. Marcus Vance (QA Qualified Person)"),
+        }
+        mapped_actor, mapped_name = phone_roster.get(
+            req.from_phone.strip(),
+            (x_actor_id or "operator_01", f"Mobile SMS Operator ({req.from_phone.strip()})"),
+        )
+        effective_actor = (x_actor_id or mapped_actor).strip()
+        effective_reason = (
+            x_change_reason
+            or f"Two-Way SMS Acknowledgment ({req.gateway_provider}) from {req.from_phone}: {body_clean}"
+        ).strip()
+
+        with get_pg_conn() as conn:
+            try:
+                with conn.cursor() as cur:
+                    apply_part11_context(cur, effective_actor, effective_reason)
+                    if target_token == "latest":
+                        cur.execute(
+                            """
+                            SELECT event_id::text AS event_id, event_name, captured_metrics
+                            FROM event_frames
+                            ORDER BY start_time DESC
+                            LIMIT 1;
+                            """
+                        )
+                    else:
+                        cur.execute(
+                            """
+                            SELECT event_id::text AS event_id, event_name, captured_metrics
+                            FROM event_frames
+                            WHERE lower(event_id::text) LIKE %s
+                            ORDER BY start_time DESC
+                            LIMIT 1;
+                            """,
+                            (f"{target_token}%",),
+                        )
+                    ef_row = cur.fetchone()
+                    if not ef_row:
+                        raise HTTPException(
+                            status_code=404,
+                            detail=f"No Event Frame matching short ID '{target_token}' found for SMS ACK",
+                        )
+
+                    event_id_str = str(ef_row["event_id"])
+                    short_id = event_id_str.split("-")[0].upper()
+                    metrics = dict(ef_row.get("captured_metrics") or {})
+                    ack_ts = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+                    ack_info = {
+                        "acknowledged": True,
+                        "acknowledged_by": effective_actor,
+                        "acknowledged_by_name": mapped_name,
+                        "acknowledged_from_phone": req.from_phone.strip(),
+                        "acknowledged_at": ack_ts,
+                        "ack_channel": "SMS",
+                        "ack_comment": sms_notes,
+                        "change_reason": effective_reason,
+                    }
+                    metrics["acknowledgment"] = ack_info
+
+                    cur.execute(
+                        """
+                        UPDATE event_frames
+                        SET captured_metrics = %s::jsonb
+                        WHERE event_id = %s;
+                        """,
+                        (json.dumps(metrics), event_id_str),
+                    )
+                conn.commit()
+            except HTTPException:
+                conn.rollback()
+                raise
+            except Exception as exc:
+                conn.rollback()
+                raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+        sms_reply = (
+            f"[GxPHistorian] ACK confirmed for {ef_row['event_name']} ({short_id}) "
+            f"by {effective_actor} at {ack_ts}. Escalation halted."
+        )
+        return {
+            "status": "sms_acknowledged",
+            "event_id": event_id_str,
+            "event_short_id": short_id,
+            "acknowledged_by": effective_actor,
+            "from_phone": req.from_phone,
+            "escalation_halted": True,
+            "acknowledgment": ack_info,
+            "sms_confirmation_reply": sms_reply,
+        }
+
     @router.post("/api/v1/notifications/evaluate")
     def evaluate_pi_notifications(
+        event_id: Optional[uuid.UUID] = Query(
+            default=None,
+            description="Optional specific Event Frame UUID to evaluate",
+        ),
+        simulate_elapsed_minutes: Optional[float] = Query(
+            default=None,
+            ge=0.0,
+            description="Optional simulated Event Frame age in minutes to deterministically test Escalation Teams & Resend Intervals",
+        ),
+        respect_non_repetition: bool = Query(
+            default=False,
+            description="When True, suppresses chattering duplicate Event Frames opened within non_repetition_minutes",
+        ),
+        dispatch_recovery_on_close: bool = Query(
+            default=False,
+            description="When True, dispatches RECOVERY_CLOSE summary notifications for closed Event Frames where notify_on_close=True",
+        ),
         x_actor_id: Optional[str] = Header(default="pi_notifications_engine", alias="X-Actor-Id"),
         x_change_reason: Optional[str] = Header(
             default="Automated PI Notifications & Escalation Dispatch",
@@ -2296,12 +3305,17 @@ def build_pi_parity_router(
         ),
     ) -> Dict[str, Any]:
         """
-        PI Notifications Service equivalent: matches unsigned/active Event Frames against
-        `notification_rules`, flags escalations if unacknowledged past `escalation_minutes`,
-        and records immutable delivery audit records in `notification_deliveries`.
+        PI Notifications Service equivalent: matches Event Frames against `notification_rules`,
+        renders multi-channel payloads (`EMAIL` HTML+Text, `SMS` 160-char GSM-7, `MOBILE_PUSH`
+        APNs/FCM/PagerDuty, `WEBHOOK` / `TEAMS_ADAPTIVE_CARD`), steps through multi-tier
+        `escalation_team` rosters when unacknowledged past `escalation_minutes`, enforces
+        `non_repetition_minutes` chattering suppression, dispatches `RECOVERY_CLOSE` ("Send on Close")
+        summaries, and records immutable audit rows in `notification_deliveries`.
         """
         severity_rank = {"INFO": 1, "WARNING": 2, "CRITICAL": 3}
         dispatched: List[Dict[str, Any]] = []
+        suppressed_chattering_count = 0
+        halted_by_ack_count = 0
 
         with get_pg_conn() as conn:
             with conn.cursor() as cur:
@@ -2309,28 +3323,65 @@ def build_pi_parity_router(
                 cur.execute("SELECT * FROM notification_rules WHERE is_active = TRUE ORDER BY rule_id;")
                 rules = cur.fetchall()
 
-                cur.execute(
-                    """
-                    SELECT
-                        ef.event_id::text AS event_id,
-                        ef.event_name,
-                        ef.event_template,
-                        ef.severity,
-                        ef.start_time,
-                        ef.signed_by,
-                        a.asset_path::text AS asset_path
-                    FROM event_frames ef
-                    JOIN assets a ON ef.asset_id = a.asset_id
-                    ORDER BY ef.start_time DESC
-                    LIMIT 25;
-                    """
-                )
+                if event_id is not None:
+                    cur.execute(
+                        """
+                        SELECT
+                            ef.event_id::text AS event_id,
+                            ef.event_name,
+                            ef.event_template,
+                            ef.asset_id,
+                            ef.severity,
+                            ef.start_time,
+                            ef.end_time,
+                            ef.captured_metrics,
+                            ef.signed_by,
+                            a.asset_name,
+                            a.asset_path::text AS asset_path
+                        FROM event_frames ef
+                        JOIN assets a ON ef.asset_id = a.asset_id
+                        WHERE ef.event_id = %s;
+                        """,
+                        (str(event_id),),
+                    )
+                else:
+                    cur.execute(
+                        """
+                        SELECT
+                            ef.event_id::text AS event_id,
+                            ef.event_name,
+                            ef.event_template,
+                            ef.asset_id,
+                            ef.severity,
+                            ef.start_time,
+                            ef.end_time,
+                            ef.captured_metrics,
+                            ef.signed_by,
+                            a.asset_name,
+                            a.asset_path::text AS asset_path
+                        FROM event_frames ef
+                        JOIN assets a ON ef.asset_id = a.asset_id
+                        ORDER BY ef.start_time DESC
+                        LIMIT 25;
+                        """
+                    )
                 events = cur.fetchall()
                 now_utc = dt.datetime.now(dt.timezone.utc)
 
                 for rule in rules:
                     min_rank = severity_rank.get(str(rule["min_severity"]).upper(), 2)
                     tmpl_filter = str(rule["event_template_filter"])
+                    msg_template = str(
+                        rule.get("message_template")
+                        or "[%Severity%] %Element% — %EventFrame% started at %StartTime% (Value: %Value% %EngUnits%)"
+                    )
+                    esc_team = rule.get("escalation_team") or []
+                    if isinstance(esc_team, str):
+                        try:
+                            esc_team = json.loads(esc_team)
+                        except Exception:
+                            esc_team = []
+
                     for ef in events:
                         ef_rank = severity_rank.get(str(ef["severity"]).upper(), 1)
                         if ef_rank < min_rank:
@@ -2338,68 +3389,328 @@ def build_pi_parity_router(
                         if tmpl_filter != "*" and tmpl_filter != ef["event_template"]:
                             continue
 
+                        ef_metrics = ef.get("captured_metrics") or {}
+                        if isinstance(ef_metrics, str):
+                            try:
+                                ef_metrics = json.loads(ef_metrics)
+                            except Exception:
+                                ef_metrics = {}
+                        ack_obj = ef_metrics.get("acknowledgment") or {}
+                        is_acknowledged = bool(ack_obj.get("acknowledged")) or (ef["signed_by"] is not None)
+
                         cur.execute(
                             """
-                            SELECT delivery_id FROM notification_deliveries
-                            WHERE rule_id = %s AND event_id = %s;
+                            SELECT delivery_id, notification_phase, escalation_tier
+                            FROM notification_deliveries
+                            WHERE rule_id = %s AND event_id = %s
+                            ORDER BY delivery_id ASC;
                             """,
                             (rule["rule_id"], ef["event_id"]),
                         )
-                        if cur.fetchone():
-                            continue
+                        existing_deliveries = cur.fetchall()
+                        existing_phases = {str(d.get("notification_phase") or "TRIGGER") for d in existing_deliveries}
+                        existing_tiers = {int(d.get("escalation_tier") or 1) for d in existing_deliveries}
 
-                        age_min = (now_utc - ef["start_time"]).total_seconds() / 60.0
-                        escalated = (ef["signed_by"] is None) and (age_min >= float(rule["escalation_minutes"]))
-                        payload = {
-                            "rule_name": rule["rule_name"],
-                            "event_name": ef["event_name"],
-                            "asset_path": ef["asset_path"],
-                            "severity": ef["severity"],
-                            "escalated": escalated,
-                        }
-                        cur.execute(
-                            """
-                            INSERT INTO notification_deliveries (
-                                rule_id, event_id, channel_type, target_endpoint,
-                                delivery_status, escalation_triggered, payload
-                            ) VALUES (
-                                %s, %s, %s, %s, 'DELIVERED', %s, %s::jsonb
-                            ) RETURNING
-                                delivery_id, rule_id, event_id::text AS event_id,
-                                channel_type, target_endpoint, delivery_status,
-                                escalation_triggered, dispatched_at, payload;
-                            """,
-                            (
-                                rule["rule_id"],
-                                ef["event_id"],
-                                rule["channel_type"],
-                                rule["target_endpoint"],
-                                escalated,
-                                json.dumps(payload),
-                            ),
+                        age_min = (
+                            float(simulate_elapsed_minutes)
+                            if simulate_elapsed_minutes is not None
+                            else (now_utc - ef["start_time"]).total_seconds() / 60.0
                         )
-                        deliv = cur.fetchone()
-                        if deliv:
-                            dispatched.append(dict(deliv))
+
+                        # 1. Initial TRIGGER notification if never dispatched for (rule_id, event_id)
+                        if not existing_deliveries:
+                            if respect_non_repetition and int(rule.get("non_repetition_minutes") or 0) > 0:
+                                cur.execute(
+                                    """
+                                    SELECT nd.delivery_id
+                                    FROM notification_deliveries nd
+                                    JOIN event_frames prev_ef ON nd.event_id = prev_ef.event_id
+                                    WHERE nd.rule_id = %s
+                                      AND nd.event_id != %s
+                                      AND prev_ef.asset_id = %s
+                                      AND prev_ef.event_template = %s
+                                      AND ABS(EXTRACT(EPOCH FROM (%s::timestamptz - prev_ef.start_time)) / 60.0) <= %s
+                                    LIMIT 1;
+                                    """,
+                                    (
+                                        rule["rule_id"],
+                                        ef["event_id"],
+                                        ef["asset_id"],
+                                        ef["event_template"],
+                                        ef["start_time"],
+                                        int(rule["non_repetition_minutes"]),
+                                    ),
+                                )
+                                if cur.fetchone():
+                                    suppressed_chattering_count += 1
+                                    continue
+
+                            escalated = (not is_acknowledged) and (age_min >= float(rule["escalation_minutes"]))
+                            tier1_contact = (
+                                esc_team[0]
+                                if esc_team
+                                else {
+                                    "tier": 1,
+                                    "contact_name": "Primary On-Call",
+                                    "channel_type": rule["channel_type"],
+                                    "target_endpoint": rule["target_endpoint"],
+                                }
+                            )
+                            recipient_name = str(tier1_contact.get("contact_name") or "Primary On-Call")
+                            rendered = render_pi_notification_formats(
+                                ef=dict(ef),
+                                message_template=msg_template,
+                                notification_phase="TRIGGER",
+                                recipient_email=(
+                                    rule["target_endpoint"]
+                                    if rule["channel_type"] == "EMAIL"
+                                    else "qa-compliance@biocorp.internal"
+                                ),
+                                recipient_phone=(
+                                    rule["target_endpoint"] if rule["channel_type"] == "SMS" else "+14155550101"
+                                ),
+                                recipient_mobile_uri=(
+                                    rule["target_endpoint"]
+                                    if rule["channel_type"] == "MOBILE_PUSH"
+                                    else "fcm://device-usp-operator-01"
+                                ),
+                                escalation_tier=1,
+                                recipient_name=recipient_name,
+                            )
+                            payload = {
+                                "rule_name": rule["rule_name"],
+                                "event_name": ef["event_name"],
+                                "event_short_id": rendered["event_short_id"],
+                                "asset_path": ef["asset_path"],
+                                "severity": ef["severity"],
+                                "escalated": escalated,
+                                "notification_phase": "TRIGGER",
+                                "escalation_tier": 1,
+                                "recipient_name": recipient_name,
+                                "rendered_message": rendered["rendered_message"],
+                                "channel_envelopes": rendered["channels"],
+                            }
+                            cur.execute(
+                                """
+                                INSERT INTO notification_deliveries (
+                                    rule_id, event_id, channel_type, target_endpoint,
+                                    delivery_status, escalation_triggered, notification_phase,
+                                    escalation_tier, recipient_name, rendered_message, payload
+                                ) VALUES (
+                                    %s, %s, %s, %s, 'DELIVERED', %s, 'TRIGGER', 1, %s, %s, %s::jsonb
+                                ) RETURNING
+                                    delivery_id, rule_id, event_id::text AS event_id,
+                                    channel_type, target_endpoint, delivery_status,
+                                    escalation_triggered, notification_phase, escalation_tier,
+                                    recipient_name, rendered_message, dispatched_at, payload;
+                                """,
+                                (
+                                    rule["rule_id"],
+                                    ef["event_id"],
+                                    rule["channel_type"],
+                                    rule["target_endpoint"],
+                                    escalated,
+                                    recipient_name,
+                                    rendered["rendered_message"],
+                                    json.dumps(payload),
+                                ),
+                            )
+                            deliv = cur.fetchone()
+                            if deliv:
+                                dispatched.append(dict(deliv))
+                            existing_phases.add("TRIGGER")
+                            existing_tiers.add(1)
+
+                        # 2. Multi-Tier Escalation Team evaluation when simulate_elapsed_minutes is provided or age exceeds tier delay
+                        if simulate_elapsed_minutes is not None:
+                            if is_acknowledged:
+                                halted_by_ack_count += 1
+                            else:
+                                for member in esc_team:
+                                    tier_num = int(member.get("tier") or 1)
+                                    delay_min = float(member.get("delay_minutes") or rule["escalation_minutes"])
+                                    if tier_num <= 1 or tier_num in existing_tiers:
+                                        continue
+                                    if age_min >= delay_min:
+                                        t_channel = str(member.get("channel_type") or rule["channel_type"]).upper()
+                                        t_endpoint = str(member.get("target_endpoint") or rule["target_endpoint"])
+                                        t_name = str(member.get("contact_name") or f"Tier {tier_num} Escalation")
+                                        rendered_esc = render_pi_notification_formats(
+                                            ef=dict(ef),
+                                            message_template=msg_template,
+                                            notification_phase="ESCALATION",
+                                            recipient_email=(
+                                                t_endpoint if t_channel == "EMAIL" else "qa-compliance@biocorp.internal"
+                                            ),
+                                            recipient_phone=(
+                                                t_endpoint if t_channel == "SMS" else "+14155550101"
+                                            ),
+                                            recipient_mobile_uri=(
+                                                t_endpoint
+                                                if t_channel == "MOBILE_PUSH"
+                                                else "pagerduty://gxp-qa-critical-service"
+                                            ),
+                                            escalation_tier=tier_num,
+                                            recipient_name=t_name,
+                                        )
+                                        esc_payload = {
+                                            "rule_name": rule["rule_name"],
+                                            "event_name": ef["event_name"],
+                                            "event_short_id": rendered_esc["event_short_id"],
+                                            "asset_path": ef["asset_path"],
+                                            "severity": ef["severity"],
+                                            "escalated": True,
+                                            "notification_phase": "ESCALATION",
+                                            "escalation_tier": tier_num,
+                                            "recipient_name": t_name,
+                                            "rendered_message": rendered_esc["rendered_message"],
+                                            "channel_envelopes": rendered_esc["channels"],
+                                        }
+                                        cur.execute(
+                                            """
+                                            INSERT INTO notification_deliveries (
+                                                rule_id, event_id, channel_type, target_endpoint,
+                                                delivery_status, escalation_triggered, notification_phase,
+                                                escalation_tier, recipient_name, rendered_message, payload
+                                            ) VALUES (
+                                                %s, %s, %s, %s, 'DELIVERED', TRUE, 'ESCALATION', %s, %s, %s, %s::jsonb
+                                            ) RETURNING
+                                                delivery_id, rule_id, event_id::text AS event_id,
+                                                channel_type, target_endpoint, delivery_status,
+                                                escalation_triggered, notification_phase, escalation_tier,
+                                                recipient_name, rendered_message, dispatched_at, payload;
+                                            """,
+                                            (
+                                                rule["rule_id"],
+                                                ef["event_id"],
+                                                t_channel,
+                                                t_endpoint,
+                                                tier_num,
+                                                t_name,
+                                                rendered_esc["rendered_message"],
+                                                json.dumps(esc_payload),
+                                            ),
+                                        )
+                                        esc_deliv = cur.fetchone()
+                                        if esc_deliv:
+                                            dispatched.append(dict(esc_deliv))
+                                        existing_tiers.add(tier_num)
+
+                        # 3. PI "Send on Close" (RECOVERY_CLOSE) evaluation when Event Frame is closed
+                        if (
+                            dispatch_recovery_on_close
+                            and bool(rule.get("notify_on_close", True))
+                            and ef.get("end_time") is not None
+                            and "RECOVERY_CLOSE" not in existing_phases
+                        ):
+                            rec_name = "All Subscribed Recipients (Send on Close)"
+                            rendered_rec = render_pi_notification_formats(
+                                ef=dict(ef),
+                                message_template=msg_template,
+                                notification_phase="RECOVERY_CLOSE",
+                                recipient_email=(
+                                    rule["target_endpoint"]
+                                    if rule["channel_type"] == "EMAIL"
+                                    else "qa-compliance@biocorp.internal"
+                                ),
+                                recipient_phone=(
+                                    rule["target_endpoint"] if rule["channel_type"] == "SMS" else "+14155550101"
+                                ),
+                                recipient_mobile_uri=(
+                                    rule["target_endpoint"]
+                                    if rule["channel_type"] == "MOBILE_PUSH"
+                                    else "fcm://device-usp-operator-01"
+                                ),
+                                escalation_tier=1,
+                                recipient_name=rec_name,
+                            )
+                            rec_payload = {
+                                "rule_name": rule["rule_name"],
+                                "event_name": ef["event_name"],
+                                "event_short_id": rendered_rec["event_short_id"],
+                                "asset_path": ef["asset_path"],
+                                "severity": ef["severity"],
+                                "escalated": False,
+                                "notification_phase": "RECOVERY_CLOSE",
+                                "escalation_tier": 1,
+                                "recipient_name": rec_name,
+                                "rendered_message": rendered_rec["rendered_message"],
+                                "channel_envelopes": rendered_rec["channels"],
+                            }
+                            cur.execute(
+                                """
+                                INSERT INTO notification_deliveries (
+                                    rule_id, event_id, channel_type, target_endpoint,
+                                    delivery_status, escalation_triggered, notification_phase,
+                                    escalation_tier, recipient_name, rendered_message, payload
+                                ) VALUES (
+                                    %s, %s, %s, %s, 'DELIVERED', FALSE, 'RECOVERY_CLOSE', 1, %s, %s, %s::jsonb
+                                ) RETURNING
+                                    delivery_id, rule_id, event_id::text AS event_id,
+                                    channel_type, target_endpoint, delivery_status,
+                                    escalation_triggered, notification_phase, escalation_tier,
+                                    recipient_name, rendered_message, dispatched_at, payload;
+                                """,
+                                (
+                                    rule["rule_id"],
+                                    ef["event_id"],
+                                    rule["channel_type"],
+                                    rule["target_endpoint"],
+                                    rec_name,
+                                    rendered_rec["rendered_message"],
+                                    json.dumps(rec_payload),
+                                ),
+                            )
+                            rec_deliv = cur.fetchone()
+                            if rec_deliv:
+                                dispatched.append(dict(rec_deliv))
+                            existing_phases.add("RECOVERY_CLOSE")
             conn.commit()
 
-        return {"status": "evaluated", "dispatched_count": len(dispatched), "deliveries": dispatched}
+        return {
+            "status": "evaluated",
+            "dispatched_count": len(dispatched),
+            "suppressed_chattering_count": suppressed_chattering_count,
+            "halted_by_acknowledgment_count": halted_by_ack_count,
+            "deliveries": dispatched,
+        }
 
     @router.get("/api/v1/notifications/deliveries")
-    def list_notification_deliveries() -> Dict[str, Any]:
+    def list_notification_deliveries(
+        channel_type: Optional[str] = Query(default=None, description="Optional channel_type filter"),
+        notification_phase: Optional[str] = Query(default=None, description="Optional phase filter (TRIGGER, ESCALATION, RECOVERY_CLOSE)"),
+        event_id: Optional[uuid.UUID] = Query(default=None, description="Optional Event Frame UUID filter"),
+    ) -> Dict[str, Any]:
         with get_pg_conn() as conn:
             with conn.cursor() as cur:
+                where_parts: List[str] = []
+                params: List[Any] = []
+                if channel_type:
+                    where_parts.append("channel_type = %s")
+                    params.append(channel_type.upper())
+                if notification_phase:
+                    where_parts.append("notification_phase = %s")
+                    params.append(notification_phase.upper())
+                if event_id:
+                    where_parts.append("event_id = %s")
+                    params.append(str(event_id))
+
+                where_sql = f"WHERE {' AND '.join(where_parts)}" if where_parts else ""
                 cur.execute(
-                    """
+                    f"""
                     SELECT
                         delivery_id, rule_id, event_id::text AS event_id,
                         channel_type, target_endpoint, delivery_status,
-                        escalation_triggered, dispatched_at, payload
+                        escalation_triggered, notification_phase, escalation_tier,
+                        recipient_name, rendered_message, dispatched_at, payload
                     FROM notification_deliveries
+                    {where_sql}
                     ORDER BY delivery_id DESC;
-                    """
+                    """,
+                    tuple(params),
                 )
                 rows = cur.fetchall()
         return {"count": len(rows), "deliveries": rows}
 
     return router
+

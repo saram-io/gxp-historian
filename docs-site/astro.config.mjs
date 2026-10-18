@@ -95,6 +95,7 @@ export default defineConfig({
           label: 'REST API, AI / MCP, HMI & Excel',
           items: [
             { label: 'REST API Reference (historian-api)', slug: 'docs/clients-and-api/rest-api-reference' },
+            { label: 'PI Notifications (Email, SMS & Mobile)', slug: 'docs/clients-and-api/pi-notifications-alerting' },
             { label: 'Pydantic AI Co-Pilot & MCP Server', slug: 'docs/clients-and-api/pydantic-ai-and-mcp' },
             { label: 'Grafana Vision Operator HMI', slug: 'docs/clients-and-api/grafana-vision-hmi' },
             { label: 'Excel DataLink Client (Power Query & UDFs)', slug: 'docs/clients-and-api/excel-datalink' },

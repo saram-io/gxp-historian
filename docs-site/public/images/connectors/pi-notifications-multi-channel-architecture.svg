@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 680" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="engineGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="critGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#b91c1c"/>
+      <stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+    <linearGradient id="okGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#047857"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#34d399"/>
+    </marker>
+    <marker id="arrowAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#fbbf24"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1120" height="680" rx="14" fill="url(#bgGrad)" stroke="#334155" stroke-width="2"/>
+
+  <!-- Header Banner -->
+  <rect x="20" y="18" width="1080" height="54" rx="10" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+  <text x="40" y="42" fill="#f8fafc" font-size="17" font-weight="700">GxPHistorian — AVEVA PI Notifications Parity &amp; Multi-Channel Alerting Architecture</text>
+  <text x="40" y="61" fill="#94a3b8" font-size="12">Purdue Level 3 Event Frame Engine • Level 3.5 IDMZ Relay &amp; OT SMPP Cellular Modem • Email, 160-Char SMS, Mobile Push (APNs/FCM/PagerDuty) &amp; Two-Way Part 11 ACK</text>
+
+  <!-- ZONE 1: Purdue Level 3 Historian & Event Frame Engine -->
+  <rect x="20" y="88" width="320" height="570" rx="10" fill="#0f172a" stroke="#3b82f6" stroke-width="1.5"/>
+  <rect x="20" y="88" width="320" height="32" rx="10" fill="url(#engineGrad)"/>
+  <text x="34" y="109" fill="#ffffff" font-size="13" font-weight="700">1. PURDUE LEVEL 3: HISTORIAN &amp; EVENT FRAMES</text>
+
+  <!-- ClickHouse & TrueFor Box -->
+  <rect x="36" y="134" width="288" height="115" rx="8" fill="#1e293b" stroke="#475569"/>
+  <text x="48" y="154" fill="#38bdf8" font-size="12" font-weight="700">ClickHouse Telemetry + TrueFor Debounce</text>
+  <text x="48" y="173" fill="#cbd5e1" font-size="11">• Enforces OPC Quality: WHERE quality &gt;= 192</text>
+  <text x="48" y="190" fill="#cbd5e1" font-size="11">• StartTrigger + TrueFor (e.g. &gt;38.0 °C for &gt;=30s)</text>
+  <text x="48" y="207" fill="#cbd5e1" font-size="11">• Close Hysteresis (e.g. 0.2 °C) suppresses chatter</text>
+  <text x="48" y="224" fill="#94a3b8" font-size="10" font-family="monospace">POST /api/v1/event-frames/backfill</text>
+  <text x="48" y="239" fill="#94a3b8" font-size="10" font-family="monospace">POST /api/v1/event-frames/evaluate</text>
+
+  <!-- PI Notifications Evaluation & Token Engine -->
+  <rect x="36" y="264" width="288" height="150" rx="8" fill="#1e293b" stroke="#3b82f6"/>
+  <text x="48" y="284" fill="#60a5fa" font-size="12" font-weight="700">PI Notifications Rule &amp; Token Engine</text>
+  <text x="48" y="303" fill="#e2e8f0" font-size="11">Dynamic AF / Event Frame Substitutions:</text>
+  <text x="48" y="320" fill="#38bdf8" font-size="10.5" font-family="monospace">%Element%  %\Element%  %AssetPath%</text>
+  <text x="48" y="336" fill="#38bdf8" font-size="10.5" font-family="monospace">%EventFrame%  %EventShortId%  %Severity%</text>
+  <text x="48" y="352" fill="#38bdf8" font-size="10.5" font-family="monospace">%StartTime%  %EndTime%  %Duration%</text>
+  <text x="48" y="368" fill="#38bdf8" font-size="10.5" font-family="monospace">%Value%  %MaxVal%  %AvgVal%  %HighLimit%</text>
+  <text x="48" y="384" fill="#38bdf8" font-size="10.5" font-family="monospace">%TrendUrl%  %AckUrl%  %SignUrl%</text>
+  <text x="48" y="403" fill="#94a3b8" font-size="10">Rule Constraint: ResendInterval &gt;= NonRepetition</text>
+
+  <!-- Escalation & Lifecycle State Machine -->
+  <rect x="36" y="428" width="288" height="122" rx="8" fill="#1e293b" stroke="#f59e0b"/>
+  <text x="48" y="448" fill="#fbbf24" font-size="12" font-weight="700">Escalation Teams &amp; Anti-Fatigue Lifecycle</text>
+  <text x="48" y="467" fill="#cbd5e1" font-size="11">• Tier 1 (0 min): Lead USP Operator (SMS + Push)</text>
+  <text x="48" y="484" fill="#cbd5e1" font-size="11">• Tier 2 (+10–15m): Shift Supervisor (SMS + Email)</text>
+  <text x="48" y="501" fill="#cbd5e1" font-size="11">• Tier 3 (+20–30m): QA Qualified Person (PagerDuty)</text>
+  <text x="48" y="518" fill="#34d399" font-size="11" font-weight="600">• Send on Close (RECOVERY_CLOSE): Auto-Resolve</text>
+  <text x="48" y="536" fill="#94a3b8" font-size="10" font-family="monospace">POST /api/v1/notifications/evaluate</text>
+
+  <!-- PostgreSQL Part 11 WORM Audit Ledger -->
+  <rect x="36" y="564" width="288" height="80" rx="8" fill="#064e3b" stroke="#10b981"/>
+  <text x="48" y="584" fill="#6ee7b7" font-size="12" font-weight="700">21 CFR Part 11 WORM Audit &amp; Delivery Ledger</text>
+  <text x="48" y="602" fill="#d1fae5" font-size="10.5">Tables: notification_rules, notification_deliveries</text>
+  <text x="48" y="618" fill="#d1fae5" font-size="10.5">Requires: app.actor_id + app.change_reason</text>
+  <text x="48" y="634" fill="#a7f3d0" font-size="10" font-family="monospace">SHA-256 Chain: part11_audit_log</text>
+
+  <!-- ZONE 2: Purdue Level 3.5 IDMZ & OT Hardware Gateways -->
+  <rect x="372" y="88" width="308" height="570" rx="10" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5"/>
+  <rect x="372" y="88" width="308" height="32" rx="10" fill="#b45309"/>
+  <text x="386" y="109" fill="#ffffff" font-size="13" font-weight="700">2. LEVEL 3.5 IDMZ &amp; OT CELLULAR MODEM</text>
+
+  <!-- Outbound HTTPS / SMTP DMZ Relay -->
+  <rect x="388" y="134" width="276" height="130" rx="8" fill="#1e293b" stroke="#64748b"/>
+  <text x="400" y="154" fill="#f8fafc" font-size="12" font-weight="700">Outbound-Only IDMZ Relay (No Inbound Ports)</text>
+  <text x="400" y="173" fill="#cbd5e1" font-size="11">• TLS 1.3 Outbound Proxy (TCP 443 / TCP 587)</text>
+  <text x="400" y="190" fill="#cbd5e1" font-size="11">• Corporate SMTP Relay (Multipart HTML+Text)</text>
+  <text x="400" y="207" fill="#cbd5e1" font-size="11">• Carrier Email-to-SMS Bridge:</text>
+  <text x="408" y="224" fill="#38bdf8" font-size="10" font-family="monospace">&lt;10-digit&gt;@txt.att.net | @vtext.com</text>
+  <text x="400" y="244" fill="#94a3b8" font-size="10">Protects Level 3 Historian from WAN exposure</text>
+
+  <!-- Physical OT Cellular Modem Diagram (AirLink RV55 / Moxa OnCell) -->
+  <rect x="388" y="280" width="276" height="220" rx="8" fill="#1e293b" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="400" y="300" fill="#fbbf24" font-size="12" font-weight="700">Air-Gapped OT Cellular Gateway (Failover)</text>
+  <text x="400" y="317" fill="#e2e8f0" font-size="10.5">Semtech AirLink RV55 / Moxa OnCell G4302-LTE4</text>
+
+  <!-- Rear Panel Port Callout Schematic -->
+  <rect x="402" y="328" width="248" height="90" rx="6" fill="#0f172a" stroke="#475569"/>
+  <text x="412" y="344" fill="#94a3b8" font-size="9.5" font-weight="700">REAR PANEL PHYSICAL PORT PINOUT</text>
+  <!-- RJ45 Port -->
+  <rect x="412" y="352" width="66" height="54" rx="4" fill="#1e293b" stroke="#38bdf8"/>
+  <text x="420" y="368" fill="#38bdf8" font-size="9.5" font-weight="700">RJ45 LAN</text>
+  <text x="418" y="381" fill="#cbd5e1" font-size="8.5">10/100/1000</text>
+  <text x="418" y="393" fill="#94a3b8" font-size="8">SMPP / REST</text>
+  <!-- DB9 RS-232 Port -->
+  <rect x="488" y="352" width="74" height="54" rx="4" fill="#1e293b" stroke="#fbbf24"/>
+  <text x="495" y="368" fill="#fbbf24" font-size="9.5" font-weight="700">DB9 RS-232</text>
+  <text x="494" y="381" fill="#cbd5e1" font-size="8.5">Pin2:RX Pin3:TX</text>
+  <text x="494" y="393" fill="#94a3b8" font-size="8">Pin5:GND AT+CMGS</text>
+  <!-- Dual SMA LTE Antenna -->
+  <rect x="572" y="352" width="68" height="54" rx="4" fill="#1e293b" stroke="#34d399"/>
+  <text x="578" y="368" fill="#34d399" font-size="9.5" font-weight="700">SMA MAIN</text>
+  <text x="578" y="381" fill="#cbd5e1" font-size="8.5">4G LTE Cat 4</text>
+  <text x="578" y="393" fill="#94a3b8" font-size="8">Direct Cellular</text>
+
+  <text x="400" y="436" fill="#cbd5e1" font-size="10.5">• Direct cellular SMS when plant WAN is down</text>
+  <text x="400" y="453" fill="#cbd5e1" font-size="10.5">• SMPP v3.4 / Serial AT+CMGS GSM-7 (160 chars)</text>
+  <text x="400" y="470" fill="#cbd5e1" font-size="10.5">• Receives Two-Way Inbound SMS: "ACK &lt;ShortId&gt;"</text>
+  <text x="400" y="487" fill="#f87171" font-size="10" font-weight="600">! Never unplug PLC Profinet port; use OT LAN switch</text>
+
+  <!-- Two-Way ACK Return Router -->
+  <rect x="388" y="516" width="276" height="128" rx="8" fill="#064e3b" stroke="#10b981"/>
+  <text x="400" y="536" fill="#6ee7b7" font-size="12" font-weight="700">Bidirectional Part 11 Acknowledgment Gate</text>
+  <text x="400" y="555" fill="#d1fae5" font-size="10.5">1. 1-Click Email / Mobile Push ACK:</text>
+  <text x="406" y="571" fill="#a7f3d0" font-size="9.5" font-family="monospace">POST /api/v1/notifications/acknowledge/{id}</text>
+  <text x="400" y="590" fill="#d1fae5" font-size="10.5">2. Two-Way Inbound SMS Webhook:</text>
+  <text x="406" y="606" fill="#a7f3d0" font-size="9.5" font-family="monospace">POST /api/v1/notifications/sms-webhook</text>
+  <text x="400" y="626" fill="#34d399" font-size="10.5" font-weight="600">→ Halts Tier 2/3 Escalations + Logs WORM Hash</text>
+
+  <!-- ZONE 3: Multi-Channel Delivery Endpoints -->
+  <rect x="712" y="88" width="388" height="570" rx="10" fill="#0f172a" stroke="#10b981" stroke-width="1.5"/>
+  <rect x="712" y="88" width="388" height="32" rx="10" fill="url(#okGrad)"/>
+  <text x="726" y="109" fill="#ffffff" font-size="13" font-weight="700">3. MULTI-CHANNEL DELIVERY &amp; MOBILE ENDPOINTS</text>
+
+  <!-- Channel A: EMAIL -->
+  <rect x="728" y="134" width="356" height="118" rx="8" fill="#1e293b" stroke="#38bdf8"/>
+  <text x="742" y="154" fill="#38bdf8" font-size="12" font-weight="700">Channel 1: EMAIL (Native SMTP HTML + Plain Text)</text>
+  <text x="742" y="172" fill="#cbd5e1" font-size="10.5">• Multipart MIME with ISA-95 Asset Path &amp; KPI Summary Table</text>
+  <text x="742" y="188" fill="#cbd5e1" font-size="10.5">• Embedded Ad-Hoc LTTB Trend URL (PI Vision / Grafana HMI):</text>
+  <text x="748" y="204" fill="#93c5fd" font-size="9.5" font-family="monospace">/d/gxphistorian-gxp-bioreactor-hmi?from=...&amp;to=...</text>
+  <text x="742" y="220" fill="#cbd5e1" font-size="10.5">• Embedded Buttons: [Open Ad-Hoc Trend] [Acknowledge] [E-Sign]</text>
+  <text x="742" y="238" fill="#94a3b8" font-size="10">Rule: QA_Rich_HTML_Email_Notification</text>
+
+  <!-- Channel B: SMS -->
+  <rect x="728" y="264" width="356" height="118" rx="8" fill="#1e293b" stroke="#fbbf24"/>
+  <text x="742" y="284" fill="#fbbf24" font-size="12" font-weight="700">Channel 2: SMS (Twilio REST / Carrier / OT SMPP)</text>
+  <text x="742" y="302" fill="#cbd5e1" font-size="10.5">• Strict &lt;=160-Char Single-Segment GSM-7 Payload:</text>
+  <rect x="742" y="310" width="328" height="24" rx="4" fill="#0f172a" stroke="#475569"/>
+  <text x="748" y="326" fill="#fde68a" font-size="9.5" font-family="monospace">[GxP CRIT] Bioreactor_201 BR201_TEMP_PV=41.4degC... Reply ACK</text>
+  <text x="742" y="350" fill="#cbd5e1" font-size="10.5">• Transports: Twilio Programmable SMS, @txt.att.net, SMPP</text>
+  <text x="742" y="368" fill="#94a3b8" font-size="10">Rule: USP_Operator_SMS_Twilio_Alert</text>
+
+  <!-- Channel C: MOBILE PUSH -->
+  <rect x="728" y="394" width="356" height="130" rx="8" fill="#1e293b" stroke="#f43f5e"/>
+  <text x="742" y="414" fill="#fb7185" font-size="12" font-weight="700">Channel 3: MOBILE_PUSH (APNs / FCM / PagerDuty v2)</text>
+  <text x="742" y="432" fill="#cbd5e1" font-size="10.5">• iOS APNs: interruption-level="critical" (bypasses Mute/Focus)</text>
+  <text x="742" y="448" fill="#cbd5e1" font-size="10.5">• Android FCM: priority="high" + gxphistorian://events/{id}</text>
+  <text x="742" y="464" fill="#cbd5e1" font-size="10.5">• PagerDuty Events API v2: dedup_key + trigger / resolve</text>
+  <text x="742" y="480" fill="#cbd5e1" font-size="10.5">• Mobile Action Buttons: [Acknowledge] [Live Trend] [AI Brief]</text>
+  <text x="742" y="498" fill="#94a3b8" font-size="10">Rule: Bioreactor_Mobile_Push_PagerDuty</text>
+
+  <!-- Channel D: WEBHOOK & TEAMS ADAPTIVE CARD -->
+  <rect x="728" y="536" width="356" height="108" rx="8" fill="#1e293b" stroke="#a855f7"/>
+  <text x="742" y="556" fill="#c084fc" font-size="12" font-weight="700">Channel 4: WEBHOOK &amp; TEAMS_ADAPTIVE_CARD</text>
+  <text x="742" y="574" fill="#cbd5e1" font-size="10.5">• PI WebService REST Delivery Channel equivalent</text>
+  <text x="742" y="590" fill="#cbd5e1" font-size="10.5">• Microsoft Teams AdaptiveCard v1.4 FactSet + OpenUrl actions</text>
+  <text x="742" y="606" fill="#cbd5e1" font-size="10.5">• ServiceNow / Maximo / QMS CAPA automated incident intake</text>
+  <text x="742" y="624" fill="#94a3b8" font-size="10">Rule: QA_Critical_Excursion_Webhook</text>
+
+  <!-- Connecting Arrows -->
+  <line x1="324" y1="335" x2="384" y2="210" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <line x1="324" y1="360" x2="384" y2="375" stroke="#fbbf24" stroke-width="2" marker-end="url(#arrowAmber)"/>
+  <line x1="664" y1="190" x2="724" y2="190" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <line x1="664" y1="360" x2="724" y2="320" stroke="#fbbf24" stroke-width="2" marker-end="url(#arrowAmber)"/>
+  <line x1="664" y1="220" x2="724" y2="450" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <line x1="664" y1="240" x2="724" y2="580" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <!-- Return ACK Arrows -->
+  <path d="M 728 355 L 668 575" stroke="#34d399" stroke-width="2" stroke-dasharray="4 3" fill="none" marker-end="url(#arrowGreen)"/>
+  <path d="M 728 485 L 668 560" stroke="#34d399" stroke-width="2" stroke-dasharray="4 3" fill="none" marker-end="url(#arrowGreen)"/>
+  <line x1="388" y1="580" x2="328" y2="510" stroke="#34d399" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrowGreen)"/>
+  <line x1="388" y1="600" x2="328" y2="600" stroke="#34d399" stroke-width="2" marker-end="url(#arrowGreen)"/>
+</svg>

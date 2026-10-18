@@ -118,6 +118,12 @@ CREATE TABLE IF NOT EXISTS notification_rules (
     channel_type TEXT NOT NULL DEFAULT 'WEBHOOK',
     target_endpoint TEXT NOT NULL,
     escalation_minutes INT NOT NULL DEFAULT 15,
+    non_repetition_minutes INT NOT NULL DEFAULT 5,
+    resend_interval_minutes INT NOT NULL DEFAULT 30,
+    notify_on_close BOOLEAN NOT NULL DEFAULT TRUE,
+    message_template TEXT NOT NULL DEFAULT '[%Severity%] %Element% — %EventFrame% started at %StartTime% (Value: %Value% %EngUnits%, Limit: %HighLimit%)',
+    escalation_team JSONB NOT NULL DEFAULT '[]'::jsonb,
+    delivery_config JSONB NOT NULL DEFAULT '{}'::jsonb,
     is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
@@ -129,6 +135,10 @@ CREATE TABLE IF NOT EXISTS notification_deliveries (
     target_endpoint TEXT NOT NULL,
     delivery_status TEXT NOT NULL DEFAULT 'DELIVERED',
     escalation_triggered BOOLEAN NOT NULL DEFAULT FALSE,
+    notification_phase TEXT NOT NULL DEFAULT 'TRIGGER',
+    escalation_tier INT NOT NULL DEFAULT 1,
+    recipient_name TEXT NOT NULL DEFAULT '',
+    rendered_message TEXT NOT NULL DEFAULT '',
     dispatched_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
     payload JSONB NOT NULL DEFAULT '{}'::jsonb
 );
@@ -396,11 +406,72 @@ INSERT INTO event_frame_templates (
     ('Cleanroom_DP_Low_Excursion', 'Differential_Pressure', '<', 12.5, 15, 0.5, 'WARNING')
 ON CONFLICT (template_name) DO NOTHING;
 
--- Seed PI Notification Rule
+-- Seed Multi-Channel PI Notification Rules (WEBHOOK, SMS, MOBILE_PUSH, EMAIL)
 INSERT INTO notification_rules (
-    rule_name, event_template_filter, min_severity, channel_type, target_endpoint, escalation_minutes, is_active
+    rule_name, event_template_filter, min_severity, channel_type, target_endpoint,
+    escalation_minutes, non_repetition_minutes, resend_interval_minutes, notify_on_close,
+    message_template, escalation_team, delivery_config, is_active
 ) VALUES
-    ('QA_Critical_Excursion_Webhook', '*', 'CRITICAL', 'WEBHOOK', 'https://qa-alerts.biocorp.internal/api/v1/gxp-incidents', 15, TRUE)
+    (
+        'QA_Critical_Excursion_Webhook',
+        '*',
+        'CRITICAL',
+        'WEBHOOK',
+        'https://qa-alerts.biocorp.internal/api/v1/gxp-incidents',
+        15,
+        5,
+        30,
+        TRUE,
+        '[%Severity%] %Element% — %EventFrame% started at %StartTime% (Value: %Value% %EngUnits%, Limit: %HighLimit%)',
+        '[{"tier": 1, "role": "QA Incident Webhook", "contact_name": "QA Automated Triage", "channel_type": "WEBHOOK", "target_endpoint": "https://qa-alerts.biocorp.internal/api/v1/gxp-incidents", "delay_minutes": 0}, {"tier": 2, "role": "QA Qualified Person", "contact_name": "Dr. Marcus Vance", "channel_type": "EMAIL", "target_endpoint": "marcus.vance@biocorp.internal", "delay_minutes": 15}]'::jsonb,
+        '{"format": "PI_WEBSERVICE_JSON_AND_TEAMS_CARD", "include_grafana_trend_link": true}'::jsonb,
+        TRUE
+    ),
+    (
+        'USP_Operator_SMS_Twilio_Alert',
+        '*',
+        'CRITICAL',
+        'SMS',
+        '+14155550101',
+        10,
+        5,
+        15,
+        TRUE,
+        '[GxP %Severity%] %Element% (%EventFrame%): %Value% %EngUnits% (Lim:%HighLimit%) @ %StartTime%. Reply ACK %EventShortId%',
+        '[{"tier": 1, "role": "Lead USP Operator", "contact_name": "Sarah Jenkins", "channel_type": "SMS", "target_endpoint": "+14155550101", "delay_minutes": 0}, {"tier": 2, "role": "USP Shift Supervisor", "contact_name": "David Chen", "channel_type": "SMS", "target_endpoint": "+14155550102", "delay_minutes": 10}, {"tier": 3, "role": "QA Qualified Person", "contact_name": "Dr. Marcus Vance", "channel_type": "SMS", "target_endpoint": "+14155550199", "delay_minutes": 20}]'::jsonb,
+        '{"gateway_provider": "TWILIO_REST_API", "fallback_gateway": "OT_SMPP_CELLULAR_MODEM", "carrier_email_to_sms": "4155550101@txt.att.net", "two_way_ack_enabled": true}'::jsonb,
+        TRUE
+    ),
+    (
+        'Bioreactor_Mobile_Push_PagerDuty',
+        '*',
+        'WARNING',
+        'MOBILE_PUSH',
+        'gxphistorian://mobile/push/usp-oncall-roster',
+        15,
+        5,
+        30,
+        TRUE,
+        '[%Severity%] %Element% (%AssetPath%): %EventFrame% — Peak %MaxVal% %EngUnits% (Duration: %Duration%)',
+        '[{"tier": 1, "role": "Lead USP Operator Mobile", "contact_name": "Sarah Jenkins", "channel_type": "MOBILE_PUSH", "target_endpoint": "fcm://device-usp-operator-01", "delay_minutes": 0}, {"tier": 2, "role": "QA On-Call PagerDuty", "contact_name": "Dr. Marcus Vance", "channel_type": "MOBILE_PUSH", "target_endpoint": "pagerduty://gxp-qa-critical-service", "delay_minutes": 15}]'::jsonb,
+        '{"apns_interruption_level": "critical", "fcm_priority": "high", "pagerduty_events_v2": true, "deep_link_scheme": "gxphistorian://events/"}'::jsonb,
+        TRUE
+    ),
+    (
+        'QA_Rich_HTML_Email_Notification',
+        '*',
+        'WARNING',
+        'EMAIL',
+        'qa-compliance@biocorp.internal',
+        15,
+        5,
+        30,
+        TRUE,
+        '[%Severity%] GxP Event Frame %EventFrame% on %Element% (%AssetPath%) started at %StartTime% (Peak: %MaxVal% %EngUnits%)',
+        '[{"tier": 1, "role": "QA Compliance Distribution", "contact_name": "QA Compliance Team", "channel_type": "EMAIL", "target_endpoint": "qa-compliance@biocorp.internal", "delay_minutes": 0}, {"tier": 2, "role": "QA Qualified Person", "contact_name": "Dr. Marcus Vance", "channel_type": "EMAIL", "target_endpoint": "marcus.vance@biocorp.internal", "delay_minutes": 15}]'::jsonb,
+        '{"smtp_host": "smtp.biocorp.internal", "smtp_port": 587, "mime_format": "multipart/alternative", "include_grafana_adhoc_trend_link": true, "include_one_click_ack_link": true}'::jsonb,
+        TRUE
+    )
 ON CONFLICT (rule_name) DO NOTHING;
 
 COMMIT;

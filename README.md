@@ -14,7 +14,7 @@ GxPHistorian GxP Industrial Historian is a production-ready, 4-Pillar open-sourc
 | :--- | :--- | :--- |
 | **PI Data Archive** (Swinging Door / Archive Subsystem) | **ClickHouse 24.8 LTS (`pi_historian.sensor_data`) + Stage 2 Swinging Door (`CompDev`/`CompMax`)** | `MergeTree` partitioned by month (`toYYYYMM(ts)`) with lossless `Delta`, `DoubleDelta`, `Gorilla`, and `T64` codecs layered with `ZSTD(1)`, optional Stage 2 Swinging Door compression (`CompDev`, `CompMax`, `CompMin`), and real-time 1-minute `AggregatingMergeTree` rollups (`sensor_rollup_1m`). |
 | **PI Asset Framework (PI AF)** | **PostgreSQL 16 `ltree` + ClickHouse `FLAT` Dictionary + Template Auto-Instantiation** | ISA-95 hierarchical asset paths (`Enterprise.Site.Area.Unit`) indexed via PostgreSQL `GiST`, one-call AF Template auto-instantiation (`POST /api/v1/assets/instantiate-template`), canonical UOM conversion (`degC`/`degF`/`K`, `bar`/`psi`/`Pa`/`kPa`, `L_min`/`mL_min`/`GPM`), Digital State Sets (`digital_state_sets`), and ClickHouse RAM dictionary sync (`pi_historian.pg_asset_tags`). |
-| **PI Event Frames (EF) & PI Notifications** | **PostgreSQL `event_frames` + `TrueFor` Backfill + Multi-Stage Signatures + Notification Engine** | Automated ISA-88 batch & excursion detection, historical backfill with `TrueFor` debounce (`POST /api/v1/event-frames/backfill`), hierarchical parent/child batch phases (`parent_event_id`), multi-stage 21 CFR Part 11 electronic signatures (`Operator Review` -> `Supervisor Verification` -> `QA Final Approval`), and real-time webhook/email notification rules (`POST /api/v1/notifications/evaluate`). |
+| **PI Event Frames (EF) & PI Notifications** | **PostgreSQL `event_frames` + `TrueFor` Backfill + Multi-Stage Signatures + Multi-Channel Alert Engine** | Automated ISA-88 batch & excursion detection, historical backfill with `TrueFor` debounce (`POST /api/v1/event-frames/backfill`), hierarchical parent/child batch phases (`parent_event_id`), multi-stage 21 CFR Part 11 electronic signatures (`Operator Review` -> `Supervisor Verification` -> `QA Final Approval`), and multi-channel **Email (SMTP/HTML)**, **SMS (Twilio / Carrier Gateway / OT Cellular SMPP)**, **Mobile Push (APNs Critical / FCM / PagerDuty v2)**, and **Webhook** notification rules with Escalation Teams, Non-Repetition/Resend intervals, Two-Way SMS `"ACK <id>"`, and Send-on-Close (`POST /api/v1/notifications/evaluate`). |
 | **PI Interface Node & PI Buffer Subsystem** | **Telegraf 1.32 Disk WAL + Python Edge Workers** | Stage 1 Exception/Deadband filtering (`ExcDev` & `ExcMax`) + optional Stage 2 Swinging Door (`CompDev` & `CompMax`) in memory + disk-backed Write-Ahead Log (`/var/lib/telegraf/buffer`, 1M metric capacity) for zero-data-loss store-and-forward across OPC UA, BACnet/IP, Siemens S7, Modbus, and Windows OPC DA. |
 | **PI Vision & PI BatchView** (`PlotValues` Trends, EF Overlays & Golden Batch) | **Grafana OSS 11.2 + ClickHouse `largestTriangleThreeBuckets` + `/api/v1/batches/compare`** | Asset-relative dashboard (`${asset_path}`) with native ClickHouse LTTB visual peak preservation, 1-minute rollup bands, Event Frame shaded region annotations, relative batch elapsed-hour (`T+0.0h`) Golden Batch alignment (`mean ± 2 SD` reference envelope), and live Part 11 audit trail inspection. |
 | **PI DataLink & PI Web API StreamSets** (`PICurrVal`, `PIArcVal`, `PICompDat`, `PISampDat`, `PIAdvCalcDat`, `PITimeFilter`) | **FastAPI `/api/v1/datalink/*` + `/api/v1/streamsets/*` + 8 `xlwings` Excel UDFs / Power Query** | Complete 8-function Excel DataLink suite (`=GXPHISTORIAN_SAMPLED()`, `=GXPHISTORIAN_PLOT_VALUES()`, `=GXPHISTORIAN_EVENT_SUMMARY()`, `=GXPHISTORIAN_CURRENT_VALUE()`, `=GXPHISTORIAN_ARCHIVE_VALUE()`, `=GXPHISTORIAN_COMPRESSED_DATA()`, `=GXPHISTORIAN_CALCULATED_DATA()`, `=GXPHISTORIAN_TIME_FILTER()`) plus bulk multi-tag StreamSets (`/api/v1/streamsets/end`, `/api/v1/streamsets/interpolated`). |
@@ -136,7 +136,8 @@ clickhouse-historian/
 ├── docs/
 │   ├── images/photos/                                # 9 high-res photorealistic instrument & connector product galleries
 │   ├── images/instruments/                           # 10 SVG visual equipment, rear-panel connector & wiring guides
-│   ├── images/connectors/                            # 6 SVG physical pinout, protocol packet & state-machine diagrams
+│   ├── images/connectors/                            # 7 SVG physical pinout, protocol packet, state-machine & multi-channel alerting diagrams
+│   ├── PI_NOTIFICATIONS_ALERTING_EMAIL_SMS_MOBILE.md # AVEVA PI Notifications Deep Dive & Multi-Channel Email, SMS & Mobile Alerting Guide
 │   ├── PYDANTIC_AI_COPILOT_AND_MCP_SERVER.md         # Pydantic AI GxP Co-Pilot & gxphistorian-mcp Server Guide
 │   ├── MOCK_INSTRUMENT_SERVER_TESTING_GUIDE.md       # Multi-Protocol Biopharma Instrument Mock Server & Testing Guide
 │   ├── CONNECTORS_AND_PROTOCOLS_ENCYCLOPEDIA.md      # Visual Encyclopedia of Physical Hardware & Software Connectors
@@ -186,6 +187,7 @@ clickhouse-historian/
 ### Connectors, Protocols, Biopharma Equipment & Sizing Guides (`docs/`)
 | Guide Document | Covered Connectors, Protocols, Instruments & Skids |
 | :--- | :--- |
+| [docs/PI_NOTIFICATIONS_ALERTING_EMAIL_SMS_MOBILE.md](docs/PI_NOTIFICATIONS_ALERTING_EMAIL_SMS_MOBILE.md) | **PI Notifications: Email, SMS & Mobile Alerting:** Deep research on AVEVA PI Notifications Service & Exele TopView plus GxPHistorian multi-channel alerting (`EMAIL` SMTP/HTML, `SMS` Twilio / Carrier Gateway / Purdue L3.5 Cellular SMPP Modems, `MOBILE_PUSH` APNs Critical / FCM / PagerDuty v2, `WEBHOOK`), Escalation Teams, Non-Repetition/Resend, Two-Way SMS `"ACK <id>"`, and Send-on-Close. |
 | [docs/PYDANTIC_AI_COPILOT_AND_MCP_SERVER.md](docs/PYDANTIC_AI_COPILOT_AND_MCP_SERVER.md) | **Pydantic AI GxP Co-Pilot & `gxphistorian-mcp` Server:** ISA-88 Batch Excursion Investigation Agent (`output_type=DeviationInvestigationBrief`, `WHERE quality >= 192`), Part 11 human-in-the-loop `ApprovalRequired` tag provisioning, Capabilities on Demand (`defer_loading=True`), and the 6-tool `FastMCP` server. |
 | [docs/MOCK_INSTRUMENT_SERVER_TESTING_GUIDE.md](docs/MOCK_INSTRUMENT_SERVER_TESTING_GUIDE.md) | **Multi-Protocol Biopharma Instrument Mock Server (`instrument-mock-server`):** Live hardware-free socket & HTTP testing across OPC UA Binary (`:4840`), Modbus TCP `ABCD`/`CDAB`/`INT16` (`:5020`), BACnet/IP `BVLC` (`:47808/udp`), Siemens S7comm `RFC 1006` `DB10` (`:1102`), RS-232 Moxa `MT-SICS` (`:4001`), and Windows OPC DA 2.05a / `PI UFL` SHA-256 Watch-Folder (`:8095`) with live fault & excursion injection (`/control/override`). |
 | [docs/CONNECTORS_AND_PROTOCOLS_ENCYCLOPEDIA.md](docs/CONNECTORS_AND_PROTOCOLS_ENCYCLOPEDIA.md) | **Connectors & Protocols Visual Encyclopedia:** Physical hardware connector identification & pinouts (`RJ45 T568B`, `M12 D/X/A-Coded`, `DB9 RS-232/MPI`, `Phoenix RS-485 & 4–20 mA`, `Moxa` / `Advantech` / `Helmholz` / `LOYTEC` gateways) and all 8 software protocol families. |
@@ -386,9 +388,18 @@ curl -s -X POST http://localhost:8020/api/v1/assets/instantiate-template \
   -H "X-Change-Reason: Auto-instantiate Bioreactor 202 from GMP_Bioreactor_v1 template" \
   -d '{"template_name": "GMP_Bioreactor_v1", "asset_name": "Bioreactor 202", "asset_path": "BioCorp.Fremont.USP.Bioreactor_202", "parent_path": "BioCorp.Fremont.USP", "tag_prefix": "BR202"}' | jq .
 
-# 4. Stage 2 Swinging Door Compression, Event Frame TrueFor Backfill, Multi-Stage Signatures & PI Notifications
+# 4. Stage 2 Swinging Door Compression, Event Frame TrueFor Backfill, Multi-Stage Signatures & Multi-Channel PI Notifications
 curl -s http://localhost:8020/api/v1/event-frames/1/signatures | jq .
-curl -s -X POST http://localhost:8020/api/v1/notifications/evaluate | jq .
+curl -s http://localhost:8020/api/v1/notifications/channels | jq .
+curl -s -X POST http://localhost:8020/api/v1/notifications/preview \
+  -H "Content-Type: application/json" \
+  -d '{"event_name": "Excursion_HIGH_BR201_TEMP_PV", "severity": "CRITICAL", "asset_path": "BioCorp.Fremont.USP.Bioreactor_201", "tag_name": "BR201_TEMP_PV", "peak_val": 39.42, "eng_units": "degC"}' | jq .
+curl -s -X POST http://localhost:8020/api/v1/notifications/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{"simulate_elapsed_minutes": 20.0, "respect_non_repetition": true, "dispatch_recovery_on_close": true}' | jq .
+curl -s -X POST http://localhost:8020/api/v1/notifications/sms-webhook \
+  -H "Content-Type: application/json" \
+  -d '{"From": "+14155550101", "Body": "ACK 1 Jacket cooling valve reset"}' | jq .
 ```
 
 ---

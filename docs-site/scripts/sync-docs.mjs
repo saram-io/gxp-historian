@@ -151,6 +151,14 @@ const biopharmaFiles = [
     description:
       'Multi-Protocol Biopharma Instrument Mock Server (instrument-mock-server) and connection testing guide across OPC UA (:4840), Modbus TCP (:5020), BACnet/IP (:47808), Siemens S7comm (:1102), RS-232 MT-SICS (:4001), and OPC DA / PI UFL (:8095).',
   },
+  {
+    src: 'docs/PI_NOTIFICATIONS_ALERTING_EMAIL_SMS_MOBILE.md',
+    dest: 'src/content/docs/docs/clients-and-api/pi-notifications-alerting.md',
+    slug: '/docs/clients-and-api/pi-notifications-alerting/',
+    fileName: 'PI_NOTIFICATIONS_ALERTING_EMAIL_SMS_MOBILE.md',
+    description:
+      'AVEVA PI System Alerting Deep Dive & GxPHistorian Multi-Channel Notification Engine: Email (SMTP/HTML), SMS (Twilio, Carrier Email-to-SMS, Purdue L3.5 Cellular SMPP), Mobile Push (APNs Critical, FCM, PagerDuty v2), Escalation Teams, Non-Repetition/Resend, Two-Way SMS ACK, and Send-on-Close.',
+  },
 ];
 
 const validationFiles = [

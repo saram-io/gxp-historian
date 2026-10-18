@@ -599,7 +599,114 @@ def test_oq_16_swinging_door_truefor_backfill_multisig_and_notifications(
     assert bf_data["created_event_count"] >= 1
     backfilled_event_id = bf_data["created_event_ids"][0]
 
-    # 3. Multi-Stage Electronic Signatures (Stage 1: Production Review -> Stage 2: QA Approval)
+    # 3. Multi-Channel PI Notifications (Email, SMS, Mobile Push, Webhook/Teams),
+    #    Escalation Teams, Two-Way SMS Acknowledgment & Send-on-Close Recovery
+    chan_resp = api_client.get("/api/v1/notifications/channels")
+    assert chan_resp.status_code == 200
+    chan_catalog = chan_resp.json()
+    supported_types = {c["channel_type"] for c in chan_catalog["supported_channels"]}
+    assert {"EMAIL", "SMS", "MOBILE_PUSH", "WEBHOOK", "TEAMS_ADAPTIVE_CARD"} <= supported_types
+    assert "%Element%" in chan_catalog["substitution_parameters"]
+    assert "%TrendUrl%" in chan_catalog["substitution_parameters"]
+
+    # Negative check: PI Notifications requires resend_interval_minutes >= non_repetition_minutes
+    bad_rule_resp = api_client.post(
+        "/api/v1/notifications/rules",
+        headers=headers,
+        json={
+            "rule_name": "Invalid_Interval_Rule",
+            "channel_type": "SMS",
+            "target_endpoint": "+14155550101",
+            "non_repetition_minutes": 20,
+            "resend_interval_minutes": 5,
+        },
+    )
+    assert bad_rule_resp.status_code == 400
+    assert "resend_interval_minutes" in bad_rule_resp.text
+
+    # Preview all 4 delivery formats (Email HTML+Text, 160-char GSM-7 SMS, Mobile Push APNs/FCM/PagerDuty, Teams Card)
+    prev_resp = api_client.post(
+        "/api/v1/notifications/preview",
+        json={
+            "event_id": backfilled_event_id,
+            "notification_phase": "TRIGGER",
+            "recipient_email": "qa-compliance@biocorp.internal",
+            "recipient_phone_e164": "+14155550101",
+            "recipient_mobile_uri": "fcm://device-usp-operator-01",
+        },
+    )
+    assert prev_resp.status_code == 200
+    prev_data = prev_resp.json()
+    assert prev_data["channels"]["sms"]["gsm7_single_segment"] is True
+    assert prev_data["channels"]["sms"]["char_count"] <= 160
+    assert "Open Ad-Hoc Trend" in prev_data["channels"]["email"]["html_body"]
+    assert prev_data["channels"]["mobile_push"]["apns_payload"]["aps"]["interruption-level"] == "critical"
+    assert prev_data["channels"]["mobile_push"]["pagerduty_events_v2"]["event_action"] == "trigger"
+
+    # Initial TRIGGER evaluation across WEBHOOK, SMS, MOBILE_PUSH, and EMAIL
+    notif_eval = api_client.post(
+        "/api/v1/notifications/evaluate",
+        params={"event_id": backfilled_event_id},
+    )
+    assert notif_eval.status_code == 200
+    notif_data = notif_eval.json()
+    assert notif_data["status"] == "evaluated"
+    assert notif_data["dispatched_count"] >= 4
+    dispatched_channels = {d["channel_type"] for d in notif_data["deliveries"]}
+    assert {"WEBHOOK", "SMS", "MOBILE_PUSH", "EMAIL"} <= dispatched_channels
+
+    # Simulate 15 minutes elapsed without acknowledgment -> triggers Tier 2 Escalation Team dispatches
+    esc_eval = api_client.post(
+        "/api/v1/notifications/evaluate",
+        params={"event_id": backfilled_event_id, "simulate_elapsed_minutes": 15.0},
+    )
+    assert esc_eval.status_code == 200
+    esc_data = esc_eval.json()
+    assert esc_data["dispatched_count"] >= 1
+    assert all(d["notification_phase"] == "ESCALATION" and d["escalation_tier"] == 2 for d in esc_data["deliveries"])
+
+    # Two-Way SMS Acknowledgment ('ACK <EventShortId> ...') halts further escalations
+    short_id = backfilled_event_id.split("-")[0].upper()
+    sms_ack_resp = api_client.post(
+        "/api/v1/notifications/sms-webhook",
+        json={
+            "from_phone": "+14155550101",
+            "message_body": f"ACK {short_id} Inspected bioreactor jacket cooling valve on floor",
+            "gateway_provider": "TWILIO_SMS_WEBHOOK",
+        },
+    )
+    assert sms_ack_resp.status_code == 200
+    sms_ack_data = sms_ack_resp.json()
+    assert sms_ack_data["status"] == "sms_acknowledged"
+    assert sms_ack_data["escalation_halted"] is True
+
+    # Simulate 25 minutes elapsed after SMS ACK -> Tier 3 escalation is halted by acknowledgment
+    post_ack_eval = api_client.post(
+        "/api/v1/notifications/evaluate",
+        params={"event_id": backfilled_event_id, "simulate_elapsed_minutes": 25.0},
+    )
+    assert post_ack_eval.status_code == 200
+    assert post_ack_eval.json()["dispatched_count"] == 0
+    assert post_ack_eval.json()["halted_by_acknowledgment_count"] >= 1
+
+    # PI "Send on Close" (RECOVERY_CLOSE) notification when Event Frame is closed
+    rec_eval = api_client.post(
+        "/api/v1/notifications/evaluate",
+        params={"event_id": backfilled_event_id, "dispatch_recovery_on_close": True},
+    )
+    assert rec_eval.status_code == 200
+    rec_data = rec_eval.json()
+    assert rec_data["dispatched_count"] >= 1
+    assert all(d["notification_phase"] == "RECOVERY_CLOSE" for d in rec_data["deliveries"])
+
+    notif_deliv = api_client.get(
+        "/api/v1/notifications/deliveries",
+        params={"event_id": backfilled_event_id},
+    )
+    assert notif_deliv.status_code == 200
+    assert notif_deliv.json()["count"] >= 8
+
+    # 4. Multi-Stage Electronic Signatures (Stage 1: Production Review -> Stage 2: QA Approval)
     sig1_resp = api_client.post(
         f"/api/v1/event-frames/{backfilled_event_id}/sign",
         json={
@@ -631,21 +738,13 @@ def test_oq_16_swinging_door_truefor_backfill_multisig_and_notifications(
     assert "operator_01" in signers
     assert "qa_approver_01" in signers
 
-    # 4. PI Notifications Evaluation & Auditable Delivery Ledger
-    notif_eval = api_client.post("/api/v1/notifications/evaluate")
-    assert notif_eval.status_code == 200
-    notif_data = notif_eval.json()
-    assert notif_data["status"] == "evaluated"
-
-    notif_deliv = api_client.get("/api/v1/notifications/deliveries")
-    assert notif_deliv.status_code == 200
-    assert notif_deliv.json()["count"] >= 1
-
     evidence.record(
         assertion_summary=(
             f"Verified Stage 2 Swinging Door compression ({sdt_data['compression_ratio_pct']}% reduction), "
             f"Event Frame TrueFor=60s backfill (suppressed {bf_data['suppressed_transient_spikes']} transient spike, "
-            f"captured event {backfilled_event_id}), 2-stage e-signature chain, and PI Notifications dispatch."
+            f"captured event {backfilled_event_id}), multi-channel PI Notifications (Email HTML, 160-char SMS, "
+            f"Mobile Push APNs/FCM/PagerDuty, Webhook/Teams), Tier 2 Escalation Team dispatch, Two-Way SMS ACK "
+            f"escalation halt, Send-on-Close recovery, and 2-stage e-signature chain."
         ),
         input_payload={"sdt_raw_samples": len(sdt_samples), "backfill_window": "2026-01-16T18:00:00Z..18:10:00Z"},
         output_payload={
@@ -656,6 +755,12 @@ def test_oq_16_swinging_door_truefor_backfill_multisig_and_notifications(
             },
             "backfill_result": bf_data,
             "signature_chain": chain_data,
-            "notifications_eval": notif_data,
+            "notifications_multi_channel_summary": {
+                "trigger_deliveries": notif_data["dispatched_count"],
+                "tier2_escalation_deliveries": esc_data["dispatched_count"],
+                "sms_ack_confirmation": sms_ack_data["sms_confirmation_reply"],
+                "recovery_close_deliveries": rec_data["dispatched_count"],
+            },
         },
     )
+

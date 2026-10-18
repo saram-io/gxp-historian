@@ -20,10 +20,10 @@ const pillars = [
   },
   {
     badge: 'Pillar 3 • Part 11 Control Plane',
-    title: 'ISA-95 Asset Hierarchy & WORM Audit Trail',
+    title: 'ISA-95 Asset Hierarchy, WORM Audit & Multi-Channel Alerts',
     tech: 'PostgreSQL 16 (ltree + pgcrypto) & FastAPI',
     description:
-      'Manages ISA-95 ltree asset paths, GxP Tag Catalog, and ISA-88 Batch/Excursion Event Frames. Kernel-level PL/pgSQL triggers enforce mandatory X-Actor-Id & X-Change-Reason attribution, an immutable SHA-256 hash-chained WORM audit log, and §11.200 dual-challenge HMAC-SHA256 electronic signatures.',
+      'Manages ISA-95 ltree asset paths, GxP Tag Catalog, ISA-88 Event Frames, and Multi-Channel PI Notifications (Email, SMS, Mobile Push, Escalation Teams & Two-Way SMS ACK). Kernel-level PL/pgSQL triggers enforce mandatory X-Actor-Id & X-Change-Reason attribution, an immutable SHA-256 WORM audit log, and §11.200 electronic signatures.',
     href: '/docs/architecture/part11-compliance/',
     cta: 'Review 21 CFR Part 11 Controls →',
   },
@@ -53,9 +53,9 @@ const parityRows = [
   },
   {
     pi: 'PI Event Frames (EF) & PI Notifications',
-    gxp: 'PostgreSQL event_frames + TrueFor Backfill + Multi-Stage Signatures + Notifications',
+    gxp: 'PostgreSQL event_frames + TrueFor Backfill + Multi-Stage Signatures + Multi-Channel Alert Engine',
     capability:
-      'Automated ISA-88 batch & excursion capture, TrueFor historical backfill, parent/child batch phases, multi-stage §11.200 electronic signatures (Operator -> Supervisor -> QA), and webhook/email notification rules.',
+      'Automated ISA-88 batch & excursion capture, TrueFor historical backfill, parent/child batch phases, multi-stage §11.200 electronic signatures (Operator -> Supervisor -> QA), and multi-channel Email (SMTP/HTML), SMS (Twilio & OT Cellular SMPP), Mobile Push (APNs Critical, FCM, PagerDuty v2), Escalation Teams, Non-Repetition/Resend, Two-Way SMS ACK, and Send-on-Close.',
   },
   {
     pi: 'PI Interface Node & PI Buffer Subsystem',
@@ -344,6 +344,7 @@ const validationDocs = [
               <span class="c-badge">✓ 21 CFR §11.10(e) WORM Triggers</span>
               <span class="c-badge">✓ §11.200 Multi-Stage E-Signatures</span>
               <span class="c-badge">✓ Lossless DoubleDelta + Gorilla Codecs</span>
+              <span class="c-badge">✓ PI Notifications (Email, SMS &amp; Mobile Push)</span>
               <span class="c-badge">✓ GxP MKT, F₀ &amp; SQC Engine</span>
               <span class="c-badge">✓ Pydantic AI Co-Pilot &amp; FastMCP</span>
               <span class="c-badge">✓ 8 Excel DataLink UDFs &amp; StreamSets</span>
@@ -595,7 +596,7 @@ const validationDocs = [
             </p>
             <ul class="part11-list">
               <li>
-                <strong>Mandatory Session Attribution (<code>§11.10(e)</code>):</strong> Every DML change on <code>asset_templates</code>, <code>assets</code>, <code>tags</code>, and <code>event_frames</code> requires <code>app.actor_id</code> and <code>app.change_reason</code> or raises an immediate kernel exception.
+                <strong>Mandatory Session Attribution (<code>§11.10(e)</code>):</strong> Every DML change on all 10 GxP state tables (<code>asset_templates</code>, <code>assets</code>, <code>tags</code>, <code>event_frames</code>, <code>digital_state_sets</code>, <code>event_frame_templates</code>, <code>event_frame_signatures</code>, <code>manual_logger_entries</code>, <code>notification_rules</code>, and <code>notification_deliveries</code>) requires <code>app.actor_id</code> and <code>app.change_reason</code> or raises an immediate kernel exception.
               </li>
               <li>
                 <strong>Unconditional WORM Audit Triggers:</strong> <code>trg_worm_part11_audit_log_stmt</code> and <code>trg_worm_part11_audit_log_row</code> block any <code>UPDATE</code>, <code>DELETE</code>, or <code>TRUNCATE</code> on <code>part11_audit_log</code>.
@@ -872,6 +873,7 @@ FOR EACH STATEMENT EXECUTE FUNCTION fn_prevent_audit_tampering();</code></pre>
             <h4>Clients &amp; Protocol Connectors</h4>
             <ul>
               <li><a href="/docs/clients-and-api/rest-api-reference/">REST API Reference</a></li>
+              <li><a href="/docs/clients-and-api/pi-notifications-alerting/">PI Notifications (Email, SMS &amp; Mobile)</a></li>
               <li><a href="/docs/clients-and-api/pydantic-ai-and-mcp/">Pydantic AI Co-Pilot &amp; MCP Server</a></li>
               <li><a href="/docs/clients-and-api/grafana-vision-hmi/">Grafana Vision Operator HMI</a></li>
               <li><a href="/docs/clients-and-api/excel-datalink/">Excel DataLink Client</a></li>

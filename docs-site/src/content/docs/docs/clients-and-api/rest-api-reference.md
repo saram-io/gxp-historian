@@ -45,7 +45,13 @@ Interactive OpenAPI / Swagger UI documentation is available at:
 | `POST /api/v1/compression/swinging-door-evaluate` | PI Server Stage 2 `CompDev` | Evaluates Stage 2 Swinging Door slope-envelope compression (`CompDev`, `CompMax`, `CompMin`) over a sample stream. | No |
 | `POST /api/v1/event-frames/backfill` | PI Analysis Backfill / Recalculation | Scans historical telemetry with `TrueFor` debounce (`true_for_seconds`) to backfill excursion Event Frames. | **Yes** (`X-Actor-Id`, `X-Change-Reason`) |
 | `GET /api/v1/event-frames/{event_id}/signatures` | Part 11 Multi-Stage Signatures | Returns the ordered chain of multi-stage electronic signatures (`Operator` $\rightarrow$ `Supervisor` $\rightarrow$ `QA`). | No |
-| `GET` / `POST /api/v1/notifications/*` | PI Notifications | Creates notification rules, evaluates open Event Frames, and logs webhook/email dispatches in `notification_deliveries`. | **Yes** (`X-Actor-Id`, `X-Change-Reason`) |
+| `GET /api/v1/notifications/channels` | PI Notifications Delivery Channels | Lists supported multi-channel delivery architectures (`EMAIL`, `SMS`, `MOBILE_PUSH`, `WEBHOOK`) and payload schemas. | No |
+| `GET` / `POST /api/v1/notifications/rules` | PI AF Notification Rules | Lists or creates multi-channel notification rules with `%Parameter%` templates, `non_repetition_minutes`, `resend_interval_minutes`, and `escalation_team`. | **Yes** (`X-Actor-Id`, `X-Change-Reason` on `POST`) |
+| `POST /api/v1/notifications/preview` | PI System Explorer Message Preview | Renders a live preview across Rich HTML Email, 160-char GSM-7 SMS, Mobile Push (`APNs`/`FCM`/`PagerDuty`), and Teams Adaptive Cards. | No |
+| `POST /api/v1/notifications/evaluate` | PI Notifications Service | Evaluates open/closed Event Frames, dispatches `TRIGGER`, `ESCALATION`, and `RECOVERY_CLOSE` alerts, and honors `non_repetition_minutes`. | **Yes** (`X-Actor-Id`, `X-Change-Reason`) |
+| `POST /api/v1/notifications/acknowledge/{event_id}` | PI Vision / Email Event Acknowledgment | Records a 21 CFR Part 11 attributed operator acknowledgment and halts further `ESCALATION` dispatches. | **Yes** (`X-Actor-Id`, `X-Change-Reason`) |
+| `POST /api/v1/notifications/sms-webhook` | TopView / Twilio Two-Way SMS ACK | Parses inbound `"ACK <EventShortId> [notes]"` SMS replies from operator mobile numbers and halts escalations with Part 11 attribution. | Automatic (`sms_operator:<from>`) |
+| `GET /api/v1/notifications/deliveries` | PI Notification Delivery History | Lists WORM-audited dispatches filterable by `delivery_channel` (`EMAIL`, `SMS`, `MOBILE_PUSH`, `WEBHOOK`) and `notification_phase`. | No |
 
 ---
 
@@ -378,11 +384,40 @@ curl -s -X POST http://localhost:8020/api/v1/event-frames/backfill \
 # 3. Inspect Multi-Stage Electronic Signatures on an Event Frame
 curl -s "http://localhost:8020/api/v1/event-frames/1/signatures" | jq .
 
-# 4. Evaluate PI Notification Rules & Inspect Audit-Logged Deliveries
+# 4. Preview Multi-Channel PI Notification Payloads (HTML Email, 160-char SMS, Mobile Push APNs/FCM/PagerDuty)
+curl -s -X POST http://localhost:8020/api/v1/notifications/preview \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event_name": "Excursion_HIGH_BR201_TEMP_PV",
+    "severity": "CRITICAL",
+    "asset_path": "BioCorp.Fremont.USP.Bioreactor_201",
+    "tag_name": "BR201_TEMP_PV",
+    "peak_val": 39.42,
+    "eng_units": "degC"
+  }' | jq .
+
+# 5. Evaluate PI Notification Rules (Trigger, Multi-Tier Escalation Teams & Send-on-Close)
 curl -s -X POST http://localhost:8020/api/v1/notifications/evaluate \
+  -H "Content-Type: application/json" \
   -H "X-Actor-Id: notification_engine" \
-  -H "X-Change-Reason: Periodic evaluation of active GxP excursion notification rules" | jq .
-curl -s http://localhost:8020/api/v1/notifications/deliveries | jq .
+  -H "X-Change-Reason: Evaluate active GxP excursion rules across EMAIL, SMS, MOBILE_PUSH, and WEBHOOK" \
+  -d '{"simulate_elapsed_minutes": 20.0, "respect_non_repetition": true, "dispatch_recovery_on_close": true}' | jq .
+
+# 6. Acknowledge an Event Frame via REST or Two-Way SMS ("ACK <EventID>") to Halt Escalation
+curl -s -X POST http://localhost:8020/api/v1/notifications/acknowledge/1 \
+  -H "Content-Type: application/json" \
+  -H "X-Actor-Id: operator_01" \
+  -H "X-Change-Reason: Acknowledged BR201 high temperature excursion from mobile device" \
+  -d '{"acknowledged_by": "operator_01", "channel": "MOBILE_PUSH", "notes": "Inspecting jacket valve"}' | jq .
+
+curl -s -X POST http://localhost:8020/api/v1/notifications/sms-webhook \
+  -H "Content-Type: application/json" \
+  -d '{"From": "+14155550101", "Body": "ACK 1 Jacket cooling valve reset"}' | jq .
+
+# 7. Inspect Audit-Logged Deliveries (Filterable by EMAIL, SMS, MOBILE_PUSH, WEBHOOK)
+curl -s "http://localhost:8020/api/v1/notifications/deliveries?channel=SMS" | jq .
 ```
+
+For a comprehensive deep-dive into AVEVA PI System alerting architecture and `GxPHistorian` multi-channel setup, see **[PI Notifications: Email, SMS & Mobile Alerting](/docs/clients-and-api/pi-notifications-alerting/)**.
 
 

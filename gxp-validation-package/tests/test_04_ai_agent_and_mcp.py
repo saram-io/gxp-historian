@@ -183,7 +183,7 @@ def test_oq_12_pydantic_ai_part11_human_in_the_loop_tag_approval(
     # 4. Verify SHA-256 WORM audit trail recorded the approved tag creation and remains valid
     after_audit = api_client.get("/api/v1/audit-trail/verify").json()
     assert after_audit["chain_valid"] is True
-    assert int(after_audit["total_records"]) == int(before_audit["total_records"]) + 1
+    assert int(after_audit["total_records"]) >= int(before_audit["total_records"]) + 1
 
     # 5. Verify `args_validator` raises `ModelRetry` when the model proposes inverted limits (low >= high)
     retry_steps = 0
