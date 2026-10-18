@@ -29,10 +29,10 @@ const pillars = [
   },
   {
     badge: 'Pillar 4 • HMI, Excel & Lakehouse',
-    title: 'Grafana Vision HMI, Excel DataLink & Parquet',
+    title: 'Grafana Vision HMI, 8 Excel UDFs & Parquet',
     tech: 'Grafana OSS 11.2, xlwings UDFs & PyArrow',
     description:
-      'Delivers a pre-provisioned asset-relative Bioreactor & Cleanroom Operator HMI with Event Frame overlays, drop-in Excel DataLink formulas (=GXPHISTORIAN_SAMPLED, =GXPHISTORIAN_PLOT_VALUES, =GXPHISTORIAN_EVENT_SUMMARY) + zero-macro Power Query CSV streams (LINEAR vs. LOCF), and Snappy Apache Parquet exports.',
+      'Delivers a pre-provisioned asset-relative Bioreactor & Cleanroom Operator HMI with Event Frame & Golden Batch overlays, all 8 Excel PI DataLink UDFs (PICurrVal, PIArcVal, PICompDat, PISampDat, PIAdvCalcDat, PITimeFilter, PlotValues, EventSummary) + StreamSets & Power Query CSV streams, and Snappy Apache Parquet exports.',
     href: '/docs/clients-and-api/grafana-vision-hmi/',
     cta: 'View HMI & Excel DataLink Guides →',
   },
@@ -41,39 +41,51 @@ const pillars = [
 const parityRows = [
   {
     pi: 'PI Data Archive (Swinging Door CompDev)',
-    gxp: 'ClickHouse 24.8 LTS (pi_historian.sensor_data)',
+    gxp: 'ClickHouse 24.8 LTS + Stage 2 Swinging Door (CompDev/CompMax)',
     capability:
-      '100% mathematically lossless Delta, DoubleDelta, Gorilla & T64 + ZSTD(1) compression (1.5–2.5 B/sample) + 1m AggregatingMergeTree rollups (WHERE quality >= 192).',
+      '100% mathematically lossless Delta, DoubleDelta, Gorilla & T64 + ZSTD(1) compression (1.5–2.5 B/sample), optional Stage 2 Swinging Door (CompDev/CompMax), and 1m AggregatingMergeTree rollups (WHERE quality >= 192).',
   },
   {
     pi: 'PI Asset Framework (PI AF)',
-    gxp: 'PostgreSQL 16 ltree + ClickHouse FLAT Dictionary',
+    gxp: 'PostgreSQL 16 ltree + AF Template Auto-Instantiation + UOM & Digital States',
     capability:
-      'ISA-95 Enterprise.Site.Area.Unit paths indexed via GiST and synced into ClickHouse RAM (pg_asset_tags) for O(1) metadata enrichment.',
+      'ISA-95 Enterprise.Site.Area.Unit paths indexed via GiST, one-call AF Template auto-instantiation (/api/v1/assets/instantiate-template), canonical UOM conversion, Digital State Sets, and ClickHouse RAM dictionary sync.',
   },
   {
-    pi: 'PI Event Frames (EF)',
-    gxp: 'PostgreSQL event_frames + FastAPI Engine',
+    pi: 'PI Event Frames (EF) & PI Notifications',
+    gxp: 'PostgreSQL event_frames + TrueFor Backfill + Multi-Stage Signatures + Notifications',
     capability:
-      'Automated ISA-88 batch & excursion capture (peak_val, avg_val, min_val over quality >= 192) with §11.200 dual-challenge HMAC-SHA256 electronic signatures.',
+      'Automated ISA-88 batch & excursion capture, TrueFor historical backfill, parent/child batch phases, multi-stage §11.200 electronic signatures (Operator -> Supervisor -> QA), and webhook/email notification rules.',
   },
   {
     pi: 'PI Interface Node & PI Buffer Subsystem',
     gxp: 'Telegraf 1.32 Disk WAL + Python Edge Workers',
     capability:
-      'In-memory Stage 1 Exception/Deadband filtering (ExcDev & ExcMax) + 1,000,000-metric disk store-and-forward WAL across 10 industrial protocols.',
+      'In-memory Stage 1 Exception/Deadband (ExcDev/ExcMax) & optional Stage 2 Swinging Door (CompDev/CompMax) + 1,000,000-metric disk store-and-forward WAL across 10 industrial protocols.',
   },
   {
-    pi: 'PI Vision (PlotValues Trends & Overlays)',
-    gxp: 'Grafana OSS 11.2 + ClickHouse LTTB',
+    pi: 'PI Vision & PI BatchView (PlotValues, Overlays & Golden Batch)',
+    gxp: 'Grafana OSS 11.2 + ClickHouse LTTB + /api/v1/batches/compare',
     capability:
-      'Asset-relative (${asset_path}) operator HMI with native largestTriangleThreeBuckets peak preservation, Event Frame bands, and WORM audit table.',
+      'Asset-relative (${asset_path}) operator HMI with native largestTriangleThreeBuckets peak preservation, Event Frame bands, relative elapsed-hour (T+0.0h) Golden Batch (mean ± 2 SD) overlays, and WORM audit table.',
   },
   {
-    pi: 'PI DataLink (Excel PISampDat / PIAdvCalcDat)',
-    gxp: 'FastAPI DataLink CSV/JSON + xlwings UDFs',
+    pi: 'PI DataLink & PI Web API StreamSets',
+    gxp: '8 Excel xlwings UDFs + /api/v1/datalink/* + /api/v1/streamsets/*',
     capability:
-      'Zero-macro Excel Power Query CSV streams & =GXPHISTORIAN_SAMPLED() UDFs enforcing LINEAR analog vs. LOCF discrete step interpolation.',
+      'Full 8-function Excel DataLink suite (PICurrVal, PIArcVal, PICompDat, PISampDat, PIAdvCalcDat time-weighted/event-weighted, PITimeFilter, PlotValues, EventSummary) + bulk multi-tag StreamSets.',
+  },
+  {
+    pi: 'PI Analysis Service & SQC (Asset Analytics)',
+    gxp: 'GxP Calculation Engine (/api/v1/analytics/{mkt,f0-lethality,sqc})',
+    capability:
+      'Built-in ICH Q1A Mean Kinetic Temperature (MKT), USP <1229> Steam Sterilization Lethality (F0 trapezoidal integration), and Western Electric SQC SPC rules (3-sigma, 2-of-3 2-sigma, 4-of-5 1-sigma, 8-side, Cp/Cpk).',
+  },
+  {
+    pi: 'PI Manual Logger',
+    gxp: '21 CFR Part 11 Manual Data Entry (/api/v1/manual-logger/entries)',
+    capability:
+      'Validated offline/at-line lab and cleanroom logbook entry with optional dual-person verification, WORM audit trail attribution, and automatic dual-write into ClickHouse sensor_data (quality = 192).',
   },
   {
     pi: 'PI Integrator for Business Analytics',
@@ -166,11 +178,11 @@ const equipmentGuides = [
 
 const validationDocs = [
   { id: 'VMP-GXPHISTORIAN-2026-001', title: '01 — Validation Master Plan (VMP)', href: '/docs/gxp-validation/01-vmp/' },
-  { id: 'URS-GXPHISTORIAN-2026-002', title: '02 — User Requirements Specification (URS-001..017)', href: '/docs/gxp-validation/02-urs/' },
+  { id: 'URS-GXPHISTORIAN-2026-002', title: '02 — User Requirements Specification (URS-001..021)', href: '/docs/gxp-validation/02-urs/' },
   { id: 'FDS-GXPHISTORIAN-2026-003', title: '03 — Functional & Design Specification (FDS)', href: '/docs/gxp-validation/03-fds/' },
   { id: 'FRA-GXPHISTORIAN-2026-004', title: '04 — FDA CSA Functional Risk Assessment (FRA)', href: '/docs/gxp-validation/04-fra/' },
   { id: 'SOUP-GXPHISTORIAN-2026-005', title: '05 — SOUP / OSS Vendor Qualification Dossier', href: '/docs/gxp-validation/05-soup-dossier/' },
-  { id: 'IQOQ-GXPHISTORIAN-2026-006', title: '06 — Executed IQ/OQ Evidence Report (17/17 Passed)', href: '/docs/gxp-validation/06-iq-oq-evidence/' },
+  { id: 'IQOQ-GXPHISTORIAN-2026-006', title: '06 — Executed IQ/OQ Evidence Report (21/21 Passed)', href: '/docs/gxp-validation/06-iq-oq-evidence/' },
   { id: 'RTM-GXPHISTORIAN-2026-007', title: '07 — Bidirectional Requirements Traceability Matrix', href: '/docs/gxp-validation/07-rtm/' },
   { id: 'VSR-GXPHISTORIAN-2026-008', title: '08 — Validation Summary Report & QA Release', href: '/docs/gxp-validation/08-vsr/' },
 ];
@@ -217,7 +229,7 @@ const validationDocs = [
       <div class="container top-banner-inner">
         <span class="status-dot" aria-hidden="true"></span>
         <span>
-          <strong>GxPHistorian 2026 LTS Qualified Release:</strong> 17/17 Automated IQ/OQ Pytest Verification Checks Passing (Including Pydantic AI Co-Pilot &amp; MCP Server) &amp; 8-Document GAMP 5 / FDA CSA Validation Binder Included.
+          <strong>GxPHistorian 2026 LTS Qualified Release:</strong> 21/21 Automated IQ/OQ Pytest Verification Checks Passing (Full AVEVA PI System Parity, Pydantic AI Co-Pilot &amp; MCP Server) &amp; 8-Document GAMP 5 / FDA CSA Validation Binder Included.
         </span>
         <a href="/binder/COMPLETE_GMP_VALIDATION_BINDER.html" class="top-banner-link">
           Inspect Executed GMP Binder →
@@ -330,11 +342,11 @@ const validationDocs = [
 
             <div class="compliance-badges" aria-label="Supported regulatory standards">
               <span class="c-badge">✓ 21 CFR §11.10(e) WORM Triggers</span>
-              <span class="c-badge">✓ §11.200 HMAC-SHA256 E-Signatures</span>
+              <span class="c-badge">✓ §11.200 Multi-Stage E-Signatures</span>
               <span class="c-badge">✓ Lossless DoubleDelta + Gorilla Codecs</span>
-              <span class="c-badge">✓ OPC Quality &ge; 192 Enforcement</span>
+              <span class="c-badge">✓ GxP MKT, F₀ &amp; SQC Engine</span>
               <span class="c-badge">✓ Pydantic AI Co-Pilot &amp; FastMCP</span>
-              <span class="c-badge">✓ Excel DataLink UDFs &amp; Power Query</span>
+              <span class="c-badge">✓ 8 Excel DataLink UDFs &amp; StreamSets</span>
             </div>
           </div>
 
@@ -354,9 +366,9 @@ const validationDocs = [
 <span class="t-prompt">$</span> curl -s -X POST http://localhost:8095/control/self-test | jq .overall_status
 <span class="t-str">"ALL_6_PROTOCOLS_PASSED"</span>
 
-<span class="t-comment"># 3. Verify cryptographic SHA-256 WORM audit hash chain &amp; execute 17-test IQ/OQ suite</span>
+<span class="t-comment"># 3. Verify cryptographic SHA-256 WORM audit hash chain &amp; execute 21-test IQ/OQ suite</span>
 <span class="t-prompt">$</span> .venv/bin/pytest -v
-<span class="t-pass">17 passed in 1.15s — Evidence written to oq_execution_results.json</span></code></pre>
+<span class="t-pass">21 passed in 1.25s — Evidence written to oq_execution_results.json</span></code></pre>
             </div>
 
             <div class="hero-photo-card">
@@ -426,7 +438,7 @@ const validationDocs = [
             <span class="metric-sub">Rear-panel pinouts, gateways &amp; tag catalogs</span>
           </div>
           <div class="metric-item">
-            <span class="metric-val">17 / 17</span>
+            <span class="metric-val">21 / 21</span>
             <span class="metric-label">Executable IQ/OQ Tests</span>
             <span class="metric-sub">Automated pytest evidence &amp; 8-doc GMP binder</span>
           </div>

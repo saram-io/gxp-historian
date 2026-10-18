@@ -37,23 +37,23 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
   <span class="oh-badge">ClickHouse 24.8 LTS (DoubleDelta + Gorilla)</span>
   <span class="oh-badge">PostgreSQL 16 ISA-95 ltree &amp; ISA-88 Event Frames</span>
   <span class="oh-badge">Pydantic AI Co-Pilot &amp; gxphistorian-mcp</span>
-  <span class="oh-badge">17/17 Executable IQ/OQ Qualification Tests</span>
+  <span class="oh-badge">21/21 Executable IQ/OQ Qualification Tests</span>
 </div>
 
 ## 4-Pillar Industrial Historian Architecture
 
 <CardGrid stagger>
   <Card title="Pillar 1: Multi-Protocol Edge Collector" icon="rocket">
-    **Telegraf 1.32 + Python Edge Workers** normalize **OPC UA**, **BACnet/IP (`COV`)**, **Siemens S7**, **Modbus RTU/TCP**, **Windows COM OPC DA**, and **RS-232 / PI UFL watchfolders** with in-memory Stage 1 Exception/Deadband filtering (`ExcDev` / `ExcMax`) and a **1M-metric disk-backed Store-and-Forward WAL**.
+    **Telegraf 1.32 + Python Edge Workers** normalize **OPC UA**, **BACnet/IP (`COV`)**, **Siemens S7**, **Modbus RTU/TCP**, **Windows COM OPC DA**, and **RS-232 / PI UFL watchfolders** with in-memory Stage 1 Exception/Deadband (`ExcDev` / `ExcMax`), optional Stage 2 Swinging Door (`CompDev` / `CompMax`), and a **1M-metric disk-backed Store-and-Forward WAL**.
   </Card>
   <Card title="Pillar 2: Immutable Telemetry Archive" icon="seti:db">
     **ClickHouse 24.8 LTS (`pi_historian.sensor_data`)** stores raw telemetry with lossless **`DoubleDelta`**, **`Gorilla`**, and **`T64` + `ZSTD(1)`** codecs, real-time 1-minute **`AggregatingMergeTree`** rollups (`WHERE quality >= 192`), and native **`largestTriangleThreeBuckets` (LTTB)** visual peak preservation.
   </Card>
   <Card title="Pillar 3: 21 CFR Part 11 Control Plane" icon="approve-check-circle">
-    **PostgreSQL 16 + FastAPI (`historian-api`)** manages the **ISA-95 `ltree` Asset Hierarchy**, **Tag Catalog**, and **ISA-88 Event Frames**, backed by PL/pgSQL WORM triggers, a **cryptographic SHA-256 hash-chained audit trail**, and **§11.200 dual-challenge HMAC-SHA256 electronic signatures**.
+    **PostgreSQL 16 + FastAPI (`historian-api`)** manages the **ISA-95 `ltree` Asset Hierarchy** (with AF Template Auto-Instantiation, UOM &amp; Digital States), **GxP Calculation Engine** (`MKT`, $F_0$, `SQC`), **PI Manual Logger**, and **ISA-88 Event Frames** (`TrueFor` backfill, multi-stage §11.200 signatures &amp; PI Notifications).
   </Card>
-  <Card title="Pillar 4: Operator HMI, Excel DataLink & Lakehouse" icon="laptop">
-    Pre-provisioned **Grafana OSS 11.2** Bioreactor &amp; Cleanroom HMI with Event Frame overlays, drop-in **Excel DataLink UDFs (`xlwings`) &amp; zero-macro Power Query CSV** respecting `LINEAR` vs. `LOCF` step tags, and **Zero-ETL Snappy Apache Parquet** exports.
+  <Card title="Pillar 4: Operator HMI, 8 Excel UDFs & Lakehouse" icon="laptop">
+    Pre-provisioned **Grafana OSS 11.2** Bioreactor &amp; Cleanroom HMI with Event Frame &amp; Golden Batch overlays, **8 drop-in Excel DataLink UDFs (`xlwings`), StreamSets &amp; zero-macro Power Query CSV** respecting `LINEAR` vs. `LOCF` step tags, and **Zero-ETL Snappy Apache Parquet** exports.
   </Card>
 </CardGrid>
 

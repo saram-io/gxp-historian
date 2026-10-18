@@ -37,7 +37,7 @@ ts,tag_id,tag_name,asset_path,val,eng_units,interpolation_mode,quality_filter
 
 ## Option 2: `xlwings` Worksheet User-Defined Functions (UDFs)
 
-`excel-datalink-client/gxphistorian_datalink_udf.py` provides drop-in worksheet formulas that mirror legacy PI DataLink functions (`=PISampDat`, `=PIPlotValues`, and Event Frame tables).
+`excel-datalink-client/gxphistorian_datalink_udf.py` provides 8 drop-in worksheet formulas that mirror the complete legacy OSIsoft / AVEVA PI DataLink function suite (`=PISampDat`, `=PICurrVal`, `=PIArcVal`, `=PICompDat`, `=PIAdvCalcDat`, `=PITimeFilter`, `=PIPlotValues`, and Event Frame tables).
 
 ### Workstation Setup
 
@@ -46,13 +46,18 @@ pip install xlwings httpx
 xlwings addin install
 ```
 
-### Available Excel Formulas
+### Available Excel Formulas (All 8 PI DataLink Equivalents)
 
 | GxPHistorian Excel Formula | Legacy PI DataLink Equivalent | Behavior & Regulatory Controls |
 | :--- | :--- | :--- |
 | `=GXPHISTORIAN_SAMPLED(tag_name, start_time, end_time, step_seconds)` | `=PISampDat(...)` | Inspects `is_step_tag` in PostgreSQL: applies time-weighted `LINEAR` interpolation when `FALSE` and `LOCF` integer step interpolation when `TRUE`. Always enforces `quality >= 192`. |
 | `=GXPHISTORIAN_PLOT_VALUES(tag_name, start_time, end_time, intervals)` | `=PIPlotValues(...)` | Calls ClickHouse `largestTriangleThreeBuckets(intervals)(ts, val)` (`WHERE quality >= 192`) enriched with `pg_asset_tags` dictionary metadata. |
 | `=GXPHISTORIAN_EVENT_SUMMARY(event_name_filter)` | PI Event Frame Table | Returns the Event Frame window, `captured_metrics` JSONB snapshot (`peak_val`, `avg_val`, `min_val`), and 21 CFR Part 11 signature block (`signed_by`, `signature_meaning`, `signature_hash`). |
+| `=GXPHISTORIAN_CURRENT_VALUE(tag_name, target_uom)` | `=PICurrVal(...)` | Returns the latest `quality >= 192` snapshot reading with optional canonical engineering unit conversion (e.g., `degC` $\rightarrow$ `degF`) and Digital State label. |
+| `=GXPHISTORIAN_ARCHIVE_VALUE(tag_name, timestamp, mode)` | `=PIArcVal(...)` | Returns a single historical value at `timestamp` using `AUTO`, `INTERPOLATED`, `PREVIOUS` (`LOCF`), `NEXT`, or `EXACT` retrieval mode (`quality >= 192`). |
+| `=GXPHISTORIAN_COMPRESSED_DATA(tag_name, start_time, end_time, filter_mode, low_bound, high_bound)` | `=PICompDat(...)` | Returns raw recorded archive events (`WHERE quality >= 192`) with optional `INSIDE` or `OUTSIDE` specification-limit filtering. |
+| `=GXPHISTORIAN_CALCULATED_DATA(tag_name, start_time, end_time, interval_seconds, calculation_basis)` | `=PIAdvCalcDat(...)` | Computes interval summaries (`total`, `average`, `minimum`, `maximum`, `range`, `stddev`, `count`) using `TIME_WEIGHTED` trapezoidal integration or `EVENT_WEIGHTED` arithmetic averaging. |
+| `=GXPHISTORIAN_TIME_FILTER(tag_name, start_time, end_time, operator, threshold)` | `=PITimeFilter(...)` | Evaluates a boolean condition (`>`, `>=`, `<`, `<=`, `==`, `!=`) over `quality >= 192` telemetry and returns `seconds_true`, `minutes_true`, and `percent_true`. |
 
 ### Example Worksheet Formulas
 
@@ -62,6 +67,16 @@ xlwings addin install
 =GXPHISTORIAN_PLOT_VALUES("CHROM01_UV280_PV", "2026-10-17T12:00:00Z", "2026-10-17T13:00:00Z", 500)
 
 =GXPHISTORIAN_EVENT_SUMMARY("BR201_TEMP_PV")
+
+=GXPHISTORIAN_CURRENT_VALUE("BR201_TEMP_PV", "degF")
+
+=GXPHISTORIAN_ARCHIVE_VALUE("BR201_TEMP_PV", "2026-10-17T12:15:00Z", "INTERPOLATED")
+
+=GXPHISTORIAN_COMPRESSED_DATA("BR201_TEMP_PV", "2026-10-17T12:00:00Z", "2026-10-17T13:00:00Z", "ALL")
+
+=GXPHISTORIAN_CALCULATED_DATA("BR201_TEMP_PV", "2026-10-17T12:00:00Z", "2026-10-17T13:00:00Z", 900, "TIME_WEIGHTED")
+
+=GXPHISTORIAN_TIME_FILTER("BR201_TEMP_PV", "2026-10-17T12:00:00Z", "2026-10-17T13:00:00Z", ">=", 37.5)
 ```
 
 ---

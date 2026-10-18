@@ -12,12 +12,14 @@ GxPHistorian GxP Industrial Historian is a production-ready, 4-Pillar open-sourc
 
 | Legacy OSIsoft / AVEVA PI Component | GxPHistorian GxP Historian Equivalent | Key Technical Capabilities |
 | :--- | :--- | :--- |
-| **PI Data Archive** (Swinging Door / Archive Subsystem) | **ClickHouse 24.8 LTS (`pi_historian.sensor_data`)** | `MergeTree` partitioned by month (`toYYYYMM(ts)`) with lossless `Delta`, `DoubleDelta`, `Gorilla`, and `T64` codecs layered with `ZSTD(1)` + real-time 1-minute `AggregatingMergeTree` rollups (`sensor_rollup_1m`). |
-| **PI Asset Framework (PI AF)** | **PostgreSQL 16 `ltree` + ClickHouse `FLAT` Dictionary** | ISA-95 hierarchical asset paths (`Enterprise.Site.Area.Unit`) indexed via PostgreSQL `GiST` and synchronized into ClickHouse RAM (`pi_historian.pg_asset_tags`) with 5–15s refresh lifetime. |
-| **PI Event Frames (EF)** | **PostgreSQL `event_frames` + FastAPI State Machine** | Automated ISA-88 batch & excursion detection (`BR201_TEMP_PV > 38.0°C`), ClickHouse `quality >= 192` KPI capture (`peak_val`, `avg_val`, `min_val`, `sample_count`), and 21 CFR Part 11 electronic signatures. |
-| **PI Interface Node & PI Buffer Subsystem** | **Telegraf 1.32 Disk WAL + Python Edge Workers** | Stage 1 Exception/Deadband filtering (`ExcDev` & `ExcMax`) in memory + disk-backed Write-Ahead Log (`/var/lib/telegraf/buffer`, 1M metric capacity) for zero-data-loss store-and-forward across OPC UA, BACnet/IP, Siemens S7, Modbus, and Windows OPC DA. |
-| **PI Vision** (`PlotValues` Trends & EF Overlays) | **Grafana OSS 11.2 + ClickHouse `largestTriangleThreeBuckets`** | Asset-relative dashboard (`${asset_path}`) with native ClickHouse LTTB visual peak preservation, 1-minute rollup bands, Event Frame shaded region annotations, and live Part 11 audit trail inspection. |
-| **PI DataLink** (Excel `PISampDat`, `PIAdvCalcDat`) | **FastAPI `/api/v1/datalink/sampled` + `xlwings` UDF / Power Query** | Drop-in `=GXPHISTORIAN_SAMPLED()`, `=GXPHISTORIAN_PLOT_VALUES()`, and `=GXPHISTORIAN_EVENT_SUMMARY()` Excel functions plus zero-macro Power Query CSV streams respecting continuous (`LINEAR`) vs. discrete (`LOCF` step) tag metadata. |
+| **PI Data Archive** (Swinging Door / Archive Subsystem) | **ClickHouse 24.8 LTS (`pi_historian.sensor_data`) + Stage 2 Swinging Door (`CompDev`/`CompMax`)** | `MergeTree` partitioned by month (`toYYYYMM(ts)`) with lossless `Delta`, `DoubleDelta`, `Gorilla`, and `T64` codecs layered with `ZSTD(1)`, optional Stage 2 Swinging Door compression (`CompDev`, `CompMax`, `CompMin`), and real-time 1-minute `AggregatingMergeTree` rollups (`sensor_rollup_1m`). |
+| **PI Asset Framework (PI AF)** | **PostgreSQL 16 `ltree` + ClickHouse `FLAT` Dictionary + Template Auto-Instantiation** | ISA-95 hierarchical asset paths (`Enterprise.Site.Area.Unit`) indexed via PostgreSQL `GiST`, one-call AF Template auto-instantiation (`POST /api/v1/assets/instantiate-template`), canonical UOM conversion (`degC`/`degF`/`K`, `bar`/`psi`/`Pa`/`kPa`, `L_min`/`mL_min`/`GPM`), Digital State Sets (`digital_state_sets`), and ClickHouse RAM dictionary sync (`pi_historian.pg_asset_tags`). |
+| **PI Event Frames (EF) & PI Notifications** | **PostgreSQL `event_frames` + `TrueFor` Backfill + Multi-Stage Signatures + Notification Engine** | Automated ISA-88 batch & excursion detection, historical backfill with `TrueFor` debounce (`POST /api/v1/event-frames/backfill`), hierarchical parent/child batch phases (`parent_event_id`), multi-stage 21 CFR Part 11 electronic signatures (`Operator Review` -> `Supervisor Verification` -> `QA Final Approval`), and real-time webhook/email notification rules (`POST /api/v1/notifications/evaluate`). |
+| **PI Interface Node & PI Buffer Subsystem** | **Telegraf 1.32 Disk WAL + Python Edge Workers** | Stage 1 Exception/Deadband filtering (`ExcDev` & `ExcMax`) + optional Stage 2 Swinging Door (`CompDev` & `CompMax`) in memory + disk-backed Write-Ahead Log (`/var/lib/telegraf/buffer`, 1M metric capacity) for zero-data-loss store-and-forward across OPC UA, BACnet/IP, Siemens S7, Modbus, and Windows OPC DA. |
+| **PI Vision & PI BatchView** (`PlotValues` Trends, EF Overlays & Golden Batch) | **Grafana OSS 11.2 + ClickHouse `largestTriangleThreeBuckets` + `/api/v1/batches/compare`** | Asset-relative dashboard (`${asset_path}`) with native ClickHouse LTTB visual peak preservation, 1-minute rollup bands, Event Frame shaded region annotations, relative batch elapsed-hour (`T+0.0h`) Golden Batch alignment (`mean ± 2 SD` reference envelope), and live Part 11 audit trail inspection. |
+| **PI DataLink & PI Web API StreamSets** (`PICurrVal`, `PIArcVal`, `PICompDat`, `PISampDat`, `PIAdvCalcDat`, `PITimeFilter`) | **FastAPI `/api/v1/datalink/*` + `/api/v1/streamsets/*` + 8 `xlwings` Excel UDFs / Power Query** | Complete 8-function Excel DataLink suite (`=GXPHISTORIAN_SAMPLED()`, `=GXPHISTORIAN_PLOT_VALUES()`, `=GXPHISTORIAN_EVENT_SUMMARY()`, `=GXPHISTORIAN_CURRENT_VALUE()`, `=GXPHISTORIAN_ARCHIVE_VALUE()`, `=GXPHISTORIAN_COMPRESSED_DATA()`, `=GXPHISTORIAN_CALCULATED_DATA()`, `=GXPHISTORIAN_TIME_FILTER()`) plus bulk multi-tag StreamSets (`/api/v1/streamsets/end`, `/api/v1/streamsets/interpolated`). |
+| **PI Analysis Service & SQC** (Asset Analytics & Statistical Process Control) | **GxP Calculation Engine (`/api/v1/analytics/{mkt,f0-lethality,sqc}`)** | Built-in ICH Q1A Mean Kinetic Temperature ($\text{MKT}$, $\Delta H = 83.144\text{ kJ/mol}$), USP `<1229>` Steam Sterilization Lethality ($F_0$ trapezoidal integration), and Western Electric SQC SPC rules (`Rule_1_Beyond_3Sigma`, `Rule_2_TwoOfThree_Beyond_2Sigma`, `Rule_3_FourOfFive_Beyond_1Sigma`, `Rule_4_EightConsecutive_SameSide`, $C_p$, $C_{pk}$). |
+| **PI Manual Logger** | **21 CFR Part 11 Manual Data Entry (`/api/v1/manual-logger/entries`)** | Validated offline/at-line lab and cleanroom logbook entry with optional dual-person verification (`verified_by`), WORM audit trail attribution, and automatic dual-write into ClickHouse `pi_historian.sensor_data` (`quality = 192`). |
 | **PI Integrator for Business Analytics** | **FastAPI + PyArrow Zero-ETL Lakehouse Exporter** | One-call (`POST /api/v1/lakehouse/export-parquet`) Snappy-compressed Apache Parquet export enriched with ISA-95 asset hierarchy and engineering units. |
 | **AVEVA Industrial AI Assistant / PI Web API** | **Pydantic AI Co-Pilot (`app/gxp_ai_agent.py`) & `gxphistorian-mcp` (`app/mcp_server.py`)** | Typed ISA-88 Batch Excursion Investigator (`output_type=DeviationInvestigationBrief`, `WHERE quality >= 192`), Part 11 human-in-the-loop `ApprovalRequired` tag provisioning, Capabilities on Demand (`defer_loading=True`), and 6-tool `FastMCP` server. |
 
@@ -80,7 +82,7 @@ flowchart LR
 ## 3. 21 CFR Part 11, EU Annex 11 & ALCOA+ Technical Controls
 
 1. **Mandatory Attribution Context (`§11.10(e)` / ALCOA+ Attributable & Contemporaneous):**
-   - Every `INSERT`, `UPDATE`, or `DELETE` on `asset_templates`, `assets`, `tags`, and `event_frames` is intercepted by the PostgreSQL trigger `fn_enforce_part11_audit()`.
+   - Every `INSERT`, `UPDATE`, or `DELETE` on `asset_templates`, `assets`, `tags`, `event_frames`, `digital_state_sets`, `event_frame_templates`, `event_frame_signatures`, `manual_logger_entries`, `notification_rules`, and `notification_deliveries` is intercepted by the PostgreSQL trigger `fn_enforce_part11_audit()`.
    - Transactions must supply `SET LOCAL app.actor_id` and `SET LOCAL app.change_reason` (populated via `X-Actor-Id` and `X-Change-Reason` HTTP headers on `historian-api`). Any unattributed mutation raises `21 CFR Part 11 Violation: app.actor_id and app.change_reason are mandatory`.
 2. **Write-Once-Read-Many (WORM) Audit Trail Immutability (`§11.10(e)`):**
    - The `part11_audit_log` table enforces a `BEFORE UPDATE OR DELETE OR TRUNCATE` trigger (`fn_prevent_audit_tampering()`) that unconditionally raises `21 CFR Part 11 WORM Violation: Audit trail records are immutable`, blocking tampering even by database superusers.
@@ -88,8 +90,8 @@ flowchart LR
    - Every audit row links the prior row's SHA-256 digest starting from `GENESIS_0000000000000000`:
      $$\text{row\_hash} = \text{SHA256}(\text{prev\_hash} \parallel \text{recorded\_at} \parallel \text{actor\_id} \parallel \text{operation} \parallel \text{coalesce}(\text{new\_payload}, \text{''}))$$
    - End-to-end chain integrity is verifiable on demand via `GET /api/v1/audit-trail/verify`.
-4. **Dual-Challenge Electronic Signatures (`§11.50`, `§11.70`, `§11.200`):**
-   - Signing an Event Frame (`POST /api/v1/event-frames/{event_id}/sign`) verifies `user_id` and `password` against `pgcrypto` bcrypt hashes in PostgreSQL `users`, computes a non-repudiable `HMAC-SHA256` signature over `(event_id, user_id, signature_meaning, signed_at)`, updates the Event Frame, and records the signature in the WORM audit trail.
+4. **Dual-Challenge & Multi-Stage Electronic Signatures (`§11.50`, `§11.70`, `§11.200`):**
+   - Signing an Event Frame (`POST /api/v1/event-frames/{event_id}/sign`) verifies `user_id` and `password` against `pgcrypto` bcrypt hashes in PostgreSQL `users`, computes a non-repudiable `HMAC-SHA256` signature over `(event_id, user_id, signature_meaning, signed_at)`, supports multi-stage sequential approvals in `event_frame_signatures` (`GET /api/v1/event-frames/{event_id}/signatures`), and records every signature stage in the WORM audit trail.
 5. **OPC Signal Quality Filtering (`quality >= 192`) & Step vs. Continuous Interpolation:**
    - Raw telemetry preserves all OPC quality states (`192` = Good, `64` = Uncertain, `0` = Bad) for sensor diagnostics, while all GMP rollups (`mv_sensor_rollup_1m`), LTTB visual trends, DataLink queries, and Event Frame KPIs strictly filter `WHERE quality >= 192`.
    - Continuous analog tags (`is_step_tag = false`) use linear time-weighted interpolation (`WITH FILL STEP ... INTERPOLATE`), whereas discrete state tags (`is_step_tag = true`, e.g., agitator states `0/1/2`) use Last Observation Carried Forward (LOCF) so impossible fractional states (such as `1.5`) are never synthesized.
@@ -103,7 +105,7 @@ clickhouse-historian/
 ├── .antigravity/
 │   └── rules.md                                      # Architectural & 21 CFR Part 11 guardrails
 ├── .env / .env.example                               # Non-default GxP credentials & host port mappings
-├── docker-compose.yml                                # 6-service orchestrated stack (including gxphistorian-mcp)
+├── docker-compose.yml                                # 7-service orchestrated stack (including gxphistorian-mcp & mock-server)
 ├── pytest.ini                                        # Pytest configuration for IQ/OQ qualification
 ├── init-postgres/
 │   └── 01_control_plane_part11.sql                   # PostgreSQL 16 ltree, pgcrypto, WORM audit & seed data
@@ -116,13 +118,14 @@ clickhouse-historian/
 │   ├── Dockerfile                                    # Telegraf 1.32 Alpine + Python 3.12 edge collector image
 │   ├── telegraf-clickhouse.conf                      # Disk WAL buffer, HTTP ingest (:8080), execd & CH output
 │   └── scripts/
-│       ├── multi_protocol_simulator.py               # Deterministic plant simulator + Stage 1 Deadband filter
+│       ├── multi_protocol_simulator.py               # Deterministic plant simulator + Stage 1 Deadband & Stage 2 Swinging Door
 │       ├── opcda_windows_forwarder.py                # Windows localhost COM OPC DA -> HTTP JSON bridge
 │       └── bacnet_cov_worker.py                      # Async BACnet/IP COV / ReadPropertyMultiple worker
 ├── app/
 │   ├── Dockerfile                                    # FastAPI control plane & gxphistorian-mcp container definition
 │   ├── requirements.txt                              # FastAPI, Psycopg 3, ClickHouse Connect, PyArrow, Pydantic AI, FastMCP
 │   ├── main.py                                       # Unified REST API, Event Frame Engine, DataLink & Part 11
+│   ├── pi_parity_engine.py                           # AVEVA PI System Parity Engine (DataLink, StreamSets, MKT/F0/SQC, BatchView, AF, Manual Logger, Notifications)
 │   ├── gxp_ai_agent.py                               # Pydantic AI Excursion Investigator & Part 11 Co-Pilot Agents
 │   └── mcp_server.py                                 # Standalone FastMCP (gxphistorian-mcp :8030) GxP historian server
 ├── provisioning/grafana/
@@ -153,18 +156,19 @@ clickhouse-historian/
 │   ├── LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md # RS-232 / Moxa NPort (MT-SICS balances, osmometers) & PI UFL watchfolders
 │   └── HARDWARE_SIZING_AND_CAPACITY_PLANNING.md      # Tier 1–4 server BOMs, 10yr NVMe + 15yr WORM sizing & Edge IPC specs
 ├── excel-datalink-client/
-│   ├── gxphistorian_datalink_udf.py                  # xlwings UDFs (=GXPHISTORIAN_SAMPLED, =GXPHISTORIAN_PLOT_VALUES, etc.)
+│   ├── gxphistorian_datalink_udf.py                  # 8 xlwings UDFs (=GXPHISTORIAN_SAMPLED, =GXPHISTORIAN_CALCULATED_DATA, etc.)
 │   └── README_EXCEL_SETUP.md                         # Power Query (zero-macro) & xlwings setup guide
 └── gxp-validation-package/
     ├── generate_gmp_binder.py                        # Automated 8-Document GMP Validation Binder generator
     ├── specs/
-    │   └── urs_risk_catalog.yaml                     # 17 URS items mapped to FRS, GAMP Cat, CSA Risk & pytest
+    │   └── urs_risk_catalog.yaml                     # 21 URS items mapped to FRS, GAMP Cat, CSA Risk & pytest
     ├── tests/
     │   ├── conftest.py                               # Fixtures & JSON evidence collector hook
     │   ├── test_01_iq_infrastructure.py              # IQ-01..05: Credentials, schemas, codecs, dict, WAL
     │   ├── test_02_oq_part11_compliance.py           # OQ-01..05: Part 11 attribution, WORM, e-sig, hash chain
     │   ├── test_03_oq_historian_core.py              # OQ-06..10: Multi-protocol, bad quality, LOCF, LTTB, Parquet
-    │   └── test_04_ai_agent_and_mcp.py               # OQ-11..12: Pydantic AI Co-Pilot, FastMCP & ApprovalRequired
+    │   ├── test_04_ai_agent_and_mcp.py               # OQ-11..12: Pydantic AI Co-Pilot, FastMCP & ApprovalRequired
+    │   └── test_05_oq_aveva_pi_parity.py             # OQ-13..16: DataLink/StreamSets, MKT/F0/SQC/BatchView, AF/UOM/ManualLogger, SwingingDoor/Backfill/MultiSig/Notifications
     ├── evidence/
     │   └── oq_execution_results.json                 # Timestamped pytest execution evidence log
     └── dist_binder/                                  # Generated 8 Markdown deliverables + HTML/PDF binder

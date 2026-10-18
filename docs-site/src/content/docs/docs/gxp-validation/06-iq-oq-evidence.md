@@ -1,6 +1,6 @@
 ---
 title: "Document 06 — Executed IQ/OQ Protocol & Cryptographic Evidence Report"
-description: "Document 06 — Executed IQ/OQ Protocol & Cryptographic Evidence Report (17 Automated Tests)."
+description: "Document 06 — Executed IQ/OQ Protocol & Cryptographic Evidence Report (21 Automated Tests)."
 ---
 **Document ID:** `EPR-GXPHISTORIAN-2026-006` | **Session Start (UTC):** `2026-10-18T19:41:34.154973+00:00` | **Session End (UTC):** `2026-10-18T19:41:40.326756+00:00` | **Verdict:** **PASS (21/21 Passed, 100.0%)**
 

@@ -114,7 +114,7 @@ On initial startup, `init-postgres/01_control_plane_part11.sql` seeds the ISA-95
    ```bash
    curl -s http://localhost:8020/api/v1/audit-trail/verify | jq .
    ```
-6. **Run the 17-Test Automated IQ/OQ Qualification Suite:**
+6. **Run the 21-Test Automated IQ/OQ Qualification Suite:**
    ```bash
    .venv/bin/pytest -v
    ```

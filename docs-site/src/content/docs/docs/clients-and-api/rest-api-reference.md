@@ -27,6 +27,25 @@ Interactive OpenAPI / Swagger UI documentation is available at:
 | `GET /api/v1/ai/mcp/manifest` | PI Web API / AI Gateway | Returns the `gxphistorian-mcp` server manifest (6 deterministic tools & 3 `gxphistorian://` resources) plus Pydantic AI agent metadata. | No |
 | `POST /api/v1/ai/event-frames/{event_id}/investigate` | Batch Excursion Co-Pilot | Runs `gxp_deviation_investigator_agent` to generate a structured `DeviationInvestigationBrief` over `quality >= 192` telemetry (advisory only; never calls `/sign`). | No (Read-only advisory) |
 | `POST /api/v1/ai/copilot/propose-tag` | Tag Builder Co-Pilot | Stages a validated tag provisioning proposal and pauses behind `ApprovalRequired` (`DeferredToolRequests`) until explicit human Part 11 approval. | **Yes** (Requires human `approved=true`, `actor_id`, `change_reason`) |
+| `GET /api/v1/datalink/current` | PI DataLink `PICurrVal` | Latest snapshot reading (`WHERE quality >= 192`) with optional canonical UOM conversion and Digital State translation. | No |
+| `GET /api/v1/datalink/archive-value` | PI DataLink `PIArcVal` | Exact timestamp lookup supporting `INTERPOLATED`, `PREVIOUS` (LOCF), `NEXT`, `EXACT`, and `AUTO` modes. | No |
+| `GET /api/v1/datalink/recorded` | PI DataLink `PICompDat` | Raw compressed archive events in `[start_time, end_time]` with optional `INSIDE`/`OUTSIDE` bounds filtering. | No |
+| `GET /api/v1/datalink/calculated` | PI DataLink `PIAdvCalcDat` | Interval summaries (`total`, `average`, `minimum`, `maximum`, `range`, `stddev`, `count`) with `TIME_WEIGHTED` trapezoidal integration vs. `EVENT_WEIGHTED`. | No |
+| `GET /api/v1/datalink/time-filter` | PI DataLink `PITimeFilter` | Evaluates boolean expressions (`>= 37.5`, `== 1`) and returns `seconds_true` & `percent_true`. | No |
+| `POST /api/v1/streamsets/end` | PI Web API `StreamSets/GetEnd` | Bulk latest snapshot query across an entire ISA-95 `asset_path` subtree or `tag_names` list. | No |
+| `POST /api/v1/streamsets/interpolated` | PI Web API `StreamSets/GetInterpolated` | Bulk synchronized multi-tag interpolation grid (`LINEAR` + `LOCF`) in a single HTTP request. | No |
+| `GET /api/v1/analytics/mkt` | PI Analysis Service (ICH Q1A MKT) | Computes Arrhenius Mean Kinetic Temperature ($\text{MKT}$, $\Delta H = 83.144\text{ kJ/mol}$). | No |
+| `GET /api/v1/analytics/f0-lethality` | PI Analysis Service (USP `<1229>` $F_0$) | Computes trapezoidal cumulative steam sterilization lethality $F_0$ ($T_{\text{ref}}=121.11\,^\circ\text{C}$, $z=10\,^\circ\text{C}$). | No |
+| `GET /api/v1/analytics/sqc` | PI SQC / Western Electric SPC | Evaluates 4 Western Electric SPC rules (`3σ`, `2-of-3 2σ`, `4-of-5 1σ`, `8-consecutive same side`) and $C_p$/$C_{pk}$. | No |
+| `POST /api/v1/batches/compare` | PI BatchView Golden Batch Overlay | Aligns multiple batch Event Frames on relative elapsed hours (`T+0.0h`) and computes `mean ± 2 SD` reference envelope. | No |
+| `GET /api/v1/af/uom` & `POST /api/v1/af/uom/convert` | PI AF UOM Database | Lists canonical engineering unit classes and converts values across `Temperature`, `Pressure`, `Flow`, `Conductivity`, `Mass`, and `Volume`. | No |
+| `GET /api/v1/af/digital-state-sets` | PI Digital State Sets | Returns discrete state enumerations (`ISA88_Phase_State`, `Valve_Discrete_State`, `Cleanroom_Door_Interlock`). | No |
+| `POST /api/v1/assets/instantiate-template` | PI AF Template Auto-Instantiation | Instantiates an asset in `assets` and auto-creates all standardized tags from `asset_templates.default_attributes`. | **Yes** (`X-Actor-Id`, `X-Change-Reason`) |
+| `GET` / `POST /api/v1/manual-logger/entries` | PI Manual Logger | Records 21 CFR Part 11 attributed manual/offline lab entries in PostgreSQL and dual-writes to ClickHouse `sensor_data`. | **Yes** (`X-Actor-Id`, `X-Change-Reason`) |
+| `POST /api/v1/compression/swinging-door-evaluate` | PI Server Stage 2 `CompDev` | Evaluates Stage 2 Swinging Door slope-envelope compression (`CompDev`, `CompMax`, `CompMin`) over a sample stream. | No |
+| `POST /api/v1/event-frames/backfill` | PI Analysis Backfill / Recalculation | Scans historical telemetry with `TrueFor` debounce (`true_for_seconds`) to backfill excursion Event Frames. | **Yes** (`X-Actor-Id`, `X-Change-Reason`) |
+| `GET /api/v1/event-frames/{event_id}/signatures` | Part 11 Multi-Stage Signatures | Returns the ordered chain of multi-stage electronic signatures (`Operator` $\rightarrow$ `Supervisor` $\rightarrow$ `QA`). | No |
+| `GET` / `POST /api/v1/notifications/*` | PI Notifications | Creates notification rules, evaluates open Event Frames, and logs webhook/email dispatches in `notification_deliveries`. | **Yes** (`X-Actor-Id`, `X-Change-Reason`) |
 
 ---
 
@@ -135,7 +154,7 @@ curl -s -X POST "http://localhost:8020/api/v1/event-frames/evaluate?lookback_min
 
 ### Execute 21 CFR Part 11 Electronic Signature (`POST /api/v1/event-frames/{event_id}/sign`)
 
-Verifies `user_id` and `password` against `pgcrypto` bcrypt hashes in PostgreSQL `users` (`§11.200`), computes an `HMAC-SHA256` signature over `(event_id, user_id, signature_meaning, signed_at)`, updates `event_frames`, and logs the change in `part11_audit_log`.
+Verifies `user_id` and `password` against `pgcrypto` bcrypt hashes in PostgreSQL `users` (`§11.200`), computes an `HMAC-SHA256` signature over `(event_id, user_id, signature_meaning, signed_at)`, updates `event_frames`, appends to `event_frame_signatures` for multi-stage sequential approvals, and logs the change in `part11_audit_log`.
 
 ```bash
 curl -s -X POST "http://localhost:8020/api/v1/event-frames/<EVENT_UUID>/sign" \
@@ -190,28 +209,16 @@ curl -s -X POST http://localhost:8020/api/v1/lakehouse/export-parquet \
 
 For complete architectural details, Capabilities on Demand (`defer_loading=True`), and `FastMCP` client configuration, see **[Pydantic AI Co-Pilot & MCP Server](/docs/clients-and-api/pydantic-ai-and-mcp/)**.
 
-### Inspect `gxphistorian-mcp` Tools & Resources (`GET /api/v1/ai/mcp/manifest`)
-
 ```bash
+# Inspect gxphistorian-mcp manifest
 curl -s http://localhost:8020/api/v1/ai/mcp/manifest | jq .
-```
 
-### Generate Advisory ISA-88 Excursion Investigation Brief (`POST /api/v1/ai/event-frames/{event_id}/investigate`)
-
-Executes `gxp_deviation_investigator_agent` (`output_type=DeviationInvestigationBrief`) over ClickHouse `WHERE quality >= 192` telemetry and PostgreSQL `part11_audit_log` context (`URS-016` / `OQ-11`). Read-only and advisory—never modifies `event_frames` or invokes `/sign`.
-
-```bash
+# Generate advisory ISA-88 Excursion Investigation Brief (quality >= 192; never calls /sign)
 curl -s -X POST "http://localhost:8020/api/v1/ai/event-frames/<EVENT_UUID>/investigate" \
   -H "Content-Type: application/json" \
   -d '{"use_deterministic_fallback": false}' | jq .
-```
 
-### Stage & Approve Part 11 Tag Proposal (`POST /api/v1/ai/copilot/propose-tag`)
-
-Validates tag limits and deadband via `@gxp_copilot_agent.tool(args_validator=validate_part11_tag_args)` and enforces a mandatory human-in-the-loop `ApprovalRequired` (`DeferredToolRequests`) pause before any PostgreSQL `tags` mutation (`URS-017` / `OQ-12`).
-
-```bash
-# Stage 1: Unapproved request -> returns HTTP 202 Accepted (DeferredToolRequests) with zero DB mutations
+# Stage Part 11 Tag Proposal (returns HTTP 202 Accepted DeferredToolRequests until approved=true)
 curl -s -X POST http://localhost:8020/api/v1/ai/copilot/propose-tag \
   -H "Content-Type: application/json" \
   -d '{
@@ -228,4 +235,154 @@ curl -s -X POST http://localhost:8020/api/v1/ai/copilot/propose-tag \
     "approved": false
   }' | jq .
 ```
+
+---
+
+## 10. Full PI DataLink & PI Web API StreamSets Parity (`URS-018` / `OQ-13`)
+
+Implemented in `app/pi_parity_engine.py`, these endpoints provide 1-to-1 parity with the complete OSIsoft / AVEVA PI DataLink function library and PI Web API `StreamSets`:
+
+```bash
+# 1. PICurrVal — Current Snapshot Value with on-the-fly UOM conversion (degC -> degF)
+curl -s "http://localhost:8020/api/v1/datalink/current?tag_name=BR201_TEMP_PV&target_uom=degF" | jq .
+
+# 2. PIArcVal — Single-timestamp Archive Value (AUTO, INTERPOLATED, PREVIOUS/LOCF, NEXT, EXACT)
+curl -s "http://localhost:8020/api/v1/datalink/archive-value?tag_name=BR201_TEMP_PV&timestamp=2026-01-16T10:02:30Z&mode=INTERPOLATED" | jq .
+
+# 3. PICompDat — Compressed/Recorded Archive Events with optional INSIDE/OUTSIDE bounds filter
+curl -s "http://localhost:8020/api/v1/datalink/recorded?tag_name=BR201_TEMP_PV&start_time=2026-01-16T10:00:00Z&end_time=2026-01-16T10:15:00Z&filter_mode=INSIDE" | jq .
+
+# 4. PIAdvCalcDat — Time-Weighted vs. Event-Weighted Calculated Summaries
+curl -s "http://localhost:8020/api/v1/datalink/calculated?tag_name=BR201_TEMP_PV&start_time=2026-01-16T10:00:00Z&end_time=2026-01-16T10:10:00Z&interval_seconds=600&calculation_basis=TIME_WEIGHTED" | jq .
+
+# 5. PITimeFilter — Time-True Duration & Percentage in State
+curl -s "http://localhost:8020/api/v1/datalink/time-filter?tag_name=BR201_TEMP_PV&start_time=2026-01-16T10:00:00Z&end_time=2026-01-16T10:10:00Z&operator=%3E%3D&threshold=37.5" | jq .
+
+# 6. PI Web API StreamSets — Bulk Multi-Tag Snapshot & Synchronized Interpolation
+curl -s -X POST http://localhost:8020/api/v1/streamsets/end \
+  -H "Content-Type: application/json" \
+  -d '{"asset_path": "BioCorp.Fremont.USP.Bioreactor_201"}' | jq .
+
+curl -s -X POST http://localhost:8020/api/v1/streamsets/interpolated \
+  -H "Content-Type: application/json" \
+  -d '{
+    "asset_path": "BioCorp.Fremont.USP.Bioreactor_201",
+    "start_time": "2026-01-16T10:00:00Z",
+    "end_time": "2026-01-16T10:10:00Z",
+    "step_seconds": 120
+  }' | jq .
+```
+
+---
+
+## 11. GxP Calculation Engine & Golden Batch Overlay (`URS-019` / `OQ-14`)
+
+Provides native biopharma thermal/sterilization calculations (`MKT`, $F_0$), Western Electric Statistical Process Control (`SQC`), and relative elapsed-hour (`T+0.0h`) Golden Batch trajectory alignment (`WHERE quality >= 192`):
+
+```bash
+# 1. ICH Q1A Mean Kinetic Temperature (MKT, ΔH = 83.144 kJ/mol)
+curl -s "http://localhost:8020/api/v1/analytics/mkt?tag_name=BR201_TEMP_PV&start_time=2026-01-16T14:00:00Z&end_time=2026-01-16T14:09:00Z&activation_energy_kj_mol=83.144" | jq .
+
+# 2. USP <1229> Steam Sterilization Lethality (F0 trapezoidal integration, Tref = 121.11°C, z = 10°C)
+curl -s "http://localhost:8020/api/v1/analytics/f0-lethality?tag_name=BR201_TEMP_PV&start_time=2026-01-16T15:00:00Z&end_time=2026-01-16T15:15:00Z&target_f0_minutes=12.0" | jq .
+
+# 3. Western Electric SQC SPC Rules (3σ, 2-of-3 2σ, 4-of-5 1σ, 8-consecutive same side) & Cp/Cpk
+curl -s "http://localhost:8020/api/v1/analytics/sqc?tag_name=CHR401_UV280_ABS&start_time=2026-01-16T16:00:00Z&end_time=2026-01-16T16:19:00Z&target_mean=100.0&target_sigma=2.0" | jq .
+
+# 4. PI BatchView Golden Batch Overlay (Relative elapsed-hour T+0.0h alignment & mean ± 2 SD envelope)
+curl -s -X POST http://localhost:8020/api/v1/batches/compare \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event_ids": [1, 2],
+    "tag_name": "BR201_TEMP_PV",
+    "step_seconds": 300,
+    "golden_event_id": 1
+  }' | jq .
+```
+
+---
+
+## 12. PI AF Template Auto-Instantiation, UOM & Manual Logger (`URS-020` / `OQ-15`)
+
+```bash
+# 1. Inspect Canonical UOM Registry & Convert Engineering Units
+curl -s http://localhost:8020/api/v1/af/uom | jq .
+curl -s -X POST http://localhost:8020/api/v1/af/uom/convert \
+  -H "Content-Type: application/json" \
+  -d '{"value": 100.0, "from_uom": "degC", "to_uom": "degF"}' | jq .
+
+# 2. Inspect PI Digital State Sets
+curl -s http://localhost:8020/api/v1/af/digital-state-sets | jq .
+
+# 3. Auto-Instantiate an ISA-95 Asset & Standardized Tags from an AF Template
+curl -s -X POST http://localhost:8020/api/v1/assets/instantiate-template \
+  -H "Content-Type: application/json" \
+  -H "X-Actor-Id: automation_eng_rlee" \
+  -H "X-Change-Reason: Auto-instantiate Bioreactor 202 from GMP_Bioreactor_v1 template" \
+  -d '{
+    "template_name": "GMP_Bioreactor_v1",
+    "asset_name": "Bioreactor 202",
+    "asset_path": "BioCorp.Fremont.USP.Bioreactor_202",
+    "parent_path": "BioCorp.Fremont.USP",
+    "tag_prefix": "BR202",
+    "base_tag_id": 2201,
+    "source_protocol": "OPC_UA"
+  }' | jq .
+
+# 4. Record a 21 CFR Part 11 Manual Logger Entry (dual-written to PostgreSQL & ClickHouse sensor_data)
+curl -s -X POST http://localhost:8020/api/v1/manual-logger/entries \
+  -H "Content-Type: application/json" \
+  -H "X-Actor-Id: operator_jdoe" \
+  -H "X-Change-Reason: Offline benchtop pH verification grab sample" \
+  -d '{
+    "tag_name": "BR201_PH_PV",
+    "sample_ts": "2026-01-16T18:00:00Z",
+    "val": 7.12,
+    "operator_notes": "Mettler SevenExcellence benchtop check",
+    "verified_by": "qa_approver_msmith"
+  }' | jq .
+```
+
+---
+
+## 13. Stage 2 Swinging Door, `TrueFor` Backfill, Multi-Stage Signatures & PI Notifications (`URS-021` / `OQ-16`)
+
+```bash
+# 1. Evaluate Stage 2 Swinging Door Compression (CompDev, CompMax, CompMin)
+curl -s -X POST http://localhost:8020/api/v1/compression/swinging-door-evaluate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "comp_dev": 0.1,
+    "comp_max_seconds": 600,
+    "comp_min_seconds": 0,
+    "samples": [
+      {"ts": "2026-01-16T19:00:00Z", "val": 37.0, "quality": 192},
+      {"ts": "2026-01-16T19:01:00Z", "val": 37.02, "quality": 192},
+      {"ts": "2026-01-16T19:02:00Z", "val": 38.4, "quality": 192},
+      {"ts": "2026-01-16T19:03:00Z", "val": 37.1, "quality": 192}
+    ]
+  }' | jq .
+
+# 2. Historical Event Frame Backfill with TrueFor Debounce Filtering
+curl -s -X POST http://localhost:8020/api/v1/event-frames/backfill \
+  -H "Content-Type: application/json" \
+  -H "X-Actor-Id: qa_approver_msmith" \
+  -H "X-Change-Reason: Historical backfill of thermal excursions with 120s TrueFor debounce" \
+  -d '{
+    "tag_name": "BR201_TEMP_PV",
+    "start_time": "2026-01-16T20:00:00Z",
+    "end_time": "2026-01-16T20:15:00Z",
+    "true_for_seconds": 120
+  }' | jq .
+
+# 3. Inspect Multi-Stage Electronic Signatures on an Event Frame
+curl -s "http://localhost:8020/api/v1/event-frames/1/signatures" | jq .
+
+# 4. Evaluate PI Notification Rules & Inspect Audit-Logged Deliveries
+curl -s -X POST http://localhost:8020/api/v1/notifications/evaluate \
+  -H "X-Actor-Id: notification_engine" \
+  -H "X-Change-Reason: Periodic evaluation of active GxP excursion notification rules" | jq .
+curl -s http://localhost:8020/api/v1/notifications/deliveries | jq .
+```
+
 

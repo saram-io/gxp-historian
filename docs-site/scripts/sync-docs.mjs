@@ -162,7 +162,7 @@ const validationFiles = [
   {
     src: 'gxp-validation-package/dist_binder/02_User_Requirements_Specification_URS.md',
     dest: 'src/content/docs/docs/gxp-validation/02-urs.md',
-    description: 'Document 02 — User Requirements Specification (URS-001 through URS-017) for GxPHistorian GxP.',
+    description: 'Document 02 — User Requirements Specification (URS-001 through URS-021) for GxPHistorian GxP.',
   },
   {
     src: 'gxp-validation-package/dist_binder/03_Functional_And_Design_Specification_FDS.md',
@@ -182,7 +182,7 @@ const validationFiles = [
   {
     src: 'gxp-validation-package/dist_binder/06_Executed_IQ_OQ_Protocol_And_Evidence_Report.md',
     dest: 'src/content/docs/docs/gxp-validation/06-iq-oq-evidence.md',
-    description: 'Document 06 — Executed IQ/OQ Protocol & Cryptographic Evidence Report (17 Automated Tests).',
+    description: 'Document 06 — Executed IQ/OQ Protocol & Cryptographic Evidence Report (21 Automated Tests).',
   },
   {
     src: 'gxp-validation-package/dist_binder/07_Requirements_Traceability_Matrix_RTM.md',

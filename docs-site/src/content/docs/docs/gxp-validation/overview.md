@@ -1,9 +1,9 @@
 ---
 title: GAMP 5 & CSA Qualification Overview
-description: Execute the 17-test automated IQ/OQ pytest qualification suite and generate the 8-Document Commercial GMP Validation Binder.
+description: Execute the 21-test automated IQ/OQ pytest qualification suite and generate the 8-Document Commercial GMP Validation Binder.
 ---
 
-GxPHistorian includes an executable **ISPE GAMP 5 (Second Edition)** and **FDA Computer Software Assurance (CSA)** qualification package in `gxp-validation-package/`. Every User Requirement (`URS-001` through `URS-017`) is mapped bidirectionally to Functional Specifications (`FRS`), CSA Risk Assessments (`FRA`), and automated `pytest` IQ/OQ verification tests.
+GxPHistorian includes an executable **ISPE GAMP 5 (Second Edition)** and **FDA Computer Software Assurance (CSA)** qualification package in `gxp-validation-package/`. Every User Requirement (`URS-001` through `URS-021`) is mapped bidirectionally to Functional Specifications (`FRS`), CSA Risk Assessments (`FRA`), and automated `pytest` IQ/OQ verification tests.
 
 ---
 
@@ -15,7 +15,7 @@ In addition to browsing the 8 individual Markdown documents in the sidebar, you 
 
 ---
 
-## 1. Run the 17-Test Automated IQ/OQ Pytest Suite
+## 1. Run the 21-Test Automated IQ/OQ Pytest Suite
 
 ```bash
 python3 -m venv .venv
@@ -23,7 +23,7 @@ python3 -m venv .venv
 .venv/bin/pytest -v
 ```
 
-Executing `pytest` runs all 17 qualification tests across four test modules and automatically records timestamped execution evidence to `gxp-validation-package/evidence/oq_execution_results.json`:
+Executing `pytest` runs all 21 qualification tests across five test modules and automatically records timestamped execution evidence to `gxp-validation-package/evidence/oq_execution_results.json`:
 
 | Test Suite File | Qualification Phase | Test IDs | Verified Regulatory & Technical Controls |
 | :--- | :--- | :--- | :--- |
@@ -31,6 +31,7 @@ Executing `pytest` runs all 17 qualification tests across four test modules and 
 | `test_02_oq_part11_compliance.py` | **Operational Qualification (OQ) — Part 11** | `OQ-01` .. `OQ-05` | Rejection of unattributed DML (`app.actor_id` / `app.change_reason`), WORM immutability blocking `UPDATE`/`DELETE` on `part11_audit_log`, `§11.200` invalid password rejection (`HTTP 401`), valid `HMAC-SHA256` electronic signature binding, and end-to-end SHA-256 hash chain verification. |
 | `test_03_oq_historian_core.py` | **Operational Qualification (OQ) — Historian Core** | `OQ-06` .. `OQ-10` | Multi-protocol ingestion (`OPC_UA`, `SIEMENS_S7`, `BACNET_IP`, `OPC_DA`), bad quality (`quality = 0`, `-999.0`) exclusion from 1m rollups & DataLink, `LINEAR` vs. `LOCF` step interpolation accuracy, LTTB peak preservation & Event Frame evaluation, and Snappy Apache Parquet export verification. |
 | `test_04_ai_agent_and_mcp.py` | **Operational Qualification (OQ) — Pydantic AI & MCP** | `OQ-11` .. `OQ-12` | `gxphistorian-mcp` manifest verification, deterministic `TestModel` excursion investigation (`quality >= 192`, `electronic_signature_bypassed=False`), `FunctionModel` Capabilities on Demand (`defer_loading=True`), `ModelRetry` self-correction, and `ApprovalRequired` (`DeferredToolRequests`) human-in-the-loop Part 11 gating. |
+| `test_05_oq_aveva_pi_parity.py` | **Operational Qualification (OQ) — AVEVA PI System Parity** | `OQ-13` .. `OQ-16` | Complete PI DataLink (`PICurrVal`, `PIArcVal`, `PICompDat`, `PIAdvCalcDat` time-weighted vs. event-weighted, `PITimeFilter`) & StreamSets (`URS-018`); GxP Calculation Engine (`MKT`, $F_0$ steam lethality, Western Electric SQC SPC) & Golden Batch Overlay (`URS-019`); PI AF Template Auto-Instantiation, Canonical UOM Conversion, Digital State Sets & Part 11 Manual Logger (`URS-020`); Stage 2 Swinging Door (`CompDev`), `TrueFor` Backfill, Multi-Stage Signatures & PI Notifications (`URS-021`). |
 
 ---
 
@@ -41,7 +42,7 @@ Executing `pytest` runs all 17 qualification tests across four test modules and 
 ```
 
 `generate_gmp_binder.py` combines:
-1. `gxp-validation-package/specs/urs_risk_catalog.yaml` (17 URS items mapped to FRS, GAMP Category, and CSA Risk)
+1. `gxp-validation-package/specs/urs_risk_catalog.yaml` (21 URS items mapped to FRS, GAMP Category, and CSA Risk)
 2. `gxp-validation-package/evidence/oq_execution_results.json` (timestamped `pytest` results and assertion narratives)
 3. Live container image `@sha256` digests queried via `docker inspect`
 4. Live database evidence queried from `part11_audit_log` and `event_frames`
@@ -49,10 +50,10 @@ Executing `pytest` runs all 17 qualification tests across four test modules and 
 It outputs all 8 regulatory deliverables into `gxp-validation-package/dist_binder/` (and synced into this documentation portal):
 
 1. **[01 — Validation Master Plan (VMP)](/docs/gxp-validation/01-vmp/)** (`VMP-GXPHISTORIAN-2026-001`)
-2. **[02 — User Requirements Specification (URS)](/docs/gxp-validation/02-urs/)** (`URS-001` through `URS-017`)
+2. **[02 — User Requirements Specification (URS)](/docs/gxp-validation/02-urs/)** (`URS-001` through `URS-021`)
 3. **[03 — Functional & Design Specification (FDS)](/docs/gxp-validation/03-fds/)** (4-Pillar Architecture & Schema Spec)
 4. **[04 — CSA Functional Risk Assessment (FRA)](/docs/gxp-validation/04-fra/)** (Patient Safety, Product Quality & Data Integrity Risk Matrix)
 5. **[05 — SOUP / OSS Vendor Qualification Dossier](/docs/gxp-validation/05-soup-dossier/)** (ClickHouse, PostgreSQL, Telegraf, FastAPI, Grafana `@sha256` digests)
-6. **[06 — Executed IQ/OQ Protocol & Evidence Report](/docs/gxp-validation/06-iq-oq-evidence/)** (17/17 Executed Test Results & Live Cryptographic Audit Samples)
+6. **[06 — Executed IQ/OQ Protocol & Evidence Report](/docs/gxp-validation/06-iq-oq-evidence/)** (21/21 Executed Test Results & Live Cryptographic Audit Samples)
 7. **[07 — Requirements Traceability Matrix (RTM)](/docs/gxp-validation/07-rtm/)** (Bidirectional URS $\leftrightarrow$ FRS $\leftrightarrow$ Risk $\leftrightarrow$ Test ID Matrix)
 8. **[08 — Validation Summary Report (VSR)](/docs/gxp-validation/08-vsr/)** (QA Release Certificate for Production GMP Use)

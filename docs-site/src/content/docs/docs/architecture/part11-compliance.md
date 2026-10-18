@@ -9,7 +9,7 @@ GxPHistorian implements regulatory data integrity controls directly inside the d
 
 ## 1. Mandatory Attribution Context (`21 CFR §11.10(e)` / ALCOA+ Attributable)
 
-Every `INSERT`, `UPDATE`, or `DELETE` on `asset_templates`, `assets`, `tags`, and `event_frames` is intercepted by the PostgreSQL trigger function `fn_enforce_part11_audit()`.
+Every `INSERT`, `UPDATE`, or `DELETE` on all 10 GxP configuration and state tables (`asset_templates`, `assets`, `tags`, `event_frames`, `digital_state_sets`, `event_frame_templates`, `event_frame_signatures`, `manual_logger_entries`, `notification_rules`, and `notification_deliveries`) is intercepted by the PostgreSQL trigger function `fn_enforce_part11_audit()`.
 
 1. **Session Context Enforcement:**
    - Before executing any DML statement, the transaction must bind `app.actor_id` and `app.change_reason` using `SET LOCAL` (or `set_config(..., true)`):
@@ -79,9 +79,9 @@ Every row inserted into `part11_audit_log` is cryptographically chained to the i
 
 ---
 
-## 4. Dual-Challenge Electronic Signatures (`21 CFR §11.50`, `§11.70`, `§11.200`)
+## 4. Dual-Challenge & Multi-Stage Electronic Signatures (`21 CFR §11.50`, `§11.70`, `§11.200`)
 
-When a Quality Assurance reviewer or operator signs an ISA-88 Event Frame via `POST /api/v1/event-frames/{event_id}/sign` (`URS-008`, `URS-009` / `OQ-03`, `OQ-04`):
+When a Quality Assurance reviewer, supervisor, or process operator signs an ISA-88 Event Frame via `POST /api/v1/event-frames/{event_id}/sign` (`URS-008`, `URS-009`, `URS-021` / `OQ-03`, `OQ-04`, `OQ-16`):
 
 ```mermaid
 sequenceDiagram
@@ -98,15 +98,16 @@ sequenceDiagram
     PG-->>API: match = TRUE (Dr. Marcus Vance, QA_APPROVER)
     API->>API: Compute HMAC-SHA256(event_id | user_id | meaning | signed_at_iso)
     API->>PG: SET LOCAL app.actor_id & app.change_reason
-    API->>PG: UPDATE event_frames SET signed_by, signature_meaning, signed_at, signature_hash
+    API->>PG: UPDATE event_frames & INSERT INTO event_frame_signatures (stage_order)
     PG->>PG: Trigger fn_enforce_part11_audit() -> Append SHA-256 WORM Audit Record
     PG-->>API: Commit Transaction
-    API-->>QA: HTTP 200 OK (Signed Event Frame + HMAC-SHA256 Signature Block)
+    API-->>QA: HTTP 200 OK (Signed Event Frame + Multi-Stage HMAC-SHA256 Signature Block)
   end
 ```
 
 - **Signature Manifestation (`§11.50`):** Every signed Event Frame permanently records the printed name and user ID of the signer (`signed_by`), the UTC timestamp (`signed_at`), and the explicit meaning associated with the signature (`signature_meaning`, e.g., `"Excursion Investigation Reviewed"` or `"Batch Release Approval"`).
 - **Signature / Record Linking (`§11.70`):** The cryptographic `signature_hash` (`HMAC-SHA256`) binds `event_id`, `user_id`, `signature_meaning`, and `signed_at` so a signature cannot be excised, copied, or transferred to falsify another record.
+- **Multi-Stage Sequential Sign-Off (`event_frame_signatures`):** Supports sequential multi-role disposition workflows (Stage 1: `Operator Review` $\rightarrow$ Stage 2: `Supervisor Verification` $\rightarrow$ Stage 3: `QA Final Approval`), queryable via `GET /api/v1/event-frames/{event_id}/signatures` (`URS-021` / `OQ-16`).
 
 ---
 
