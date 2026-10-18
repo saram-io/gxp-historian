@@ -601,16 +601,29 @@ def build_complete_html_binder(
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GxPHistorian GxP Industrial Historian — Complete 21 CFR Part 11 Validation Binder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <style>
+    :root {{
+      --font-serif: "Playfair Display", "Noto Serif KR", -apple-system, "Batang", serif;
+      --font-mono: "Roboto Mono", "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", monospace;
+    }}
     * {{ box-sizing: border-box; }}
     body {{
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: var(--font-mono);
+      font-size-adjust: from-font;
+      -webkit-font-smoothing: antialiased;
       background: var(--background, #f8fafc);
       color: var(--foreground, #0f172a);
       line-height: 1.55;
       font-size: 14px;
+    }}
+    h1, h2, h3, h4 {{
+      font-family: var(--font-serif);
+      font-size-adjust: from-font;
     }}
     header.exec-banner {{
       background: linear-gradient(135deg, #0f172a 0%, #134e4a 100%);
@@ -619,6 +632,7 @@ def build_complete_html_binder(
       border-bottom: 4px solid #14b8a6;
     }}
     header.exec-banner h1 {{
+      font-family: var(--font-serif);
       margin: 0 0 0.5rem 0;
       font-size: 1.75rem;
       letter-spacing: -0.02em;
@@ -753,7 +767,7 @@ def build_complete_html_binder(
       background: rgba(148, 163, 184, 0.16);
       padding: 0.12rem 0.35rem;
       border-radius: 4px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-family: var(--font-mono);
       font-size: 0.8em;
       word-break: break-all;
     }}
@@ -821,6 +835,11 @@ def build_complete_html_binder(
       {sections_html}
     </main>
   </div>
+  <footer style="max-width:1440px;margin:0 auto;padding:1.5rem 2.5rem 2.5rem;border-top:1px solid #cbd5e1;font-size:0.82rem;color:#475569;">
+    <strong>Built by <a href="https://saram.io" target="_blank" rel="noopener noreferrer" style="color:#0f766e;text-decoration:underline;">Saram Consulting (saram.io)</a></strong> &bull;
+    <strong>Source Code:</strong> <a href="https://github.com/saram-io/gxp-historian" target="_blank" rel="noopener noreferrer" style="color:#0f766e;text-decoration:underline;">github.com/saram-io/gxp-historian</a> &bull;
+    <strong>License:</strong> MIT
+  </footer>
 </body>
 </html>
 """

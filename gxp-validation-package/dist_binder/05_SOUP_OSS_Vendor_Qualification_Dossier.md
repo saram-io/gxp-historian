@@ -1,6 +1,6 @@
 # Document 05 — SOUP / Open-Source Software (OSS) Vendor Qualification Dossier
 
-**Document ID:** `SOUP-GXPHISTORIAN-2026-005` | **Generated (UTC):** `2026-10-17T21:20:51Z` | **Standard:** GAMP 5 Category 3/4 & ISO/IEC 62304 SOUP Qualification
+**Document ID:** `SOUP-GXPHISTORIAN-2026-005` | **Generated (UTC):** `2026-10-18T16:25:37Z` | **Standard:** GAMP 5 Category 3/4 & ISO/IEC 62304 SOUP Qualification
 
 ## 1. Qualified Open-Source Software & Live Container SHA-256 Digest Matrix
 

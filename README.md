@@ -408,8 +408,18 @@ This script combines `urs_risk_catalog.yaml`, `oq_execution_results.json`, live 
 
 ---
 
-## 9. License
+## 9. Enterprise Implementation, Legacy PI Migration & GxP Validation Services
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+Need turnkey deployment, historical OSIsoft / AVEVA PI Data Archive migration, OT/IT biopharma skid connectivity, or site-specific 21 CFR Part 11 / GAMP 5 / FDA CSA IQ/OQ/PQ qualification?
 
-> **Trademark Notice:** *PI System*, *PI Vision*, *PI DataLink*, *PI Asset Framework*, *PI UFL*, *OSIsoft*, and *AVEVA* are registered trademarks or trademarks of AVEVA Group Limited / OSIsoft, LLC. All references to third-party trademarks and instrument models in this repository are strictly for comparative architectural and interoperability documentation purposes (nominative fair use); GxPHistorian is an independent open-source project and is not affiliated with or endorsed by AVEVA or OSIsoft.
+**[Saram Consulting (saram.io)](https://saram.io)** provides end-to-end commercial implementation and validation services for `GxPHistorian`:
+- **Request an Implementation Quote:** [https://saram.io/#inquiry](https://saram.io/#inquiry)
+- **Direct Contact:** [info@saram.consulting](mailto:info@saram.consulting) · `+1 (925) 394-6606`
+
+---
+
+## 10. License
+
+Built by **[Saram Consulting (saram.io)](https://saram.io)**. This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+> **Trademark Notice:** *PI System*, *PI Vision*, *PI DataLink*, *PI Asset Framework*, *PI UFL*, *OSIsoft*, and *AVEVA* are registered trademarks or trademarks of AVEVA Group Limited / OSIsoft, LLC. All references to third-party trademarks and instrument models in this repository are strictly for comparative architectural and interoperability documentation purposes (nominative fair use); GxPHistorian is an open-source product built by [Saram Consulting](https://saram.io) and is not affiliated with or endorsed by AVEVA or OSIsoft.

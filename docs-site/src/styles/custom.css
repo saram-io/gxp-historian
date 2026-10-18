@@ -1,6 +1,10 @@
 @import 'katex/dist/katex.min.css';
 
 :root {
+  --font-serif: "Playfair Display", "Noto Serif KR", -apple-system, "Batang", serif;
+  --font-mono: "Roboto Mono", "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", monospace;
+  --sl-font: var(--font-mono);
+  --sl-font-mono: var(--font-mono);
   --sl-color-accent-low: #0c2d48;
   --sl-color-accent: #0284c7;
   --sl-color-accent-high: #bae6fd;
@@ -13,11 +17,21 @@
   --sl-color-accent-high: #0c4a6e;
 }
 
-/* Modern Web Guidance: improve-text-layout-and-legibility
-   Target short heading elements (h1-h6) for balanced line-breaking,
-   and multi-line text blocks (p, blockquote, li) for pretty line-breaking. */
+body {
+  font-family: var(--font-mono);
+  font-size-adjust: from-font;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Modern Web Guidance: improve-text-layout-and-legibility & visually-stable-font-fallbacks
+   Target heading elements (h1-h6) and site title with saram.io's Playfair Display serif stack,
+   font-size-adjust: from-font, and balanced line-breaking. */
 .sl-markdown-content :is(h1, h2, h3, h4, h5, h6),
-.hero h1 {
+.hero h1,
+.site-title,
+h1[data-page-title] {
+  font-family: var(--font-serif);
+  font-size-adjust: from-font;
   text-wrap: balance;
 }
 
@@ -118,9 +132,69 @@
   border: 1px solid var(--sl-color-accent);
 }
 
-/* Footer notice */
+/* Footer Implementation Services Banner & Regulatory Notice */
+.oh-services-banner {
+  margin-block-start: 2.25rem;
+  padding: 1.35rem 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--sl-color-accent);
+  background: var(--sl-color-accent-low);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.oh-services-copy {
+  max-width: 60ch;
+}
+
+.oh-services-copy strong {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: var(--sl-color-white);
+  margin-block-end: 0.35rem;
+}
+
+.oh-services-copy p {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--sl-color-gray-2);
+}
+
+.oh-services-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.oh-services-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--sl-color-accent);
+  color: #ffffff !important;
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.oh-services-btn:hover {
+  opacity: 0.92;
+}
+
+.oh-services-link {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--sl-color-text-accent);
+}
+
 .oh-trademark-footer {
-  margin-block-start: 2rem;
+  margin-block-start: 1.25rem;
   padding-block-start: 1rem;
   border-block-start: 1px solid var(--sl-color-gray-5);
   font-size: 0.78rem;
