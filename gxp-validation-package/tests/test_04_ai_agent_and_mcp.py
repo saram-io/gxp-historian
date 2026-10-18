@@ -34,7 +34,14 @@ def test_oq_11_pydantic_ai_deviation_investigator_and_mcp(
     Verify Pydantic AI `gxp_deviation_investigator_agent` Event Frame investigation,
     `part11-forensics` deferred capability loading, and `gxphistorian-mcp` manifest.
     """
-    # 1. Verify MCP & Pydantic AI manifest endpoint on historian-api and standalone gxphistorian-mcp container
+    # 1. Ensure at least one Event Frame exists
+    eval_resp = api_client.post("/api/v1/event-frames/evaluate")
+    assert eval_resp.status_code == 200
+    ef_list = api_client.get("/api/v1/event-frames").json()["event_frames"]
+    assert len(ef_list) > 0
+    target_ef_id = ef_list[0]["event_id"]
+
+    # 2. Verify MCP & Pydantic AI manifest endpoint on historian-api and standalone gxphistorian-mcp container
     manifest_resp = api_client.get("/api/v1/ai/mcp/manifest")
     assert manifest_resp.status_code == 200
     manifest = manifest_resp.json()
@@ -47,30 +54,55 @@ def test_oq_11_pydantic_ai_deviation_investigator_and_mcp(
     assert mcp_container_resp.status_code == 200
     assert mcp_container_resp.json()["server_name"] == "gxphistorian-mcp"
 
-    # Verify live Streamable HTTP MCP protocol execution against the gxphistorian-mcp container
+    # 3. Verify live Streamable HTTP MCP protocol execution (all 6 tools + all 3 resources) against gxphistorian-mcp container
     import asyncio
+    import json
     from fastmcp import Client as FastMCPClient
 
-    async def _verify_live_http_mcp() -> list[str]:
+    async def _verify_live_http_mcp() -> tuple[list[str], list[str]]:
         async with FastMCPClient(f"{MCP_BASE_URL}/mcp") as mcp_client:
             tools = await mcp_client.list_tools()
+            resources = await mcp_client.list_resources()
+
+            assets_res = await mcp_client.call_tool("mcp_browse_assets", {"root_path": "BioCorp.Fremont.USP"})
+            assert assets_res.data["count"] >= 1
+
+            lttb_res = await mcp_client.call_tool("mcp_get_lttb_plot_values", {"tag_id": 101, "intervals": 10})
+            assert lttb_res.data["downsampling_algorithm"] == "largestTriangleThreeBuckets"
+
+            dl_res = await mcp_client.call_tool("mcp_get_sampled_datalink", {"tag_name": "BR201_TEMP_PV", "step_seconds": 60})
+            assert dl_res.data["interpolation_mode"] == "LINEAR"
+
+            ef_res = await mcp_client.call_tool("mcp_list_event_frames", {})
+            assert ef_res.data["count"] >= 1
+
             audit_res = await mcp_client.call_tool("mcp_verify_part11_audit_chain", {})
             assert audit_res.data["chain_valid"] is True
-            return [t.name for t in tools]
 
-    live_mcp_tools = asyncio.run(_verify_live_http_mcp())
-    assert "mcp_draft_deviation_brief" in live_mcp_tools
+            brief_res = await mcp_client.call_tool("mcp_draft_deviation_brief", {"event_id": target_ef_id})
+            assert brief_res.data["event_id"] == target_ef_id
+            assert brief_res.data["part11_audit_chain_valid"] is True
 
-    # 2. Ensure at least one Event Frame exists and run AI Deviation Investigator
-    eval_resp = api_client.post("/api/v1/event-frames/evaluate")
-    assert eval_resp.status_code == 200
-    ef_list = api_client.get("/api/v1/event-frames").json()["event_frames"]
-    assert len(ef_list) > 0
-    target_ef_id = ef_list[0]["event_id"]
+            for uri in ("gxphistorian://assets/tree", "gxphistorian://audit/verify", "gxphistorian://docs/catalog"):
+                res_contents = await mcp_client.read_resource(uri)
+                assert len(res_contents) >= 1
+                parsed_json = json.loads(res_contents[0].text)
+                assert isinstance(parsed_json, dict)
 
+            return [t.name for t in tools], [str(r.uri) for r in resources]
+
+    live_mcp_tools, live_mcp_resources = asyncio.run(_verify_live_http_mcp())
+    assert set(manifest["mcp_tools"]).issubset(set(live_mcp_tools))
+    assert set(manifest["mcp_resources"]).issubset(set(live_mcp_resources))
+
+    # 4. Run AI Deviation Investigator on both historian-api (:8020) and standalone gxphistorian-mcp (:8030)
     inv_resp = api_client.post(f"/api/v1/ai/event-frames/{target_ef_id}/investigate")
     assert inv_resp.status_code == 200
     brief = inv_resp.json()
+
+    mcp_inv_resp = httpx.post(f"{MCP_BASE_URL}/api/v1/ai/event-frames/{target_ef_id}/investigate", timeout=15.0)
+    assert mcp_inv_resp.status_code == 200
+    assert mcp_inv_resp.json()["event_id"] == target_ef_id
 
     assert brief["event_id"] == target_ef_id
     assert brief["part11_audit_chain_valid"] is True

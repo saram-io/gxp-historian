@@ -273,11 +273,49 @@ def test_oq_13_pi_datalink_and_streamsets_parity(
     assert ss_interp.status_code == 200
     assert ss_interp.json()["count"] == 2
 
+    # 7. Verify all 8 Excel DataLink UDFs in excel-datalink-client/gxphistorian_datalink_udf.py against live API
+    import importlib.util
+    import sys
+    from conftest import API_BASE_URL, REPO_ROOT
+
+    udf_path = REPO_ROOT / "excel-datalink-client" / "gxphistorian_datalink_udf.py"
+    udf_spec = importlib.util.spec_from_file_location("gxphistorian_datalink_udf", udf_path)
+    assert udf_spec is not None and udf_spec.loader is not None
+    udf_mod = importlib.util.module_from_spec(udf_spec)
+    sys.modules["gxphistorian_datalink_udf"] = udf_mod
+    udf_spec.loader.exec_module(udf_mod)
+    udf_mod.HISTORIAN_API_URL = API_BASE_URL
+
+    udf_sampled = udf_mod.GXPHISTORIAN_SAMPLED("BR201_TEMP_PV", "2026-01-16T10:00:00Z", "2026-01-16T10:02:00Z", 60)
+    assert len(udf_sampled) == 4  # header + 3 rows
+
+    udf_plot = udf_mod.GXPHISTORIAN_PLOT_VALUES("BR201_TEMP_PV", "2026-01-16T10:00:00Z", "2026-01-16T10:10:00Z", 10)
+    assert len(udf_plot) >= 2
+
+    udf_ef = udf_mod.GXPHISTORIAN_EVENT_SUMMARY("USP_Batch")
+    assert len(udf_ef) >= 5
+
+    udf_curr = udf_mod.GXPHISTORIAN_CURRENT_VALUE("BR201_TEMP_PV", "degF")
+    assert len(udf_curr) == 2 and udf_curr[1][1] > 80.0
+
+    udf_arc = udf_mod.GXPHISTORIAN_ARCHIVE_VALUE("BR201_TEMP_PV", "2026-01-16T10:01:00Z", "INTERPOLATED")
+    assert len(udf_arc) == 2 and udf_arc[1][1] == 38.0
+
+    udf_comp = udf_mod.GXPHISTORIAN_COMPRESSED_DATA("BR201_TEMP_PV", "2026-01-16T10:00:00Z", "2026-01-16T10:10:00Z", 50)
+    assert len(udf_comp) == 4  # header + 3 good points
+
+    udf_calc = udf_mod.GXPHISTORIAN_CALCULATED_DATA("BR201_TEMP_PV", "2026-01-16T10:00:00Z", "2026-01-16T10:10:00Z", "TIME_WEIGHTED")
+    assert len(udf_calc) == 10 and udf_calc[1][1] == 38.0
+
+    udf_tf = udf_mod.GXPHISTORIAN_TIME_FILTER("BR201_AGIT_STATE", "2026-01-16T10:00:00Z", "2026-01-16T10:10:00Z", ">=", 2.0)
+    assert len(udf_tf) == 2 and udf_tf[1][1] == 360.0
+
     evidence.record(
         assertion_summary=(
-            "Verified AVEVA PI DataLink & StreamSets parity: PICurrVal UOM/DigitalState resolution, "
-            "PIArcVal exact linear/LOCF retrieval, PICompDat bad-quality exclusion, PIAdvCalcDat "
-            "Time-Weighted (38.0) vs Event-Weighted (37.6667) integration, PITimeFilter duration (360s / 60%), and StreamSets bulk queries."
+            "Verified AVEVA PI DataLink & StreamSets parity (REST + all 8 =GXPHISTORIAN_* Excel UDFs): "
+            "PICurrVal UOM/DigitalState resolution, PIArcVal exact linear/LOCF retrieval, PICompDat bad-quality "
+            "exclusion, PIAdvCalcDat Time-Weighted (38.0) vs Event-Weighted (37.6667) integration, PITimeFilter "
+            "duration (360s / 60%), and StreamSets bulk queries."
         ),
         input_payload={"window": "2026-01-16T10:00:00Z..10:10:00Z", "tags": ["BR201_TEMP_PV", "BR201_AGIT_STATE"]},
         output_payload={
@@ -286,6 +324,16 @@ def test_oq_13_pi_datalink_and_streamsets_parity(
             "pi_adv_calc_event_weighted": ew_summary,
             "pi_time_filter": tf_data,
             "streamsets_count": ss_end.json()["count"],
+            "verified_excel_udfs": [
+                "GXPHISTORIAN_SAMPLED",
+                "GXPHISTORIAN_PLOT_VALUES",
+                "GXPHISTORIAN_EVENT_SUMMARY",
+                "GXPHISTORIAN_CURRENT_VALUE",
+                "GXPHISTORIAN_ARCHIVE_VALUE",
+                "GXPHISTORIAN_COMPRESSED_DATA",
+                "GXPHISTORIAN_CALCULATED_DATA",
+                "GXPHISTORIAN_TIME_FILTER",
+            ],
         },
     )
 
@@ -443,6 +491,10 @@ def test_oq_15_pi_af_template_uom_digital_states_and_manual_logger(
     assert ds_resp.status_code in (200, 201)
     assert ds_resp.json()["digital_state_set"]["state_set_name"] == "AUTOCLAVE_DOOR_INTERLOCK"
 
+    ds_list = api_client.get("/api/v1/af/digital-state-sets")
+    assert ds_list.status_code == 200
+    assert ds_list.json()["count"] >= 2
+
     # 3. PI AF Template Auto-Instantiation
     inst_resp = api_client.post(
         "/api/v1/assets/instantiate-template",
@@ -508,7 +560,7 @@ def test_oq_15_pi_af_template_uom_digital_states_and_manual_logger(
 
     evidence.record(
         assertion_summary=(
-            "Verified UOM conversion (100 °C -> 212 °F), Digital State Set creation, "
+            "Verified UOM conversion (100 °C -> 212 °F), Digital State Set creation & catalog, "
             "PI AF Template auto-instantiation of Bioreactor_202 (4 standard tags), and Part 11 PI Manual Logger "
             "with dual-person verification and ClickHouse archival (status_code=5)."
         ),
@@ -609,6 +661,10 @@ def test_oq_16_swinging_door_truefor_backfill_multisig_and_notifications(
     assert "%Element%" in chan_catalog["substitution_parameters"]
     assert "%TrendUrl%" in chan_catalog["substitution_parameters"]
 
+    rules_resp = api_client.get("/api/v1/notifications/rules")
+    assert rules_resp.status_code == 200
+    assert rules_resp.json()["count"] >= 4
+
     # Negative check: PI Notifications requires resend_interval_minutes >= non_repetition_minutes
     bad_rule_resp = api_client.post(
         "/api/v1/notifications/rules",
@@ -679,6 +735,19 @@ def test_oq_16_swinging_door_truefor_backfill_multisig_and_notifications(
     sms_ack_data = sms_ack_resp.json()
     assert sms_ack_data["status"] == "sms_acknowledged"
     assert sms_ack_data["escalation_halted"] is True
+
+    # Also verify REST / Web / Mobile acknowledgment endpoint (/api/v1/notifications/acknowledge/{event_id})
+    rest_ack_resp = api_client.post(
+        f"/api/v1/notifications/acknowledge/{backfilled_event_id}",
+        headers=headers,
+        json={
+            "acknowledged_by": "operator_01",
+            "acknowledgment_channel": "MOBILE_PUSH",
+            "comment": "Confirmed jacket cooling valve reset on mobile HMI",
+        },
+    )
+    assert rest_ack_resp.status_code == 200
+    assert rest_ack_resp.json()["status"] == "acknowledged"
 
     # Simulate 25 minutes elapsed after SMS ACK -> Tier 3 escalation is halted by acknowledgment
     post_ack_eval = api_client.post(

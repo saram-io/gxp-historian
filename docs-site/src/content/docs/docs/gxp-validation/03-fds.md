@@ -2,7 +2,7 @@
 title: "Document 03 — Functional & Design Specification (FDS)"
 description: "Document 03 — Functional and Design Specification (FDS) across the 4-Pillar Historian Architecture."
 ---
-**Document ID:** `FDS-GXPHISTORIAN-2026-003` | **Effective Date (UTC):** `2026-10-18T20:35:53Z`
+**Document ID:** `FDS-GXPHISTORIAN-2026-003` | **Effective Date (UTC):** `2026-10-18T21:33:54Z`
 
 ---
 

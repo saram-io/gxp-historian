@@ -66,7 +66,11 @@ def test_oq_06_multi_protocol_telemetry_ingestion(
     ch_client: Any,
     evidence: EvidenceTracker,
 ) -> None:
-    """URS-011: Verify all 6 mock instrument connection listeners and active telemetry across all 5 GxP tags."""
+    """URS-011: Verify all 6 mock instrument connection listeners (HTTP + direct host TCP/UDP sockets) and active telemetry across all 5 GxP tags."""
+    import socket
+    import struct
+
+    # 1. Verify internal multi-protocol self-test + Edge Collector forwarding
     self_test_resp = httpx.post(
         f"{MOCK_SERVER_BASE_URL}/control/self-test",
         json={"push_to_edge": True},
@@ -77,6 +81,74 @@ def test_oq_06_multi_protocol_telemetry_ingestion(
     assert self_test_data["all_protocols_verified"] is True
     assert self_test_data["edge_collector_ingested"] is True
 
+    # 2. Verify all HTTP protocol inspection & PI UFL SHA-256 batch drop endpoints on instrument-mock-server
+    proto_cat = httpx.get(f"{MOCK_SERVER_BASE_URL}/protocols", timeout=10.0)
+    assert proto_cat.status_code == 200
+    assert len(proto_cat.json()["connection_types"]) == 6
+
+    for ep in ("/protocols/opcua/nodes", "/protocols/modbus/registers", "/protocols/bacnet/objects", "/protocols/s7/db10"):
+        ep_resp = httpx.get(f"{MOCK_SERVER_BASE_URL}{ep}", timeout=10.0)
+        assert ep_resp.status_code == 200
+
+    opcda_resp = httpx.post(f"{MOCK_SERVER_BASE_URL}/protocols/opcda/read", json={}, timeout=10.0)
+    assert opcda_resp.status_code == 200
+    assert len(opcda_resp.json()["items"]) >= 3
+
+    ufl_resp = httpx.post(
+        f"{MOCK_SERVER_BASE_URL}/protocols/ufl/generate-batch-file",
+        json={
+            "instrument_type": "Sartocheck_5_Plus_Filter_Integrity",
+            "batch_id": "BATCH-2026-OQ-E2E",
+            "tag_id": 401,
+            "val": 312.5,
+            "quality": 192,
+            "forward_to_edge": True,
+        },
+        timeout=10.0,
+    )
+    assert ufl_resp.status_code == 200
+    ufl_data = ufl_resp.json()
+    assert ufl_data["status"] == "generated"
+    assert len(ufl_data["file_sha256"]) == 64
+    assert ufl_data["edge_forwarded"] is True
+
+    # 3. Direct host-to-container raw TCP/UDP socket verification across exposed ports (:4840, :5020, :47808/udp, :1102, :4001)
+    # 3a. OPC UA TCP (:4840) Binary HEL/ACK
+    with socket.create_connection(("127.0.0.1", 4840), timeout=5.0) as opc_sock:
+        opc_sock.sendall(b"HELF\x1c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00@\x00\x00\x00\x00\x00")
+        ack = opc_sock.recv(28)
+        assert ack[:4] == b"ACKF"
+
+    # 3b. Modbus TCP (:5020) MBAP FC03 Read Holding Registers 40101..40104 (ABCD vs CDAB)
+    with socket.create_connection(("127.0.0.1", 5020), timeout=5.0) as mb_sock:
+        mb_sock.sendall(struct.pack(">HHHBBHH", 0x0099, 0x0000, 6, 1, 0x03, 100, 4))
+        mb_reply = mb_sock.recv(32)
+        w0, w1, w2, w3 = struct.unpack(">4H", mb_reply[9:17])
+        val_abcd = round(struct.unpack(">f", struct.pack(">HH", w0, w1))[0], 4)
+        val_cdab = round(struct.unpack(">f", struct.pack(">HH", w3, w2))[0], 4)
+        assert val_abcd == val_cdab
+
+    # 3c. BACnet/IP UDP (:47808) ASHRAE 135 BVLC 0x81 ReadProperty
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as bac_sock:
+        bac_sock.settimeout(5.0)
+        bac_sock.sendto(bytes([0x81, 0x0A, 0x00, 0x0C, 0x01, 0x00, 0x00, 0x05, 0x07, 0x0C, 0x0C, 0x00]), ("127.0.0.1", 47808))
+        bac_reply, _ = bac_sock.recvfrom(128)
+        assert bac_reply[:2] == b"\x81\x0a"
+
+    # 3d. Siemens S7comm ISO-on-TCP (:1102) RFC 1006 TPKT + COTP Connection Request (0xE0 -> 0xD0)
+    with socket.create_connection(("127.0.0.1", 1102), timeout=5.0) as s7_sock:
+        s7_sock.sendall(bytes([0x03, 0x00, 0x00, 0x0B, 0x06, 0xE0, 0x00, 0x00, 0x00, 0x01, 0x00]))
+        cotp_cc = s7_sock.recv(32)
+        assert cotp_cc[5] == 0xD0
+
+    # 3e. Moxa RS-232 Serial-over-TCP (:4001) MT-SICS (`SI`, `ZI`, `T`, `I4`) & OsmoTECH PRO (`OSMO`)
+    with socket.create_connection(("127.0.0.1", 4001), timeout=5.0) as ser_sock:
+        for cmd, expected_prefix in [(b"SI\r\n", "S S"), (b"ZI\r\n", "Z A"), (b"T\r\n", "T S"), (b"I4\r\n", 'I4 A "B948271042"'), (b"OSMO\r\n", "OSMO ")]:
+            ser_sock.sendall(cmd)
+            line = ser_sock.recv(128).decode("utf-8").strip()
+            assert line.startswith(expected_prefix)
+
+    # 4. Verify ClickHouse sensor_data holds active telemetry for all 5 GxP tags
     rows = list(
         ch_client.query(
             """
@@ -96,9 +168,9 @@ def test_oq_06_multi_protocol_telemetry_ingestion(
         assert int(r["row_count"]) > 0
 
     evidence.record(
-        assertion_summary="Verified all 6 mock instrument protocol listeners (OPC UA, Modbus TCP, BACnet/IP, Siemens S7, RS-232 Serial, OPC DA) and active telemetry ingestion across all 5 GxP tags.",
+        assertion_summary="Verified all 6 mock instrument protocol listeners (direct host TCP/UDP sockets + HTTP endpoints + PI UFL SHA-256 CSV drop) and active telemetry ingestion across all 5 GxP tags.",
         input_payload={"tag_ids": [101, 102, 103, 301, 401], "mock_server_self_test": f"{MOCK_SERVER_BASE_URL}/control/self-test"},
-        output_payload={"tag_counts": rows, "mock_protocol_results": self_test_data["protocol_results"]},
+        output_payload={"tag_counts": rows, "mock_protocol_results": self_test_data["protocol_results"], "ufl_batch_drop_sha256": ufl_data["file_sha256"]},
     )
 
 
@@ -162,7 +234,7 @@ def test_oq_08_datalink_linear_and_locf_step_interpolation(
     api_client: httpx.Client,
     evidence: EvidenceTracker,
 ) -> None:
-    """URS-013: Verify /api/v1/datalink/sampled linear midpoints for analog tags and integer LOCF for step tags."""
+    """URS-013: Verify /api/v1/datalink/sampled linear midpoints for analog tags, integer LOCF for step tags, and CSV export."""
     _ensure_synthetic_oq_dataset(ch_client)
 
     # 1. Continuous Analog Tag (BR201_TEMP_PV, is_step_tag=False): 36.0 at 11:00, 38.0 at 11:02 -> 37.0 at 11:01
@@ -182,6 +254,22 @@ def test_oq_08_datalink_linear_and_locf_step_interpolation(
     assert analog_data["interpolation_mode"] == "LINEAR"
     analog_vals = [pt["val"] for pt in analog_data["points"]]
     assert analog_vals == [36.0, 37.0, 38.0]
+
+    # Verify CSV format output as well
+    csv_resp = api_client.get(
+        "/api/v1/datalink/sampled",
+        params={
+            "tag_name": "BR201_TEMP_PV",
+            "start_time": "2026-01-15T11:00:00Z",
+            "end_time": "2026-01-15T11:02:00Z",
+            "step_seconds": 60,
+            "format": "csv",
+        },
+    )
+    assert csv_resp.status_code == 200
+    assert "text/csv" in csv_resp.headers.get("content-type", "")
+    csv_lines = [line.strip() for line in csv_resp.text.splitlines() if line.strip()]
+    assert len(csv_lines) == 4  # header + 3 rows
 
     # 2. Discrete Step Tag (BR201_AGIT_STATE, is_step_tag=True): 1 at 11:00, 2 at 11:02 -> LOCF integer 1 at 11:01
     step_resp = api_client.get(
@@ -203,9 +291,9 @@ def test_oq_08_datalink_linear_and_locf_step_interpolation(
     assert all(isinstance(v, int) for v in step_vals)
 
     evidence.record(
-        assertion_summary="Verified exact linear midpoint (37.0) on BR201_TEMP_PV and integer LOCF ([1, 1, 2]) on BR201_AGIT_STATE.",
+        assertion_summary="Verified exact linear midpoint (37.0) on BR201_TEMP_PV (JSON + CSV) and integer LOCF ([1, 1, 2]) on BR201_AGIT_STATE.",
         input_payload={"window": "2026-01-15T11:00:00Z..11:02:00Z", "step_seconds": 60},
-        output_payload={"linear_points": analog_data["points"], "locf_step_points": step_data["points"]},
+        output_payload={"linear_points": analog_data["points"], "locf_step_points": step_data["points"], "csv_rows_verified": len(csv_lines)},
     )
 
 
