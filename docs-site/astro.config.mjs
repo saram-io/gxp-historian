@@ -38,6 +38,9 @@ export default defineConfig({
       logo: {
         src: './src/assets/logo.svg',
       },
+      social: {
+        github: 'https://github.com/saram-io/gxp-historian',
+      },
       customCss: ['./src/styles/custom.css'],
       components: {
         Header: './src/components/Header.astro',

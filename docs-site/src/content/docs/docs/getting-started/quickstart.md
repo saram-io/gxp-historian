@@ -12,9 +12,11 @@ description: Deploy the 5-service GxPHistorian GxP stack via Docker Compose, ins
 
 ## Step 1: Configure Environment & Launch the Stack
 
-Copy the GxP environment template and start all 5 orchestrated services:
+Clone the [GxPHistorian GitHub repository](https://github.com/saram-io/gxp-historian), copy the GxP environment template, and start all 5 orchestrated services:
 
 ```bash
+git clone https://github.com/saram-io/gxp-historian.git
+cd gxp-historian
 cp .env.example .env
 docker compose up -d --build
 ```

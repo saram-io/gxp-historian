@@ -2,7 +2,7 @@
 
 **A 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 Qualified Open-Source Industrial Time-Series Historian & Asset Framework**
 
-🌐 **Official Website:** [https://gxphistorian.com](https://gxphistorian.com) · 📚 **Documentation Portal:** [https://gxphistorian.com/docs](https://gxphistorian.com/docs) · 📋 **GMP Validation Binder:** [https://gxphistorian.com/binder/COMPLETE_GMP_VALIDATION_BINDER.html](https://gxphistorian.com/binder/COMPLETE_GMP_VALIDATION_BINDER.html)
+🌐 **Official Website:** [https://gxphistorian.com](https://gxphistorian.com) · 📚 **Documentation Portal:** [https://gxphistorian.com/docs](https://gxphistorian.com/docs) · 💻 **GitHub:** [https://github.com/saram-io/gxp-historian](https://github.com/saram-io/gxp-historian) · 📋 **GMP Validation Binder:** [https://gxphistorian.com/binder/COMPLETE_GMP_VALIDATION_BINDER.html](https://gxphistorian.com/binder/COMPLETE_GMP_VALIDATION_BINDER.html) · ⚖️ **License:** [MIT](LICENSE)
 
 GxPHistorian GxP Industrial Historian is a production-ready, 4-Pillar open-source replacement for the proprietary **OSIsoft / AVEVA PI System** engineered for pharmaceutical, biotech, and regulated manufacturing environments. It combines **ClickHouse 24.8 LTS** (lossless `DoubleDelta` + `Gorilla` telemetry archive and LTTB visual downsampling), **PostgreSQL 16** (`ltree` ISA-95 Asset Framework, ISA-88 Event Frames, and cryptographic SHA-256 WORM 21 CFR Part 11 audit trail), **InfluxData Telegraf 1.32 + Python Multi-Protocol Edge Workers** (Stage 1 Exception/Deadband filtering and disk-backed store-and-forward WAL), **FastAPI**, **Grafana OSS**, and a **GxPHistorian DataLink Client for Excel** (`xlwings` UDFs + native Power Query CSV).
 
@@ -407,5 +407,9 @@ This script combines `urs_risk_catalog.yaml`, `oq_execution_results.json`, live 
 9. `COMPLETE_GMP_VALIDATION_BINDER.html` (single-file, print-ready HTML/PDF validation binder)
 
 ---
+
+## 9. License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
 > **Trademark Notice:** *PI System*, *PI Vision*, *PI DataLink*, *PI Asset Framework*, *PI UFL*, *OSIsoft*, and *AVEVA* are registered trademarks or trademarks of AVEVA Group Limited / OSIsoft, LLC. All references to third-party trademarks and instrument models in this repository are strictly for comparative architectural and interoperability documentation purposes (nominative fair use); GxPHistorian is an independent open-source project and is not affiliated with or endorsed by AVEVA or OSIsoft.

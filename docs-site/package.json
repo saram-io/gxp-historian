@@ -2,6 +2,7 @@
   "name": "gxphistorian-docs",
   "type": "module",
   "version": "1.0.0",
+  "license": "MIT",
   "private": true,
   "description": "Official Documentation Portal for GxPHistorian GxP Industrial Historian",
   "scripts": {
