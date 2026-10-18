@@ -54,3 +54,34 @@ xlwings addin install
    =GXPHISTORIAN_EVENT_SUMMARY("BR201_TEMP_PV_High_Limit_Excursion")
    ```
    - Returns the Event Frame window, `captured_metrics` JSONB snapshot (`avg_val`, `min_val`, `max_val`), and 21 CFR Part 11 electronic signature block (`signed_by`, `signature_meaning`, `signature_hash`).
+
+4. **Current Snapshot Value (`=PICurrVal` Replacement)**
+   ```excel
+   =GXPHISTORIAN_CURRENT_VALUE("BR201_TEMP_PV", "degF")
+   ```
+   - Returns the latest snapshot value (`quality >= 192`), optional canonical UOM conversion (`degC` $\rightarrow$ `degF`), and Digital State Set label.
+
+5. **Single-Timestamp Archive Value (`=PIArcVal` Replacement)**
+   ```excel
+   =GXPHISTORIAN_ARCHIVE_VALUE("BR201_TEMP_PV", "2026-01-16T10:01:00Z", "INTERPOLATED")
+   ```
+   - Supports `INTERPOLATED` (linear vs. LOCF step), `PREVIOUS`, `NEXT`, and `EXACT` retrieval modes.
+
+6. **Compressed Recorded Values (`=PICompDat` Replacement)**
+   ```excel
+   =GXPHISTORIAN_COMPRESSED_DATA("BR201_TEMP_PV", "2026-01-16T10:00:00Z", "2026-01-16T10:10:00Z", FALSE)
+   ```
+   - Returns raw compressed archive events stored in ClickHouse (`sensor_data`), excluding `quality < 192` unless `include_bad = TRUE`.
+
+7. **Time-Weighted vs. Event-Weighted Summary Rollups (`=PIAdvCalcDat` Replacement)**
+   ```excel
+   =GXPHISTORIAN_CALCULATED_DATA("BR201_TEMP_PV", "2026-01-16T10:00:00Z", "2026-01-16T10:10:00Z", 600, "TIME_WEIGHTED")
+   ```
+   - Computes true time-weighted trapezoidal integration (`is_step_tag = false`), step-duration integration (`is_step_tag = true`), or event-weighted summaries (`avg`, `min`, `max`, `stddev`, `range`, `total`, `count`, `percent_good`).
+
+8. **Filtered Condition Duration (`=PITimeFilter` Replacement)**
+   ```excel
+   =GXPHISTORIAN_TIME_FILTER("BR201_AGIT_STATE", "2026-01-16T10:00:00Z", "2026-01-16T10:10:00Z", "ge", 2.0, 60)
+   ```
+   - Evaluates how many seconds/minutes and what percentage of a window a tag satisfied an expression (`gt`, `ge`, `lt`, `le`, `eq`, `ne`).
+

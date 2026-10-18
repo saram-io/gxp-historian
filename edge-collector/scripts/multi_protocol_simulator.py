@@ -26,6 +26,8 @@ class TagFilterConfig:
     exc_dev: float
     exc_max: float
     is_step_tag: bool = False
+    comp_dev: float = 0.0
+    comp_max: float = 60.0
 
 
 @dataclass
@@ -35,6 +37,17 @@ class TagState:
     last_quality: Optional[int] = None
     last_status_code: Optional[int] = None
     last_emit_ts: Optional[float] = None
+
+
+@dataclass
+class SwingingDoorState:
+    anchor_ts: Optional[float] = None
+    anchor_val: Optional[float] = None
+    anchor_quality: Optional[int] = None
+    anchor_status: Optional[int] = None
+    candidate: Optional[Tuple[float, float, str, int, int]] = None
+    slope_min: float = -math.inf
+    slope_max: float = math.inf
 
 
 class ExceptionDeadbandFilter:
@@ -102,6 +115,127 @@ class ExceptionDeadbandFilter:
         st.last_quality = quality
         st.last_status_code = status_code
         st.last_emit_ts = ts
+
+
+class SwingingDoorCompressor:
+    """
+    Stage 2 AVEVA PI Swinging Door Trending (SDT) Compressor (CompDev / CompMax).
+
+    Suppresses collinear intermediate points along linear ramps whenever all intermediate
+    samples fall within ±comp_dev of the straight line connecting the last archived anchor
+    to the latest candidate point, emitting only true inflection points, quality transitions,
+    or CompMax heartbeat points.
+    """
+
+    def __init__(self, configs: Dict[int, TagFilterConfig]) -> None:
+        self.configs = configs
+        self.states: Dict[int, SwingingDoorState] = {
+            tag_id: SwingingDoorState() for tag_id in configs
+        }
+
+    def process_sample(
+        self,
+        tag_id: int,
+        ts: float,
+        val: float,
+        str_val: str = "",
+        quality: int = 192,
+        status_code: int = 0,
+    ) -> list[Tuple[float, float, str, int, int]]:
+        cfg = self.configs[tag_id]
+        st = self.states[tag_id]
+        emitted: list[Tuple[float, float, str, int, int]] = []
+
+        # Step tags or tags with comp_dev <= 0 bypass slope compression
+        if cfg.is_step_tag or cfg.comp_dev <= 0.0:
+            st.anchor_ts = ts
+            st.anchor_val = val
+            st.anchor_quality = quality
+            st.anchor_status = status_code
+            st.candidate = None
+            st.slope_min = -math.inf
+            st.slope_max = math.inf
+            return [(ts, val, str_val, quality, status_code)]
+
+        # 1. First sample becomes the initial archived anchor
+        if st.anchor_ts is None or st.anchor_val is None:
+            st.anchor_ts = ts
+            st.anchor_val = val
+            st.anchor_quality = quality
+            st.anchor_status = status_code
+            st.candidate = None
+            st.slope_min = -math.inf
+            st.slope_max = math.inf
+            return [(ts, val, str_val, quality, status_code)]
+
+        # 2. Immediate flush on quality or status_code transition
+        if quality != st.anchor_quality or status_code != st.anchor_status:
+            if st.candidate is not None:
+                emitted.append(st.candidate)
+                st.candidate = None
+            emitted.append((ts, val, str_val, quality, status_code))
+            st.anchor_ts = ts
+            st.anchor_val = val
+            st.anchor_quality = quality
+            st.anchor_status = status_code
+            st.slope_min = -math.inf
+            st.slope_max = math.inf
+            return emitted
+
+        dt_sec = ts - st.anchor_ts
+        if dt_sec <= 0.0:
+            return emitted
+
+        # 3. CompMax timeout check
+        if dt_sec >= cfg.comp_max:
+            emitted.append((ts, val, str_val, quality, status_code))
+            st.anchor_ts = ts
+            st.anchor_val = val
+            st.anchor_quality = quality
+            st.anchor_status = status_code
+            st.candidate = None
+            st.slope_min = -math.inf
+            st.slope_max = math.inf
+            return emitted
+
+        # 4. Compute new upper/lower door slopes from current anchor
+        new_slope_max = ((val + cfg.comp_dev) - st.anchor_val) / dt_sec
+        new_slope_min = ((val - cfg.comp_dev) - st.anchor_val) / dt_sec
+
+        next_slope_max = min(st.slope_max, new_slope_max)
+        next_slope_min = max(st.slope_min, new_slope_min)
+
+        if next_slope_min <= next_slope_max:
+            # Doors have not crossed: hold current point as candidate and narrow the corridor
+            st.slope_max = next_slope_max
+            st.slope_min = next_slope_min
+            st.candidate = (ts, val, str_val, quality, status_code)
+            return emitted
+
+        # 5. Doors crossed! Emit the previous held candidate as the inflection point
+        if st.candidate is not None:
+            cand_ts, cand_val, cand_str, cand_q, cand_sc = st.candidate
+            emitted.append(st.candidate)
+            st.anchor_ts = cand_ts
+            st.anchor_val = cand_val
+            st.anchor_quality = cand_q
+            st.anchor_status = cand_sc
+            dt_from_new_anchor = ts - st.anchor_ts
+            if dt_from_new_anchor > 0.0:
+                st.slope_max = ((val + cfg.comp_dev) - st.anchor_val) / dt_from_new_anchor
+                st.slope_min = ((val - cfg.comp_dev) - st.anchor_val) / dt_from_new_anchor
+            else:
+                st.slope_max = math.inf
+                st.slope_min = -math.inf
+            st.candidate = (ts, val, str_val, quality, status_code)
+        else:
+            emitted.append((ts, val, str_val, quality, status_code))
+            st.anchor_ts = ts
+            st.anchor_val = val
+            st.slope_min = -math.inf
+            st.slope_max = math.inf
+
+        return emitted
 
 
 def map_bacnet_status_flags(

@@ -1,6 +1,6 @@
 # Document 04 — FDA CSA Functional Risk Assessment (FRA)
 
-**Document ID:** `FRA-GXPHISTORIAN-2026-004` | **Generated (UTC):** `2026-10-18T17:30:58Z` | **Methodology:** ISPE GAMP 5 & FDA Computer Software Assurance (CSA)
+**Document ID:** `FRA-GXPHISTORIAN-2026-004` | **Generated (UTC):** `2026-10-18T19:42:45Z` | **Methodology:** ISPE GAMP 5 & FDA Computer Software Assurance (CSA)
 
 ## 1. Functional Risk Assessment Matrix
 
@@ -23,3 +23,7 @@
 | **URS-015** | Corrupted or incomplete batch telemetry export to enterprise data lakehouse | `S=4, O=1, D=1` | **High** | Scripted OQ | PyArrow Snappy Parquet export verified for 100% row/column fidelity (test_oq_10) |
 | **URS-016** | AI agent hallucinating time-series statistics or ignoring OPC quality < 192 | `S=4, O=2, D=1` | **High** | Scripted OQ (Deterministic FunctionModel & TestModel Qualification) | All telemetry math executed deterministically in ClickHouse via Pydantic AI tools & gxphistorian-mcp (test_oq_11) |
 | **URS-017** | Autonomous AI agent mutating GxP tag catalog without human Part 11 attribution | `S=5, O=2, D=1` | **High** | Scripted OQ (Negative & Positive Human-in-the-Loop Gate Testing) | Pydantic AI ApprovalRequired (DeferredToolRequests) + mandatory X-Actor-Id/X-Change-Reason gate (test_oq_12) |
+| **URS-018** | Event-weighted averaging distorting non-uniformly sampled process totals or durations | `S=4, O=2, D=1` | **High** | Scripted OQ (Mathematical Integration & Boundary Verification) | Trapezoidal & LOCF time-weighted integration in /api/v1/datalink/calculated & time-filter (test_oq_13) |
+| **URS-019** | Inaccurate stability MKT or autoclave F0 lethality calculation leading to invalid batch release | `S=5, O=2, D=1` | **High** | Scripted OQ (Pharmacopeial Formula & SPC Verification) | ClickHouse ICH Q1A MKT, USP <1229> F0, Western Electric SQC & Golden Batch overlay (test_oq_14) |
+| **URS-020** | Unverified manual lab entry or unit conversion error corrupting GxP batch records | `S=5, O=2, D=1` | **High** | Scripted OQ (Positive & Negative Dual-Verification Testing) | Part 11 Manual Logger dual-verification, canonical UOM dimension checks & AF template instantiation (test_oq_15) |
+| **URS-021** | Single-sample sensor noise triggering nuisance excursion alarms or overwriting prior e-signatures | `S=4, O=2, D=1` | **High** | Scripted OQ | Stage 2 Swinging Door compression, TrueFor debounce backfill, multi-stage signatures & PI Notifications (test_oq_16) |

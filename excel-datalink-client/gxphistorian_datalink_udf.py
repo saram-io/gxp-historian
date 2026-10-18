@@ -32,7 +32,7 @@ except ImportError:
         return fn
 
 
-HISTORIAN_API_URL = os.getenv("HISTORIAN_API_URL", "http://localhost:8000")
+HISTORIAN_API_URL = os.getenv("HISTORIAN_API_URL", "http://localhost:8020")
 
 # Local tag_name -> tag_id resolution cache
 _TAG_ID_CACHE: Dict[str, int] = {
@@ -162,6 +162,146 @@ def GXPHISTORIAN_EVENT_SUMMARY(event_name: str) -> List[List[Any]]:
     return rows
 
 
+@xl_func
+def GXPHISTORIAN_CURRENT_VALUE(
+    tag_name: str,
+    target_uom: Optional[str] = None,
+) -> List[List[Any]]:
+    """
+    Drop-in replacement for AVEVA PI DataLink =PICurrVal().
+    Returns current snapshot value, UTC timestamp, engineering units, and OPC quality.
+    """
+    params: Dict[str, Any] = {"tag_name": tag_name}
+    if target_uom:
+        params["target_uom"] = target_uom
+    with httpx.Client(timeout=10.0) as client:
+        resp = client.get(f"{HISTORIAN_API_URL}/api/v1/datalink/current", params=params)
+        resp.raise_for_status()
+        data = resp.json()
+    return [
+        ["Timestamp (UTC)", f"{data['tag_name']} ({data['eng_units']})", "Digital State", "Quality"],
+        [data.get("ts"), data.get("val"), data.get("str_val", ""), data.get("quality", 192)],
+    ]
+
+
+@xl_func
+def GXPHISTORIAN_ARCHIVE_VALUE(
+    tag_name: str,
+    timestamp: str,
+    retrieval_mode: str = "INTERPOLATED",
+) -> List[List[Any]]:
+    """
+    Drop-in replacement for AVEVA PI DataLink =PIArcVal().
+    Retrieves value at exact timestamp using INTERPOLATED (Linear vs LOCF), PREVIOUS, NEXT, or EXACT.
+    """
+    params = {
+        "tag_name": tag_name,
+        "timestamp": timestamp,
+        "retrieval_mode": retrieval_mode,
+    }
+    with httpx.Client(timeout=10.0) as client:
+        resp = client.get(f"{HISTORIAN_API_URL}/api/v1/datalink/archive-value", params=params)
+        resp.raise_for_status()
+        data = resp.json()
+    return [
+        ["Requested Timestamp", f"{data['tag_name']} ({data['eng_units']})", "Applied Mode"],
+        [data["requested_timestamp"], data["val"], data["applied_interpolation"]],
+    ]
+
+
+@xl_func
+def GXPHISTORIAN_COMPRESSED_DATA(
+    tag_name: str,
+    start_time: Optional[str] = None,
+    end_time: Optional[str] = None,
+    limit: int = 500,
+) -> List[List[Any]]:
+    """
+    Drop-in replacement for AVEVA PI DataLink =PICompDat().
+    Returns compressed archive events within [start_time, end_time].
+    """
+    params: Dict[str, Any] = {"tag_name": tag_name, "limit": int(limit)}
+    if start_time:
+        params["start_time"] = start_time
+    if end_time:
+        params["end_time"] = end_time
+    with httpx.Client(timeout=10.0) as client:
+        resp = client.get(f"{HISTORIAN_API_URL}/api/v1/datalink/recorded", params=params)
+        resp.raise_for_status()
+        data = resp.json()
+    rows: List[List[Any]] = [
+        ["Timestamp (UTC)", f"{data['tag_name']} ({data['eng_units']})", "State / Quality"]
+    ]
+    for pt in data.get("points", []):
+        rows.append([pt["ts"], pt["val"], pt.get("str_val") or pt.get("quality", 192)])
+    return rows
+
+
+@xl_func
+def GXPHISTORIAN_CALCULATED_DATA(
+    tag_name: str,
+    start_time: str,
+    end_time: str,
+    calculation_basis: str = "TIME_WEIGHTED",
+) -> List[List[Any]]:
+    """
+    Drop-in replacement for AVEVA PI DataLink =PIAdvCalcDat().
+    Computes Time-Weighted (trapezoidal / LOCF step) or Event-Weighted summaries.
+    """
+    params = {
+        "tag_name": tag_name,
+        "start_time": start_time,
+        "end_time": end_time,
+        "calculation_basis": calculation_basis,
+    }
+    with httpx.Client(timeout=10.0) as client:
+        resp = client.get(f"{HISTORIAN_API_URL}/api/v1/datalink/calculated", params=params)
+        resp.raise_for_status()
+        data = resp.json()
+    s = data.get("summary", {})
+    return [
+        ["Metric", f"{data['tag_name']} ({data['eng_units']}) [{data['calculation_basis']}]"],
+        ["Average", s.get("average")],
+        ["Time-Weighted Average", s.get("time_weighted_average")],
+        ["Event-Weighted Average", s.get("event_weighted_average")],
+        ["Total", s.get("total")],
+        ["Min", s.get("min")],
+        ["Max", s.get("max")],
+        ["Range", s.get("range")],
+        ["StdDev", s.get("stdev")],
+        ["Percent Good (%)", s.get("percent_good")],
+    ]
+
+
+@xl_func
+def GXPHISTORIAN_TIME_FILTER(
+    tag_name: str,
+    start_time: str,
+    end_time: str,
+    operator: str = ">",
+    threshold: float = 38.0,
+) -> List[List[Any]]:
+    """
+    Drop-in replacement for AVEVA PI DataLink =PITimeFilter().
+    Computes duration (seconds & minutes) where `<tag_name> <operator> <threshold>` held true.
+    """
+    params = {
+        "tag_name": tag_name,
+        "start_time": start_time,
+        "end_time": end_time,
+        "operator": operator,
+        "threshold": float(threshold),
+    }
+    with httpx.Client(timeout=10.0) as client:
+        resp = client.get(f"{HISTORIAN_API_URL}/api/v1/datalink/time-filter", params=params)
+        resp.raise_for_status()
+        data = resp.json()
+    return [
+        ["Expression", "True Seconds", "True Minutes", "Percent True (%)"],
+        [data["expression"], data["true_seconds"], data["true_minutes"], data["percent_true"]],
+    ]
+
+
 def main() -> None:
     global HISTORIAN_API_URL
     parser = argparse.ArgumentParser(description="GxPHistorian DataLink CLI & UDF Helper")
@@ -178,3 +318,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

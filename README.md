@@ -362,6 +362,31 @@ curl -s -X POST http://localhost:8020/api/v1/ai/copilot/propose-tag \
   }' | jq .
 ```
 
+### AVEVA PI System Analytical, Asset Framework, BatchView & Manual Logger Parity
+```bash
+# 1. PI DataLink & StreamSets Parity (PICurrVal, PIArcVal, PICompDat, PIAdvCalcDat, PITimeFilter, StreamSets)
+curl -s "http://localhost:8020/api/v1/datalink/current?tag_name=BR201_TEMP_PV&target_uom=degF" | jq .
+curl -s "http://localhost:8020/api/v1/datalink/calculated?tag_name=BR201_TEMP_PV&start_time=2026-01-16T10:00:00Z&end_time=2026-01-16T10:10:00Z&interval_seconds=600&calculation_basis=TIME_WEIGHTED" | jq .
+curl -s -X POST http://localhost:8020/api/v1/streamsets/end -H "Content-Type: application/json" -d '{"asset_path": "BioCorp.Fremont.USP.Bioreactor_201"}' | jq .
+
+# 2. GxP Calculation Engine (ICH Q1A MKT, USP <1229> F0 Steam Lethality, Western Electric SQC SPC, Golden Batch Overlay)
+curl -s "http://localhost:8020/api/v1/analytics/mkt?tag_name=BR201_TEMP_PV&start_time=2026-01-16T14:00:00Z&end_time=2026-01-16T14:09:00Z" | jq .
+curl -s "http://localhost:8020/api/v1/analytics/f0-lethality?tag_name=BR201_TEMP_PV&start_time=2026-01-16T15:00:00Z&end_time=2026-01-16T15:15:00Z" | jq .
+curl -s "http://localhost:8020/api/v1/analytics/sqc?tag_name=CHR401_UV280_ABS&start_time=2026-01-16T16:00:00Z&end_time=2026-01-16T16:19:00Z" | jq .
+
+# 3. PI AF Template Auto-Instantiation, Canonical UOM Conversion & Part 11 Manual Logger
+curl -s -X POST http://localhost:8020/api/v1/af/uom/convert -H "Content-Type: application/json" -d '{"value": 100.0, "from_uom": "degC", "to_uom": "degF"}' | jq .
+curl -s -X POST http://localhost:8020/api/v1/assets/instantiate-template \
+  -H "Content-Type: application/json" \
+  -H "X-Actor-Id: automation_eng_rlee" \
+  -H "X-Change-Reason: Auto-instantiate Bioreactor 202 from GMP_Bioreactor_v1 template" \
+  -d '{"template_name": "GMP_Bioreactor_v1", "asset_name": "Bioreactor 202", "asset_path": "BioCorp.Fremont.USP.Bioreactor_202", "parent_path": "BioCorp.Fremont.USP", "tag_prefix": "BR202"}' | jq .
+
+# 4. Stage 2 Swinging Door Compression, Event Frame TrueFor Backfill, Multi-Stage Signatures & PI Notifications
+curl -s http://localhost:8020/api/v1/event-frames/1/signatures | jq .
+curl -s -X POST http://localhost:8020/api/v1/notifications/evaluate | jq .
+```
+
 ---
 
 ## 7. Operator HMI (Grafana Vision) & GxPHistorian DataLink Client
@@ -383,13 +408,13 @@ curl -s -X POST http://localhost:8020/api/v1/ai/copilot/propose-tag \
 ### GxPHistorian DataLink Client for Excel (`excel-datalink-client/`)
 See [excel-datalink-client/README_EXCEL_SETUP.md](file:///home/d3lee/my-repos/clickhouse-historian/excel-datalink-client/README_EXCEL_SETUP.md) for full instructions on:
 1. **Zero-Plugin Native Excel Power Query (`Data -> From Web`)** using `/api/v1/datalink/sampled?format=csv`.
-2. **`xlwings` User-Defined Functions (`=GXPHISTORIAN_SAMPLED()`, `=GXPHISTORIAN_PLOT_VALUES()`, `=GXPHISTORIAN_EVENT_SUMMARY()`)** and CLI CSV export via [excel-datalink-client/gxphistorian_datalink_udf.py](file:///home/d3lee/my-repos/clickhouse-historian/excel-datalink-client/gxphistorian_datalink_udf.py).
+2. **`xlwings` User-Defined Functions (`=GXPHISTORIAN_SAMPLED()`, `=GXPHISTORIAN_PLOT_VALUES()`, `=GXPHISTORIAN_EVENT_SUMMARY()`, `=GXPHISTORIAN_CURRENT_VALUE()`, `=GXPHISTORIAN_ARCHIVE_VALUE()`, `=GXPHISTORIAN_COMPRESSED_DATA()`, `=GXPHISTORIAN_CALCULATED_DATA()`, `=GXPHISTORIAN_TIME_FILTER()`)** and CLI CSV export via [excel-datalink-client/gxphistorian_datalink_udf.py](file:///home/d3lee/my-repos/clickhouse-historian/excel-datalink-client/gxphistorian_datalink_udf.py).
 
 ---
 
 ## 8. Executable GAMP 5 / FDA CSA IQ/OQ Qualification & GMP Validation Binder
 
-The repository includes an automated 17-test IQ/OQ qualification suite mapped to `URS-001` through `URS-017` ([gxp-validation-package/specs/urs_risk_catalog.yaml](file:///home/d3lee/my-repos/clickhouse-historian/gxp-validation-package/specs/urs_risk_catalog.yaml)) and an automated generator that builds an 8-Document Commercial GMP Validation Binder.
+The repository includes an automated 21-test IQ/OQ qualification suite mapped to `URS-001` through `URS-021` ([gxp-validation-package/specs/urs_risk_catalog.yaml](file:///home/d3lee/my-repos/clickhouse-historian/gxp-validation-package/specs/urs_risk_catalog.yaml)) and an automated generator that builds an 8-Document Commercial GMP Validation Binder.
 
 ### 1. Run the Automated IQ/OQ Pytest Suite
 ```bash
@@ -397,7 +422,7 @@ python3 -m venv .venv
 .venv/bin/pip install -r app/requirements.txt pytest pyyaml
 .venv/bin/pytest -v
 ```
-Executing `pytest` runs all 17 IQ/OQ tests (`test_01_iq_infrastructure.py`, `test_02_oq_part11_compliance.py`, `test_03_oq_historian_core.py`, `test_04_ai_agent_and_mcp.py`) and records timestamped execution evidence to `gxp-validation-package/evidence/oq_execution_results.json`.
+Executing `pytest` runs all 21 IQ/OQ tests (`test_01_iq_infrastructure.py`, `test_02_oq_part11_compliance.py`, `test_03_oq_historian_core.py`, `test_04_ai_agent_and_mcp.py`, `test_05_oq_aveva_pi_parity.py`) and records timestamped execution evidence to `gxp-validation-package/evidence/oq_execution_results.json`.
 
 ### 2. Generate the 8-Document Commercial GMP Validation Binder
 ```bash

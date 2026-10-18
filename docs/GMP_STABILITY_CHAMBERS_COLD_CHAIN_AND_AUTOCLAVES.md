@@ -86,7 +86,7 @@ Where:
 - $R = 0.008314472\text{ kJ/(mol}\cdot\text{K)}$ (universal gas constant, so $\Delta H / R = 10000.0\text{ K}$)
 - $T_i = \text{val} + 273.15$ (temperature sample in Kelvin, filtered strictly to `quality >= 192`)
 
-You can run this exact query in Grafana or ClickHouse at any time to generate an audit-ready ICH Q1A MKT report:
+You can call `GET /api/v1/analytics/mkt` directly or run this exact query in Grafana or ClickHouse at any time to generate an audit-ready ICH Q1A MKT report:
 ```sql
 SELECT
     tag_id,
@@ -98,8 +98,8 @@ SELECT
         (10000.0 / (-ln(avg(exp(-10000.0 / (val + 273.15)))))) - 273.15,
         2
     ) AS ich_q1a_mkt_c
-FROM gxphistorian.raw_telemetry
-WHERE tag_id = (SELECT tag_id FROM gxphistorian.pg_tags_dict WHERE tag_name = 'STAB01_TEMP_PV_C')
+FROM pi_historian.sensor_data
+WHERE tag_id = (SELECT tag_id FROM pi_historian.pg_asset_tags WHERE tag_name = 'STAB01_TEMP_PV_C')
   AND quality >= 192
   AND ts >= now() - INTERVAL 30 DAY
 GROUP BY tag_id;
@@ -160,11 +160,11 @@ The cumulative thermal lethality $F_0$ (equivalent minutes at $121.11\,^\circ\te
 
 $$F_0 = \sum_{i} \frac{\Delta t_i}{60} \cdot 10^{\left(\frac{T_i - 121.11}{10.0}\right)}$$
 
-Run this ClickHouse SQL query (or bind it to your Grafana Autoclave Cycle Release panel) to verify that every autoclave cycle achieved $F_0 \ge 15.0\text{ minutes}$ and maintained minimum sterilization hold temperature $\ge 121.1\,^\circ\text{C}$:
+Call `GET /api/v1/analytics/f0-lethality` or run this ClickHouse SQL query (bound to your Grafana Autoclave Cycle Release panel) to verify that every autoclave cycle achieved $F_0 \ge 15.0\text{ minutes}$ and maintained minimum sterilization hold temperature $\ge 121.1\,^\circ\text{C}$:
 
 ```sql
 SELECT
-    ef.batch_id AS cycle_id,
+    ef.event_name AS cycle_id,
     minIf(r.val, r.val >= 121.0) AS min_hold_temp_c,
     max(r.val) AS max_hold_temp_c,
     countIf(r.val >= 121.1) AS seconds_above_121_1c,
@@ -172,13 +172,13 @@ SELECT
         sumIf((1.0 / 60.0) * pow(10.0, (r.val - 121.11) / 10.0), r.val >= 100.0),
         2
     ) AS cumulative_f0_minutes
-FROM gxphistorian.raw_telemetry AS r
-INNER JOIN gxphistorian.pg_event_frames AS ef
+FROM pi_historian.sensor_data AS r
+INNER JOIN pi_historian.pg_event_frames AS ef
     ON r.ts >= ef.start_time AND r.ts <= coalesce(ef.end_time, now())
-WHERE r.tag_id = (SELECT tag_id FROM gxphistorian.pg_tags_dict WHERE tag_name = 'AUTO01_DRAIN_TEMP_C')
+WHERE r.tag_id = (SELECT tag_id FROM pi_historian.pg_asset_tags WHERE tag_name = 'AUTO01_DRAIN_TEMP_C')
   AND r.quality >= 192
-  AND ef.batch_id = 'AUTOCLAVE-CYCLE-2026-1042'
-GROUP BY ef.batch_id;
+  AND ef.event_name = 'AUTOCLAVE-CYCLE-2026-1042'
+GROUP BY ef.event_name;
 ```
 
 ---

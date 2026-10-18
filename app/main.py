@@ -400,6 +400,12 @@ async def _periodic_event_frame_worker() -> None:
 
 @contextlib.asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    try:
+        from pi_parity_engine import ensure_pi_parity_schema
+
+        ensure_pi_parity_schema(get_pg_conn)
+    except Exception as exc:
+        logger.warning("PI Parity schema initialization check warning: %s", exc)
     task = asyncio.create_task(_periodic_event_frame_worker())
     try:
         yield
@@ -957,7 +963,7 @@ def sign_event_frame(
                     hashlib.sha256,
                 ).hexdigest()
 
-                # 4. Set Part 11 context and update event_frames
+                # 4. Set Part 11 context and update event_frames + append multi-stage signature chain
                 apply_part11_context(cur, actor, reason)
                 cur.execute(
                     """
@@ -985,6 +991,37 @@ def sign_event_frame(
                     ),
                 )
                 signed_record = cur.fetchone()
+
+                cur.execute(
+                    """
+                    SELECT COALESCE(MAX(stage_order), 0) + 1 AS next_stage
+                    FROM event_frame_signatures
+                    WHERE event_id = %s;
+                    """,
+                    (str(event_id),),
+                )
+                next_stage = int((cur.fetchone() or {}).get("next_stage", 1))
+                cur.execute(
+                    """
+                    INSERT INTO event_frame_signatures (
+                        event_id, stage_order, user_id, signer_full_name, signer_role,
+                        signature_meaning, change_reason, signed_at, signature_hash
+                    ) VALUES (
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s
+                    );
+                    """,
+                    (
+                        str(event_id),
+                        next_stage,
+                        payload.user_id,
+                        auth_user["full_name"],
+                        auth_user["role"],
+                        payload.signature_meaning,
+                        reason,
+                        signed_at_dt,
+                        signature_hash,
+                    ),
+                )
             conn.commit()
         except HTTPException:
             conn.rollback()
@@ -997,6 +1034,7 @@ def sign_event_frame(
         "status": "signed",
         "signer_full_name": auth_user["full_name"],
         "signer_role": auth_user["role"],
+        "signature_stage": next_stage,
         "event_frame": signed_record,
     }
 
@@ -1235,4 +1273,21 @@ def propose_or_approve_tag_with_ai(
         proposal=body.proposal,
         approved=body.approved,
     )
+
+
+# ---------------------------------------------------------------------------
+# 9. AVEVA PI System Full Parity Router (Phases 1–4)
+# ---------------------------------------------------------------------------
+
+from pi_parity_engine import build_pi_parity_router
+
+app.include_router(
+    build_pi_parity_router(
+        get_pg_conn=get_pg_conn,
+        get_ch_client=get_ch_client,
+        apply_part11_context=apply_part11_context,
+        get_datalink_sampled_fn=get_datalink_sampled,
+    )
+)
+
 

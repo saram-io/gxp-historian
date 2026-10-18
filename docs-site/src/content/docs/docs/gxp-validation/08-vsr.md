@@ -2,7 +2,7 @@
 title: "Document 08 — Validation Summary Report (VSR) & Release Certificate"
 description: "Document 08 — Validation Summary Report (VSR) and QA Release Disposition for Production GMP Use."
 ---
-**Document ID:** `VSR-GXPHISTORIAN-2026-008` | **Release Date (UTC):** `2026-10-18T17:30:58Z` | **System Release Status:** **QUALIFIED FOR GxP PRODUCTION USE**
+**Document ID:** `VSR-GXPHISTORIAN-2026-008` | **Release Date (UTC):** `2026-10-18T19:42:45Z` | **System Release Status:** **QUALIFIED FOR GxP PRODUCTION USE**
 
 ---
 
@@ -12,16 +12,16 @@ The **GxPHistorian GxP Industrial Historian** (ClickHouse 24.8 Telemetry Archive
 
 | Metric | Target Acceptance Criterion | Actual Executed Result | Status |
 | :--- | :--- | :--- | :--- |
-| **User Requirements Coverage (URS-001..017)** | 100% Bidirectional Traceability | `17 / 17` Requirements Mapped & Verified | **PASS** |
-| **Automated IQ/OQ Test Suite (`pytest`)** | 100% Pass Rate (0 Failures) | `17 / 17` Passed (`100.0%`) | **PASS** |
-| **21 CFR Part 11 Cryptographic Hash Chain** | `chain_valid == true` from `GENESIS` | `24061` Audit Records Verified (`head: f5206a5e3a72323419a2eb21...`) | **PASS** |
+| **User Requirements Coverage (URS-001..021)** | 100% Bidirectional Traceability | `21 / 21` Requirements Mapped & Verified | **PASS** |
+| **Automated IQ/OQ Test Suite (`pytest`)** | 100% Pass Rate (0 Failures) | `21 / 21` Passed (`100.0%`) | **PASS** |
+| **21 CFR Part 11 Cryptographic Hash Chain** | `chain_valid == true` from `GENESIS` | `25973` Audit Records Verified (`head: b50147e3176e5d0ae637b662...`) | **PASS** |
 | **Validation Deviations / CAPAs** | 0 Open Critical/Major Deviations | `0` Deviations Encountered | **PASS** |
 
 ## 2. Deviation & Non-Conformance Log
 
 - **Open Deviations:** `0`
 - **Closed Deviations:** `0`
-- All 17 IQ/OQ test cases passed on execution without protocol exceptions or data integrity discrepancies.
+- All 21 IQ/OQ test cases passed on execution without protocol exceptions or data integrity discrepancies.
 
 ## 3. Statement of Fitness for Intended GxP Use
 
@@ -32,6 +32,6 @@ Based on the objective cryptographic evidence captured in `oq_execution_results.
 
 | Signer Role | Printed Name | User ID | Signature Meaning | Signed Timestamp (UTC) | Cryptographic Verification |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **System Owner (IT/OT)** | Sarah Jenkins | `operator_01` | System Technical Qualification & Operational Handover Approval | `2026-10-18T17:30:58Z` | Verified via `pgcrypto` & Part 11 Audit Chain |
-| **Quality Assurance (QP)** | Dr. Marcus Vance | `qa_approver_01` | Final QA Validation Release & 21 CFR Part 11 Compliance Approval | `2026-10-18T17:30:58Z` | HMAC-SHA256 Bound (`f5206a5e3a72323419a2eb211f0a72c4...`) |
+| **System Owner (IT/OT)** | Sarah Jenkins | `operator_01` | System Technical Qualification & Operational Handover Approval | `2026-10-18T19:42:45Z` | Verified via `pgcrypto` & Part 11 Audit Chain |
+| **Quality Assurance (QP)** | Dr. Marcus Vance | `qa_approver_01` | Final QA Validation Release & 21 CFR Part 11 Compliance Approval | `2026-10-18T19:42:45Z` | HMAC-SHA256 Bound (`b50147e3176e5d0ae637b66232d63515...`) |
 

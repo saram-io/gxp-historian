@@ -12,12 +12,12 @@
     "instrument_mock_server_url": "http://localhost:8095",
     "grafana_url": "http://localhost:3020"
   },
-  "session_start_utc": "2026-10-18T17:30:52.962676+00:00",
-  "session_end_utc": "2026-10-18T17:30:57.970953+00:00",
+  "session_start_utc": "2026-10-18T19:41:34.154973+00:00",
+  "session_end_utc": "2026-10-18T19:41:40.326756+00:00",
   "overall_status": "PASS",
   "summary": {
-    "total_tests": 17,
-    "passed": 17,
+    "total_tests": 21,
+    "passed": 21,
     "failed": 0,
     "pass_rate_pct": 100.0
   },
@@ -27,9 +27,9 @@
       "test_name": "test_iq_01_services_and_non_default_credentials",
       "module": "test_01_iq_infrastructure",
       "docstring": "URS-001: Verify container health and absence of insecure default credentials.",
-      "start_utc": "2026-10-18T17:30:53.465695+00:00",
-      "end_utc": "2026-10-18T17:30:53.542539+00:00",
-      "duration_seconds": 0.0768,
+      "start_utc": "2026-10-18T19:41:34.593862+00:00",
+      "end_utc": "2026-10-18T19:41:34.674608+00:00",
+      "duration_seconds": 0.0807,
       "status": "PASS",
       "longrepr": null,
       "assertion_details": [
@@ -49,13 +49,13 @@
           "postgres": {
             "connected": true,
             "database": "pi_control_plane",
-            "tag_count": 8
+            "tag_count": 17
           },
           "clickhouse": {
             "connected": true,
             "database": "pi_historian",
             "version": "24.8.14.39",
-            "sensor_data_rows": 283962
+            "sensor_data_rows": 305299
           }
         },
         "mcp_health": {
@@ -126,8 +126,8 @@
       "test_name": "test_iq_02_postgres_extensions_and_schema",
       "module": "test_01_iq_infrastructure",
       "docstring": "URS-002: Verify PostgreSQL extensions (ltree, btree_gist, pgcrypto) and core tables.",
-      "start_utc": "2026-10-18T17:30:53.553637+00:00",
-      "end_utc": "2026-10-18T17:30:53.562728+00:00",
+      "start_utc": "2026-10-18T19:41:34.687608+00:00",
+      "end_utc": "2026-10-18T19:41:34.696664+00:00",
       "duration_seconds": 0.0091,
       "status": "PASS",
       "longrepr": null,
@@ -150,7 +150,13 @@
         "tables": [
           "asset_templates",
           "assets",
+          "digital_state_sets",
+          "event_frame_signatures",
+          "event_frame_templates",
           "event_frames",
+          "manual_logger_entries",
+          "notification_deliveries",
+          "notification_rules",
           "part11_audit_log",
           "tags",
           "users"
@@ -174,9 +180,9 @@
       "test_name": "test_iq_03_clickhouse_compression_codecs",
       "module": "test_01_iq_infrastructure",
       "docstring": "URS-003: Verify ClickHouse sensor_data lossless compression codecs (Delta, DoubleDelta, Gorilla, T64).",
-      "start_utc": "2026-10-18T17:30:53.572921+00:00",
-      "end_utc": "2026-10-18T17:30:53.577456+00:00",
-      "duration_seconds": 0.0045,
+      "start_utc": "2026-10-18T19:41:34.707976+00:00",
+      "end_utc": "2026-10-18T19:41:34.710718+00:00",
+      "duration_seconds": 0.0027,
       "status": "PASS",
       "longrepr": null,
       "assertion_details": [
@@ -202,9 +208,9 @@
       "test_name": "test_iq_04_clickhouse_postgres_dictionary_sync",
       "module": "test_01_iq_infrastructure",
       "docstring": "URS-004: Verify ISA-95 ltree asset hierarchy resolution via ClickHouse pg_asset_tags dictionary.",
-      "start_utc": "2026-10-18T17:30:53.590809+00:00",
-      "end_utc": "2026-10-18T17:30:53.595726+00:00",
-      "duration_seconds": 0.0049,
+      "start_utc": "2026-10-18T19:41:34.719094+00:00",
+      "end_utc": "2026-10-18T19:41:34.722435+00:00",
+      "duration_seconds": 0.0033,
       "status": "PASS",
       "longrepr": null,
       "assertion_details": [
@@ -264,9 +270,9 @@
       "test_name": "test_iq_05_edge_collector_wal_and_deadband",
       "module": "test_01_iq_infrastructure",
       "docstring": "URS-005: Verify Telegraf disk WAL config and Stage 1 Exception/Deadband filter behavior.",
-      "start_utc": "2026-10-18T17:30:53.596843+00:00",
-      "end_utc": "2026-10-18T17:30:53.598862+00:00",
-      "duration_seconds": 0.002,
+      "start_utc": "2026-10-18T19:41:34.723267+00:00",
+      "end_utc": "2026-10-18T19:41:34.724853+00:00",
+      "duration_seconds": 0.0016,
       "status": "PASS",
       "longrepr": null,
       "assertion_details": [
@@ -289,9 +295,9 @@
       "test_name": "test_oq_01_reject_mutations_without_actor_or_reason",
       "module": "test_02_oq_part11_compliance",
       "docstring": "URS-006: Verify mutating tags or assets without app.actor_id / app.change_reason is rejected.",
-      "start_utc": "2026-10-18T17:30:53.620325+00:00",
-      "end_utc": "2026-10-18T17:30:53.641181+00:00",
-      "duration_seconds": 0.0209,
+      "start_utc": "2026-10-18T19:41:34.739859+00:00",
+      "end_utc": "2026-10-18T19:41:34.752835+00:00",
+      "duration_seconds": 0.013,
       "status": "PASS",
       "longrepr": null,
       "assertion_details": [
@@ -310,9 +316,9 @@
       "test_name": "test_oq_02_worm_audit_log_immutability",
       "module": "test_02_oq_part11_compliance",
       "docstring": "URS-007: Verify UPDATE, DELETE, and TRUNCATE on part11_audit_log raise WORM exception.",
-      "start_utc": "2026-10-18T17:30:53.652330+00:00",
-      "end_utc": "2026-10-18T17:30:53.655883+00:00",
-      "duration_seconds": 0.0036,
+      "start_utc": "2026-10-18T19:41:34.761438+00:00",
+      "end_utc": "2026-10-18T19:41:34.764857+00:00",
+      "duration_seconds": 0.0034,
       "status": "PASS",
       "longrepr": null,
       "assertion_details": [
@@ -338,16 +344,16 @@
       "test_name": "test_oq_03_electronic_signature_rejects_invalid_credentials",
       "module": "test_02_oq_part11_compliance",
       "docstring": "URS-008: Verify signing an Event Frame with wrong password returns HTTP 401.",
-      "start_utc": "2026-10-18T17:30:53.662203+00:00",
-      "end_utc": "2026-10-18T17:30:53.809467+00:00",
-      "duration_seconds": 0.1473,
+      "start_utc": "2026-10-18T19:41:34.771573+00:00",
+      "end_utc": "2026-10-18T19:41:34.956006+00:00",
+      "duration_seconds": 0.1844,
       "status": "PASS",
       "longrepr": null,
       "assertion_details": [
         "Verified POST /api/v1/event-frames/{id}/sign rejects invalid password with HTTP 401."
       ],
       "input_payload": {
-        "event_id": "424ff659-f4f1-4bb2-86b7-dcf2d6ed93f0",
+        "event_id": "cbeb702d-836b-48ca-ac43-74a6cc83d8f8",
         "user_id": "qa_approver_01",
         "password": "REDACTED_INVALID"
       },
@@ -363,31 +369,31 @@
       "test_name": "test_oq_04_electronic_signature_approval_and_hmac",
       "module": "test_02_oq_part11_compliance",
       "docstring": "URS-009: Verify valid Electronic Signature execution, HMAC-SHA256 binding, and audit log increment.",
-      "start_utc": "2026-10-18T17:30:53.818388+00:00",
-      "end_utc": "2026-10-18T17:30:54.456834+00:00",
-      "duration_seconds": 0.6384,
+      "start_utc": "2026-10-18T19:41:34.961633+00:00",
+      "end_utc": "2026-10-18T19:41:35.590740+00:00",
+      "duration_seconds": 0.6291,
       "status": "PASS",
       "longrepr": null,
       "assertion_details": [
         "Verified dual-challenge electronic signature execution, HMAC-SHA256 binding, and audit trail logging."
       ],
       "input_payload": {
-        "event_id": "424ff659-f4f1-4bb2-86b7-dcf2d6ed93f0",
+        "event_id": "cbeb702d-836b-48ca-ac43-74a6cc83d8f8",
         "user_id": "qa_approver_01",
         "signature_meaning": "Batch Release Approval"
       },
       "output_payload": {
         "signed_event_frame": {
-          "event_id": "424ff659-f4f1-4bb2-86b7-dcf2d6ed93f0",
+          "event_id": "cbeb702d-836b-48ca-ac43-74a6cc83d8f8",
           "event_name": "BR201_TEMP_PV_High_Limit_Excursion",
           "event_template": "Temp_Excursion",
           "signed_by": "qa_approver_01",
           "signature_meaning": "Batch Release Approval",
-          "signed_at": "2026-10-18T17:30:54.192676Z",
-          "signature_hash": "efeb8ae1c6c4b958ee78973602f27872f4e412800870bdf177d978a2798ca92b"
+          "signed_at": "2026-10-18T19:41:35.321653Z",
+          "signature_hash": "7932786bb9588c2f7ff9aeb487f83e5e32b797c87ad79b296ff10fb79b3eee89"
         },
         "hmac_verified": true,
-        "audit_records_after": 24057
+        "audit_records_after": 25942
       }
     },
     {
@@ -395,9 +401,9 @@
       "test_name": "test_oq_05_cryptographic_hash_chain_verification",
       "module": "test_02_oq_part11_compliance",
       "docstring": "URS-010: Verify end-to-end SHA-256 hash chain from GENESIS_0000000000000000.",
-      "start_utc": "2026-10-18T17:30:54.465487+00:00",
-      "end_utc": "2026-10-18T17:30:54.726593+00:00",
-      "duration_seconds": 0.2611,
+      "start_utc": "2026-10-18T19:41:35.597118+00:00",
+      "end_utc": "2026-10-18T19:41:35.860974+00:00",
+      "duration_seconds": 0.2639,
       "status": "PASS",
       "longrepr": null,
       "assertion_details": [
@@ -408,10 +414,10 @@
       },
       "output_payload": {
         "chain_valid": true,
-        "total_records": 24057,
-        "verified_hashes": 24057,
+        "total_records": 25942,
+        "verified_hashes": 25942,
         "genesis_anchor": "GENESIS_0000000000000000",
-        "head_row_hash": "f2d7040580426758e55eed53a7b462dbf782b207f51bacf268a3e6d7c7a75950",
+        "head_row_hash": "1cd65f366a7eac2f41326c94c01b6f3b5290edeb29c773dd7b01cbc51c740dc0",
         "broken_at_audit_id": null
       }
     },
@@ -420,9 +426,9 @@
       "test_name": "test_oq_06_multi_protocol_telemetry_ingestion",
       "module": "test_03_oq_historian_core",
       "docstring": "URS-011: Verify all 6 mock instrument connection listeners and active telemetry across all 5 GxP tags.",
-      "start_utc": "2026-10-18T17:30:54.739856+00:00",
-      "end_utc": "2026-10-18T17:30:54.771337+00:00",
-      "duration_seconds": 0.0315,
+      "start_utc": "2026-10-18T19:41:35.869879+00:00",
+      "end_utc": "2026-10-18T19:41:35.896430+00:00",
+      "duration_seconds": 0.0266,
       "status": "PASS",
       "longrepr": null,
       "assertion_details": [
@@ -443,62 +449,62 @@
           {
             "tag_id": 101,
             "tag_name": "BR201_TEMP_PV",
-            "row_count": 46531
+            "row_count": 50064
           },
           {
             "tag_id": 102,
             "tag_name": "BR201_PH_PV",
-            "row_count": 57808
+            "row_count": 62104
           },
           {
             "tag_id": 103,
             "tag_name": "BR201_AGIT_STATE",
-            "row_count": 20932
+            "row_count": 22507
           },
           {
             "tag_id": 301,
             "tag_name": "CR_ISO7_DP_PV",
-            "row_count": 57003
+            "row_count": 61298
           },
           {
             "tag_id": 401,
             "tag_name": "CHROM_UV280_PV",
-            "row_count": 101694
+            "row_count": 109331
           }
         ],
         "mock_protocol_results": {
           "opc_ua_tcp_4840": {
             "binary_hel_ack_handshake": true,
             "node_id": "ns=2;s=BR201.Temp.PV",
-            "val": 36.8237,
+            "val": 36.85,
             "quality": 192
           },
           "modbus_tcp_5020": {
             "fc03_holding_registers_read": true,
-            "float32_abcd_val": 18.8628,
-            "float32_cdab_val": 18.8628,
-            "int16_x10_scaled_val": 18.9,
+            "float32_abcd_val": 17.7293,
+            "float32_cdab_val": 17.7293,
+            "int16_x10_scaled_val": 17.7,
             "endianness_parity_verified": true
           },
           "bacnet_ip_udp_47808": {
             "bvlc_complex_ack_verified": true,
             "object_identifier": "analog-input,1",
-            "present_value_pa": 18.8628,
+            "present_value_pa": 17.7293,
             "opc_quality": 192
           },
           "siemens_s7comm_tcp_1102": {
             "rfc1006_cotp_connection_confirm": true,
-            "db10_dbw0_agitator_state": 2,
-            "db10_dbd2_vessel_temp": 36.8237
+            "db10_dbw0_agitator_state": 0,
+            "db10_dbd2_vessel_temp": 36.85
           },
           "rs232_serial_tcp_4001": {
-            "mtsics_balance_response": "S S     125.419 g",
-            "osmotech_pro_response": "OSMO 293 mOsm/kg_H2O QUALITY=192"
+            "mtsics_balance_response": "S S     125.421 g",
+            "osmotech_pro_response": "OSMO 294 mOsm/kg_H2O QUALITY=192"
           },
           "opc_da_bridge_8095": {
             "prog_id": "Matrikon.OPC.Simulation.1",
             "item_id": "DSP.Chrom.UV280.PV",
-            "val_mau": 511.1988
+            "val_mau": 96.5696
           }
         }
       }
@@ -508,9 +514,9 @@
       "test_name": "test_oq_07_bad_quality_exclusion_in_rollup",
       "module": "test_03_oq_historian_core",
       "docstring": "URS-012: Verify sensor_rollup_1m completely excludes quality=0 fault spike of 9999.0.",
-      "start_utc": "2026-10-18T17:30:54.781294+00:00",
-      "end_utc": "2026-10-18T17:30:54.796684+00:00",
-      "duration_seconds": 0.0154,
+      "start_utc": "2026-10-18T19:41:35.903767+00:00",
+      "end_utc": "2026-10-18T19:41:35.915513+00:00",
+      "duration_seconds": 0.0117,
       "status": "PASS",
       "longrepr": null,
       "assertion_details": [
@@ -551,9 +557,9 @@
       "test_name": "test_oq_08_datalink_linear_and_locf_step_interpolation",
       "module": "test_03_oq_historian_core",
       "docstring": "URS-013: Verify /api/v1/datalink/sampled linear midpoints for analog tags and integer LOCF for step tags.",
-      "start_utc": "2026-10-18T17:30:54.816313+00:00",
-      "end_utc": "2026-10-18T17:30:54.888958+00:00",
-      "duration_seconds": 0.0726,
+      "start_utc": "2026-10-18T19:41:35.927836+00:00",
+      "end_utc": "2026-10-18T19:41:35.988620+00:00",
+      "duration_seconds": 0.0608,
       "status": "PASS",
       "longrepr": null,
       "assertion_details": [
@@ -602,9 +608,9 @@
       "test_name": "test_oq_09_lttb_downsampling_preserves_local_peak",
       "module": "test_03_oq_historian_core",
       "docstring": "URS-014: Verify /api/v1/trends/plot-values (LTTB) preserves the exact timestamp and magnitude of local peaks.",
-      "start_utc": "2026-10-18T17:30:54.903344+00:00",
-      "end_utc": "2026-10-18T17:30:54.928035+00:00",
-      "duration_seconds": 0.0247,
+      "start_utc": "2026-10-18T19:41:36.009774+00:00",
+      "end_utc": "2026-10-18T19:41:36.110640+00:00",
+      "duration_seconds": 0.1009,
       "status": "PASS",
       "longrepr": null,
       "assertion_details": [
@@ -632,9 +638,9 @@
       "test_name": "test_oq_10_event_frame_excursion_and_parquet_lakehouse_export",
       "module": "test_03_oq_historian_core",
       "docstring": "URS-015: Verify Event Frame excursion capture and Parquet lakehouse export integrity via pyarrow.",
-      "start_utc": "2026-10-18T17:30:54.937341+00:00",
-      "end_utc": "2026-10-18T17:30:55.342360+00:00",
-      "duration_seconds": 0.405,
+      "start_utc": "2026-10-18T19:41:36.117324+00:00",
+      "end_utc": "2026-10-18T19:41:36.508493+00:00",
+      "duration_seconds": 0.3912,
       "status": "PASS",
       "longrepr": null,
       "assertion_details": [
@@ -647,7 +653,7 @@
       "output_payload": {
         "export_metadata": {
           "status": "exported",
-          "file_path": "/app/exports/oq_qualification_verify_20261018T173055Z.parquet",
+          "file_path": "/app/exports/oq_qualification_verify_20261018T194136Z.parquet",
           "row_count": 4,
           "file_size_bytes": 6324,
           "columns": [
@@ -683,21 +689,21 @@
       "test_name": "test_oq_11_pydantic_ai_deviation_investigator_and_mcp",
       "module": "test_04_ai_agent_and_mcp",
       "docstring": "Verify Pydantic AI `gxp_deviation_investigator_agent` Event Frame investigation,\n`part11-forensics` deferred capability loading, and `gxphistorian-mcp` manifest.",
-      "start_utc": "2026-10-18T17:30:55.352595+00:00",
-      "end_utc": "2026-10-18T17:30:57.410745+00:00",
-      "duration_seconds": 2.0582,
+      "start_utc": "2026-10-18T19:41:36.517231+00:00",
+      "end_utc": "2026-10-18T19:41:38.892745+00:00",
+      "duration_seconds": 2.3755,
       "status": "PASS",
       "longrepr": null,
       "assertion_details": [
         "Verified Pydantic AI `gxp_deviation_investigator_agent` produces a validated `DeviationInvestigationBrief` with `part11-forensics` capability and `gxphistorian-mcp` manifest."
       ],
       "input_payload": {
-        "event_id": "424ff659-f4f1-4bb2-86b7-dcf2d6ed93f0"
+        "event_id": "cbeb702d-836b-48ca-ac43-74a6cc83d8f8"
       },
       "output_payload": {
         "classification": "critical_process_excursion",
         "part11_audit_chain_valid": true,
-        "sibling_tag_count": 7,
+        "sibling_tag_count": 12,
         "mcp_tools": [
           "mcp_browse_assets",
           "mcp_get_lttb_plot_values",
@@ -713,22 +719,324 @@
       "test_name": "test_oq_12_pydantic_ai_part11_human_in_the_loop_tag_approval",
       "module": "test_04_ai_agent_and_mcp",
       "docstring": "Verify Pydantic AI `brownfield-onboarding` capability enforces `args_validator` (`ModelRetry`\non invalid limits), pauses with `ApprovalRequired` (`DeferredToolRequests`), rejects unattributed\napprovals (HTTP 400), and commits approved tags to PostgreSQL `tags` + `part11_audit_log`.",
-      "start_utc": "2026-10-18T17:30:57.418293+00:00",
-      "end_utc": "2026-10-18T17:30:57.970078+00:00",
-      "duration_seconds": 0.5518,
+      "start_utc": "2026-10-18T19:41:38.898505+00:00",
+      "end_utc": "2026-10-18T19:41:39.466711+00:00",
+      "duration_seconds": 0.5682,
       "status": "PASS",
       "longrepr": null,
       "assertion_details": [
         "Verified Pydantic AI `ApprovalRequired` (`DeferredToolRequests` / `DeferredToolResults`), `args_validator` `ModelRetry` recovery, and 21 CFR Part 11 WORM audit logging."
       ],
       "input_payload": {
-        "tag_name": "BR201_DO_AI_D31236"
+        "tag_name": "BR201_DO_AI_753B98"
       },
       "output_payload": {
         "stage1_status": "approval_required",
         "stage2_status": "approved_and_committed",
         "audit_chain_valid": true,
         "validator_retry_steps": 3
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_05_oq_aveva_pi_parity.py::test_oq_13_pi_datalink_and_streamsets_parity",
+      "test_name": "test_oq_13_pi_datalink_and_streamsets_parity",
+      "module": "test_05_oq_aveva_pi_parity",
+      "docstring": "URS-018: Verify AVEVA PI DataLink & PI Web API StreamSets parity:\nPICurrVal (/current), PIArcVal (/archive-value), PICompDat (/recorded),\nPIAdvCalcDat (/calculated Time-Weighted vs Event-Weighted), PITimeFilter (/time-filter),\nand Bulk StreamSets (/streamsets/end, /streamsets/interpolated).",
+      "start_utc": "2026-10-18T19:41:39.482054+00:00",
+      "end_utc": "2026-10-18T19:41:39.880234+00:00",
+      "duration_seconds": 0.3982,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified AVEVA PI DataLink & StreamSets parity: PICurrVal UOM/DigitalState resolution, PIArcVal exact linear/LOCF retrieval, PICompDat bad-quality exclusion, PIAdvCalcDat Time-Weighted (38.0) vs Event-Weighted (37.6667) integration, PITimeFilter duration (360s / 60%), and StreamSets bulk queries."
+      ],
+      "input_payload": {
+        "window": "2026-01-16T10:00:00Z..10:10:00Z",
+        "tags": [
+          "BR201_TEMP_PV",
+          "BR201_AGIT_STATE"
+        ]
+      },
+      "output_payload": {
+        "pi_arc_val_linear": {
+          "tag_id": 101,
+          "tag_name": "BR201_TEMP_PV",
+          "asset_path": "BioCorp.Fremont.USP.Bioreactor_201",
+          "eng_units": "degC",
+          "is_step_tag": false,
+          "requested_timestamp": "2026-01-16T10:01:00Z",
+          "retrieval_mode": "INTERPOLATED",
+          "applied_interpolation": "LINEAR",
+          "val": 38.0,
+          "str_val": ""
+        },
+        "pi_adv_calc_time_weighted": {
+          "average": 38.0,
+          "time_weighted_average": 38.0,
+          "event_weighted_average": 37.6667,
+          "total": 22800.0,
+          "min": 37.0,
+          "max": 39.0,
+          "range": 2.0,
+          "stdev": 0.9428,
+          "good_sample_count": 3,
+          "bad_sample_count": 1,
+          "percent_good": 75.0
+        },
+        "pi_adv_calc_event_weighted": {
+          "average": 37.6667,
+          "time_weighted_average": 38.0,
+          "event_weighted_average": 37.6667,
+          "total": 113.0,
+          "min": 37.0,
+          "max": 39.0,
+          "range": 2.0,
+          "stdev": 0.9428,
+          "good_sample_count": 3,
+          "bad_sample_count": 1,
+          "percent_good": 75.0
+        },
+        "pi_time_filter": {
+          "tag_id": 103,
+          "tag_name": "BR201_AGIT_STATE",
+          "asset_path": "BioCorp.Fremont.USP.Bioreactor_201",
+          "expression": "BR201_AGIT_STATE >= 2.0",
+          "is_step_tag": true,
+          "interpolation_mode": "LOCF_STEP",
+          "true_seconds": 360.0,
+          "true_minutes": 6.0,
+          "evaluated_seconds": 600.0,
+          "percent_true": 60.0
+        },
+        "streamsets_count": 13
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_05_oq_aveva_pi_parity.py::test_oq_14_pi_analytics_mkt_f0_sqc_and_golden_batch",
+      "test_name": "test_oq_14_pi_analytics_mkt_f0_sqc_and_golden_batch",
+      "module": "test_05_oq_aveva_pi_parity",
+      "docstring": "URS-019: Verify PI Analysis Service & GxP Calculation Engine:\nICH Q1A(R2) Mean Kinetic Temperature (MKT), USP <1229> Steam Sterilization F0 Lethality,\nPI SQC Western Electric SPC rules (Cp/Cpk), and PI BatchView Golden Batch overlay.",
+      "start_utc": "2026-10-18T19:41:39.896330+00:00",
+      "end_utc": "2026-10-18T19:41:40.032978+00:00",
+      "duration_seconds": 0.1366,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified ICH Q1A MKT (27.821 \u00b0C vs 27.5 \u00b0C mean), USP <1229> F0 (15.0 min, PASS), Western Electric SQC Rule 1 detection, and PI BatchView relative-time Golden Batch overlay (RMSE=0.4201)."
+      ],
+      "input_payload": {
+        "mkt_window": "14:00..14:09Z",
+        "f0_window": "15:00..15:15Z",
+        "sqc_window": "16:00..16:19Z"
+      },
+      "output_payload": {
+        "mkt_result": {
+          "tag_id": 101,
+          "tag_name": "BR201_TEMP_PV",
+          "asset_path": "BioCorp.Fremont.USP.Bioreactor_201",
+          "regulatory_standard": "ICH Q1A(R2) / USP <1079> Mean Kinetic Temperature",
+          "activation_energy_kj_mol": 83.14472,
+          "good_sample_count": 10,
+          "min_temp_c": 25.0,
+          "max_temp_c": 30.0,
+          "arithmetic_mean_c": 27.5,
+          "mkt_c": 27.821,
+          "kinetic_penalty_delta_c": 0.321,
+          "max_allowed_mkt_c": 38.0,
+          "within_specification": true
+        },
+        "f0_result": {
+          "cumulative_f0_minutes": 15.0,
+          "sterilization_passed": true,
+          "peak_sterilization_temp_c": 121.1
+        },
+        "sqc_violations": {
+          "rule_1_beyond_3sigma_count": 1,
+          "rule_2_two_of_three_beyond_2sigma_count": 0,
+          "rule_3_four_of_five_beyond_1sigma_count": 0,
+          "rule_4_eight_consecutive_same_side_count": 12,
+          "rule_1_samples": [
+            {
+              "index": 19,
+              "ts": "2026-01-16T16:19:00.000Z",
+              "val": 42.0,
+              "z_score": 4.358
+            }
+          ]
+        },
+        "batch_compare_summary": {
+          "batch_id": "TARGET-BATCH-2026-OQ2",
+          "rmse_vs_golden": 0.4201,
+          "max_abs_deviation": 0.5
+        }
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_05_oq_aveva_pi_parity.py::test_oq_15_pi_af_template_uom_digital_states_and_manual_logger",
+      "test_name": "test_oq_15_pi_af_template_uom_digital_states_and_manual_logger",
+      "module": "test_05_oq_aveva_pi_parity",
+      "docstring": "URS-020: Verify PI Asset Framework Template Auto-Instantiation, Canonical UOM Conversion,\nDigital State Sets, and 21 CFR Part 11 PI Manual Logger with dual-person verification.",
+      "start_utc": "2026-10-18T19:41:40.043971+00:00",
+      "end_utc": "2026-10-18T19:41:40.171860+00:00",
+      "duration_seconds": 0.1279,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified UOM conversion (100 \u00b0C -> 212 \u00b0F), Digital State Set creation, PI AF Template auto-instantiation of Bioreactor_202 (4 standard tags), and Part 11 PI Manual Logger with dual-person verification and ClickHouse archival (status_code=5)."
+      ],
+      "input_payload": {
+        "template_id": 1,
+        "asset_path": "BioCorp.Fremont.USP.Bioreactor_202"
+      },
+      "output_payload": {
+        "uom_conversion": {
+          "original_value": 100.0,
+          "from_uom": "degC",
+          "converted_value": 212.0,
+          "to_uom": "degF"
+        },
+        "instantiated_asset": {
+          "asset": {
+            "asset_id": 3,
+            "asset_name": "Bioreactor_202",
+            "asset_path": "BioCorp.Fremont.USP.Bioreactor_202",
+            "template_id": 1,
+            "metadata": {
+              "location_room": "Suite-B2",
+              "vessel_volume_L": 2000
+            }
+          },
+          "instantiated_tag_count": 4,
+          "tag_names": [
+            "BR202_AGIT_STATE",
+            "BR202_PH_PV",
+            "BR202_TEMP_PV",
+            "BR202_UV280_PV"
+          ]
+        },
+        "manual_logger_entry": {
+          "status": "recorded_and_archived",
+          "tag_name": "BR201_PH_PV",
+          "asset_path": "BioCorp.Fremont.USP.Bioreactor_201",
+          "dual_verified": true,
+          "verifier_id": "qa_approver_01",
+          "within_limits": true,
+          "clickhouse_status_code": 5,
+          "entry": {
+            "entry_id": 4,
+            "tag_id": 102,
+            "sample_ts": "2026-01-16T11:30:00Z",
+            "val": 7.06,
+            "str_val": "BENCHTOP_PH_VERIFIED",
+            "sample_barcode": "VIAL-2026-0042-B",
+            "operator_id": "operator_01",
+            "verifier_id": "qa_approver_01",
+            "within_limits": true,
+            "notes": "Verified against NIST pH 7.00 buffer standard",
+            "recorded_at": "2026-10-18T19:41:40.134611Z"
+          }
+        }
+      }
+    },
+    {
+      "pytest_node_id": "gxp-validation-package/tests/test_05_oq_aveva_pi_parity.py::test_oq_16_swinging_door_truefor_backfill_multisig_and_notifications",
+      "test_name": "test_oq_16_swinging_door_truefor_backfill_multisig_and_notifications",
+      "module": "test_05_oq_aveva_pi_parity",
+      "docstring": "URS-021: Verify Stage 2 Swinging Door Trending (SDT) slope compression, Event Frame historical\nbackfill with TrueFor duration debounce, Multi-Stage Electronic Signatures, and PI Notifications.",
+      "start_utc": "2026-10-18T19:41:40.186899+00:00",
+      "end_utc": "2026-10-18T19:41:40.325708+00:00",
+      "duration_seconds": 0.1388,
+      "status": "PASS",
+      "longrepr": null,
+      "assertion_details": [
+        "Verified Stage 2 Swinging Door compression (81.82% reduction), Event Frame TrueFor=60s backfill (suppressed 1 transient spike, captured event 48bf9ffb-a16d-4774-ac14-958d2271f704), 2-stage e-signature chain, and PI Notifications dispatch."
+      ],
+      "input_payload": {
+        "sdt_raw_samples": 22,
+        "backfill_window": "2026-01-16T18:00:00Z..18:10:00Z"
+      },
+      "output_payload": {
+        "swinging_door_summary": {
+          "raw_sample_count": 22,
+          "stage2_swinging_door_count": 4,
+          "compression_ratio_pct": 81.82
+        },
+        "backfill_result": {
+          "status": "backfilled",
+          "tag_name": "BR201_TEMP_PV",
+          "template_name": "Temp_Excursion_TrueFor_30s",
+          "true_for_seconds": 60,
+          "evaluated_samples": 7,
+          "suppressed_transient_spikes": 1,
+          "created_event_count": 1,
+          "created_event_ids": [
+            "48bf9ffb-a16d-4774-ac14-958d2271f704"
+          ],
+          "qualified_windows": [
+            {
+              "start_time": "2026-01-16T18:05:00.000Z",
+              "end_time": "2026-01-16T18:07:30.000Z",
+              "duration_seconds": 120.0,
+              "peak_val": 41.4,
+              "avg_val": 40.7667,
+              "sample_count": 3
+            }
+          ]
+        },
+        "signature_chain": {
+          "event_id": "48bf9ffb-a16d-4774-ac14-958d2271f704",
+          "signature_count": 2,
+          "multi_stage_complete": true,
+          "signatures": [
+            {
+              "sig_id": 12,
+              "event_id": "48bf9ffb-a16d-4774-ac14-958d2271f704",
+              "stage_order": 1,
+              "user_id": "operator_01",
+              "signer_full_name": "Sarah Jenkins (Lead USP Operator)",
+              "signer_role": "OPERATOR",
+              "signature_meaning": "Production Review \u2014 Confirmed Jacket Cooling Valve PID Tuning",
+              "change_reason": "Stage 1 Production Operator Review of Thermal Excursion",
+              "signed_at": "2026-10-18T19:41:40.249073Z",
+              "signature_hash": "c403a17700fb16762631548e21d9d5d28d3fec2f6411e9db003306170926f472"
+            },
+            {
+              "sig_id": 13,
+              "event_id": "48bf9ffb-a16d-4774-ac14-958d2271f704",
+              "stage_order": 2,
+              "user_id": "qa_approver_01",
+              "signer_full_name": "Dr. Marcus Vance (QA Qualified Person)",
+              "signer_role": "QA_APPROVER",
+              "signature_meaning": "QA Final Disposition Approval \u2014 Batch Released",
+              "change_reason": "Stage 2 QA Qualified Person Final Approval",
+              "signed_at": "2026-10-18T19:41:40.270971Z",
+              "signature_hash": "73aaab44f7c7634b2954bc4a4933f4c407d5f6b51c8b4e82a84609354bb2b4e0"
+            }
+          ]
+        },
+        "notifications_eval": {
+          "status": "evaluated",
+          "dispatched_count": 1,
+          "deliveries": [
+            {
+              "delivery_id": 30,
+              "rule_id": 1,
+              "event_id": "cbeb702d-836b-48ca-ac43-74a6cc83d8f8",
+              "channel_type": "WEBHOOK",
+              "target_endpoint": "https://qa-alerts.biocorp.internal/api/v1/gxp-incidents",
+              "delivery_status": "DELIVERED",
+              "escalation_triggered": false,
+              "dispatched_at": "2026-10-18T19:41:40.306415Z",
+              "payload": {
+                "severity": "CRITICAL",
+                "escalated": false,
+                "rule_name": "QA_Critical_Excursion_Webhook",
+                "asset_path": "BioCorp.Fremont.USP.Bioreactor_201",
+                "event_name": "BR201_TEMP_PV_High_Limit_Excursion"
+              }
+            }
+          ]
+        }
       }
     }
   ]

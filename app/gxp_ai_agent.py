@@ -305,7 +305,18 @@ def query_recent_part11_audit_log(
     if limit < 1 or limit > 100:
         raise ModelRetry("`limit` must be between 1 and 100.")
 
-    allowed_tables = {"asset_templates", "assets", "tags", "event_frames"}
+    allowed_tables = {
+        "asset_templates",
+        "assets",
+        "tags",
+        "event_frames",
+        "digital_state_sets",
+        "event_frame_templates",
+        "event_frame_signatures",
+        "manual_logger_entries",
+        "notification_rules",
+        "notification_deliveries",
+    }
     if target_table and target_table not in allowed_tables:
         raise ModelRetry(
             f"Invalid `target_table` {target_table!r}. Must be one of {sorted(allowed_tables)} or None."

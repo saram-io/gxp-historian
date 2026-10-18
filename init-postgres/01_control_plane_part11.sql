@@ -65,6 +65,74 @@ CREATE TABLE IF NOT EXISTS users (
     is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
+CREATE TABLE IF NOT EXISTS digital_state_sets (
+    state_set_id SERIAL PRIMARY KEY,
+    state_set_name TEXT UNIQUE NOT NULL,
+    states_map JSONB NOT NULL DEFAULT '{}'::jsonb,
+    description TEXT NOT NULL DEFAULT ''
+);
+
+CREATE TABLE IF NOT EXISTS event_frame_templates (
+    ef_template_id SERIAL PRIMARY KEY,
+    template_name TEXT UNIQUE NOT NULL,
+    target_attribute TEXT NOT NULL,
+    trigger_operator TEXT NOT NULL DEFAULT '>',
+    trigger_threshold DOUBLE PRECISION NOT NULL,
+    true_for_seconds INT NOT NULL DEFAULT 0,
+    close_hysteresis DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+    severity TEXT NOT NULL DEFAULT 'WARNING'
+);
+
+CREATE TABLE IF NOT EXISTS event_frame_signatures (
+    sig_id SERIAL PRIMARY KEY,
+    event_id UUID NOT NULL REFERENCES event_frames(event_id),
+    stage_order INT NOT NULL DEFAULT 1,
+    user_id TEXT NOT NULL,
+    signer_full_name TEXT NOT NULL,
+    signer_role TEXT NOT NULL,
+    signature_meaning TEXT NOT NULL,
+    change_reason TEXT NOT NULL,
+    signed_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
+    signature_hash TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS manual_logger_entries (
+    entry_id SERIAL PRIMARY KEY,
+    tag_id INT NOT NULL REFERENCES tags(tag_id),
+    sample_ts TIMESTAMPTZ NOT NULL,
+    val DOUBLE PRECISION NOT NULL,
+    str_val TEXT NOT NULL DEFAULT '',
+    sample_barcode TEXT NOT NULL DEFAULT '',
+    operator_id TEXT NOT NULL,
+    verifier_id TEXT,
+    within_limits BOOLEAN NOT NULL DEFAULT TRUE,
+    notes TEXT NOT NULL DEFAULT '',
+    recorded_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
+);
+
+CREATE TABLE IF NOT EXISTS notification_rules (
+    rule_id SERIAL PRIMARY KEY,
+    rule_name TEXT UNIQUE NOT NULL,
+    event_template_filter TEXT NOT NULL DEFAULT '*',
+    min_severity TEXT NOT NULL DEFAULT 'WARNING',
+    channel_type TEXT NOT NULL DEFAULT 'WEBHOOK',
+    target_endpoint TEXT NOT NULL,
+    escalation_minutes INT NOT NULL DEFAULT 15,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE IF NOT EXISTS notification_deliveries (
+    delivery_id SERIAL PRIMARY KEY,
+    rule_id INT NOT NULL REFERENCES notification_rules(rule_id),
+    event_id UUID NOT NULL REFERENCES event_frames(event_id),
+    channel_type TEXT NOT NULL,
+    target_endpoint TEXT NOT NULL,
+    delivery_status TEXT NOT NULL DEFAULT 'DELIVERED',
+    escalation_triggered BOOLEAN NOT NULL DEFAULT FALSE,
+    dispatched_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
+    payload JSONB NOT NULL DEFAULT '{}'::jsonb
+);
+
 CREATE TABLE IF NOT EXISTS part11_audit_log (
     audit_id BIGSERIAL PRIMARY KEY,
     recorded_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
@@ -130,10 +198,16 @@ BEGIN
     END IF;
 
     v_record_pk := CASE TG_TABLE_NAME
-        WHEN 'asset_templates' THEN v_payload_ref->>'template_id'
-        WHEN 'assets'          THEN v_payload_ref->>'asset_id'
-        WHEN 'tags'            THEN v_payload_ref->>'tag_id'
-        WHEN 'event_frames'    THEN v_payload_ref->>'event_id'
+        WHEN 'asset_templates'        THEN v_payload_ref->>'template_id'
+        WHEN 'assets'                 THEN v_payload_ref->>'asset_id'
+        WHEN 'tags'                   THEN v_payload_ref->>'tag_id'
+        WHEN 'event_frames'           THEN v_payload_ref->>'event_id'
+        WHEN 'digital_state_sets'     THEN v_payload_ref->>'state_set_id'
+        WHEN 'event_frame_templates'  THEN v_payload_ref->>'ef_template_id'
+        WHEN 'event_frame_signatures' THEN v_payload_ref->>'sig_id'
+        WHEN 'manual_logger_entries'  THEN v_payload_ref->>'entry_id'
+        WHEN 'notification_rules'     THEN v_payload_ref->>'rule_id'
+        WHEN 'notification_deliveries' THEN v_payload_ref->>'delivery_id'
         ELSE COALESCE(
             v_payload_ref->>'id',
             v_payload_ref->>'tag_id',
@@ -212,6 +286,36 @@ CREATE TRIGGER trg_part11_audit_event_frames
 AFTER INSERT OR UPDATE OR DELETE ON event_frames
 FOR EACH ROW EXECUTE FUNCTION fn_enforce_part11_audit();
 
+DROP TRIGGER IF EXISTS trg_part11_audit_digital_state_sets ON digital_state_sets;
+CREATE TRIGGER trg_part11_audit_digital_state_sets
+AFTER INSERT OR UPDATE OR DELETE ON digital_state_sets
+FOR EACH ROW EXECUTE FUNCTION fn_enforce_part11_audit();
+
+DROP TRIGGER IF EXISTS trg_part11_audit_event_frame_templates ON event_frame_templates;
+CREATE TRIGGER trg_part11_audit_event_frame_templates
+AFTER INSERT OR UPDATE OR DELETE ON event_frame_templates
+FOR EACH ROW EXECUTE FUNCTION fn_enforce_part11_audit();
+
+DROP TRIGGER IF EXISTS trg_part11_audit_event_frame_signatures ON event_frame_signatures;
+CREATE TRIGGER trg_part11_audit_event_frame_signatures
+AFTER INSERT OR UPDATE OR DELETE ON event_frame_signatures
+FOR EACH ROW EXECUTE FUNCTION fn_enforce_part11_audit();
+
+DROP TRIGGER IF EXISTS trg_part11_audit_manual_logger_entries ON manual_logger_entries;
+CREATE TRIGGER trg_part11_audit_manual_logger_entries
+AFTER INSERT OR UPDATE OR DELETE ON manual_logger_entries
+FOR EACH ROW EXECUTE FUNCTION fn_enforce_part11_audit();
+
+DROP TRIGGER IF EXISTS trg_part11_audit_notification_rules ON notification_rules;
+CREATE TRIGGER trg_part11_audit_notification_rules
+AFTER INSERT OR UPDATE OR DELETE ON notification_rules
+FOR EACH ROW EXECUTE FUNCTION fn_enforce_part11_audit();
+
+DROP TRIGGER IF EXISTS trg_part11_audit_notification_deliveries ON notification_deliveries;
+CREATE TRIGGER trg_part11_audit_notification_deliveries
+AFTER INSERT OR UPDATE OR DELETE ON notification_deliveries
+FOR EACH ROW EXECUTE FUNCTION fn_enforce_part11_audit();
+
 -- 5. 21 CFR Part 11 WORM Immutability Trigger Function
 CREATE OR REPLACE FUNCTION fn_prevent_audit_tampering()
 RETURNS TRIGGER
@@ -277,4 +381,27 @@ INSERT INTO tags (
 
 SELECT setval(pg_get_serial_sequence('tags', 'tag_id'), (SELECT MAX(tag_id) FROM tags));
 
+-- Seed PI Digital State Sets
+INSERT INTO digital_state_sets (state_set_name, states_map, description) VALUES
+    ('Agitator_Mode_States', '{"0": "OFF", "1": "LOW", "2": "HIGH_RUN"}'::jsonb, 'Bioreactor agitator discrete operating states'),
+    ('ISA88_Batch_Phase', '{"0": "IDLE", "1": "CIP_SIP", "2": "MEDIA_CHARGE", "3": "INOCULATION", "4": "GROWTH_PHASE", "5": "HARVEST"}'::jsonb, 'ISA-88 unit procedure phase states'),
+    ('SYSTEM_Digital_States', '{"-1": "No_Data", "-2": "I/O_Timeout", "-3": "Out_Of_Service", "-4": "Over_Range", "-5": "Substituted_Manual"}'::jsonb, 'System-level OPC / PI diagnostic digital states')
+ON CONFLICT (state_set_name) DO NOTHING;
+
+-- Seed PI Event Frame Templates with TrueFor debounce & hysteresis
+INSERT INTO event_frame_templates (
+    template_name, target_attribute, trigger_operator, trigger_threshold, true_for_seconds, close_hysteresis, severity
+) VALUES
+    ('Temp_Excursion_TrueFor_30s', 'Vessel_Temperature', '>', 38.0, 30, 0.2, 'CRITICAL'),
+    ('Cleanroom_DP_Low_Excursion', 'Differential_Pressure', '<', 12.5, 15, 0.5, 'WARNING')
+ON CONFLICT (template_name) DO NOTHING;
+
+-- Seed PI Notification Rule
+INSERT INTO notification_rules (
+    rule_name, event_template_filter, min_severity, channel_type, target_endpoint, escalation_minutes, is_active
+) VALUES
+    ('QA_Critical_Excursion_Webhook', '*', 'CRITICAL', 'WEBHOOK', 'https://qa-alerts.biocorp.internal/api/v1/gxp-incidents', 15, TRUE)
+ON CONFLICT (rule_name) DO NOTHING;
+
 COMMIT;
+

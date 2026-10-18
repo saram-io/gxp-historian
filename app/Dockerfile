@@ -11,6 +11,7 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY gxp_ai_agent.py /app/gxp_ai_agent.py
 COPY mcp_server.py /app/mcp_server.py
+COPY pi_parity_engine.py /app/pi_parity_engine.py
 COPY main.py /app/main.py
 RUN mkdir -p /app/exports
 
