@@ -1,0 +1,42 @@
+<!-- ==========================================================================
+     deploy/hybrid-cloud/clickhouse-tiered-storage/azure_blob_worm.xml
+     ClickHouse 10-Year Local NVMe + 15-Year Azure Immutable Blob Storage (WORM)
+     Mount at: /etc/clickhouse-server/config.d/tiered_storage.xml
+     ========================================================================== -->
+<clickhouse>
+  <storage_configuration>
+    <disks>
+      <!-- Hot Tier: On-Premises NVMe RAID or Azure Lsv3 NVMe / Premium SSD v2 (Years 0-10) -->
+      <hot_nvme>
+        <path>/var/lib/clickhouse/</path>
+        <keep_free_space_bytes>1099511627776</keep_free_space_bytes> <!-- 1 TB safety reserve -->
+      </hot_nvme>
+
+      <!-- Cold WORM Tier: Azure Blob Storage with Locked Time-Based Retention Policy (Years 10-15) -->
+      <cold_worm_azure>
+        <type>azure_blob_storage</type>
+        <storage_account_url>https://biocorpgxpworm15yr.blob.core.windows.net</storage_account_url>
+        <container_name>gxphistorian-telemetry-worm</container_name>
+        <!-- Uses Azure Managed Identity in Azure or Account Key from On-Premises -->
+        <use_managed_identity>true</use_managed_identity>
+        <metadata_path>/var/lib/clickhouse/disks/cold_worm_azure/</metadata_path>
+        <cache_enabled>true</cache_enabled>
+        <data_cache_max_size>107374182400</data_cache_max_size> <!-- 100 GB local NVMe read cache -->
+      </cold_worm_azure>
+    </disks>
+
+    <policies>
+      <gxp_10yr_nvme_15yr_worm>
+        <volumes>
+          <hot_volume>
+            <disk>hot_nvme</disk>
+          </hot_volume>
+          <cold_volume>
+            <disk>cold_worm_azure</disk>
+          </cold_volume>
+        </volumes>
+        <move_factor>0.2</move_factor>
+      </gxp_10yr_nvme_15yr_worm>
+    </policies>
+  </storage_configuration>
+</clickhouse>

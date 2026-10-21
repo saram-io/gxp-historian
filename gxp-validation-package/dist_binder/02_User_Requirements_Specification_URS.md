@@ -1,6 +1,6 @@
 # Document 02 — User Requirements Specification (URS)
 
-**Document ID:** `URS-GXPHISTORIAN-2026-002` | **Generated (UTC):** `2026-10-18T21:33:54Z` | **Total Requirements:** `21`
+**Document ID:** `URS-GXPHISTORIAN-2026-002` | **Generated (UTC):** `2026-10-21T00:47:02Z` | **Total Requirements:** `21`
 
 ## 1. Formal User Requirements Catalog (URS-001 to URS-021)
 

@@ -119,3 +119,19 @@ On initial startup, `init-postgres/01_control_plane_part11.sql` seeds the ISA-95
    .venv/bin/pytest -v
    ```
 
+---
+
+## Step 4: Optional Hybrid Cloud Deployment (AWS, Microsoft Azure & Google Cloud)
+
+To deploy GxPHistorian in a hybrid OT + Cloud topology (keeping `edge-collector` at Purdue Level 2.5 on-premises while running 15-Year WORM Object Lock storage, Zero-ETL Parquet Lakehouses, or Managed PostgreSQL 16 + ClickHouse in **AWS**, **Microsoft Azure**, or **Google Cloud**):
+
+```bash
+# 1. Inspect validated hybrid cloud blueprints & WORM XML policies via REST API
+curl -s "http://localhost:8020/api/v1/cloud/hybrid-blueprints?provider=aws&pattern=pattern_b_cloud_core" | jq .
+
+# 2. Or launch the Thin Purdue Level 2.5 Edge Collector stack (Pattern B) streaming over HTTPS/mTLS (:8443)
+docker compose -f deploy/hybrid-cloud/docker-compose.edge-only.yml config
+```
+
+See the **[Hybrid Cloud Deployment Guide (AWS, Azure & GCP)](/docs/architecture/hybrid-cloud-deployment/)** for step-by-step cloud walkthroughs.
+

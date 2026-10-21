@@ -96,6 +96,14 @@ const biopharmaFiles = [
       'Hardware sizing, compression math, 10k–25k tag clinical/pilot GMP reference Bill of Materials (BOM), 10-year NVMe + 15-year S3 WORM tiering, and Level 2.5 Industrial Edge IPC specs.',
   },
   {
+    src: 'docs/HYBRID_CLOUD_DEPLOYMENT_AWS_AZURE_GCP.md',
+    dest: 'src/content/docs/docs/architecture/hybrid-cloud-deployment.md',
+    slug: '/docs/architecture/hybrid-cloud-deployment/',
+    fileName: 'HYBRID_CLOUD_DEPLOYMENT_AWS_AZURE_GCP.md',
+    description:
+      'Hybrid OT + Cloud deployment architectures for AWS, Microsoft Azure, and Google Cloud (GCP): 3 hybrid topologies, 15-year WORM S3/Blob/GCS object lock, Managed PostgreSQL 16, Private AI endpoints, and Zero-ETL Lakehouse integration.',
+  },
+  {
     src: 'docs/CONNECTORS_AND_PROTOCOLS_ENCYCLOPEDIA.md',
     dest: 'src/content/docs/docs/connectors/overview.md',
     slug: '/docs/connectors/overview/',

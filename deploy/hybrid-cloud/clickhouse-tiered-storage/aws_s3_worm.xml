@@ -1,0 +1,42 @@
+<!-- ==========================================================================
+     deploy/hybrid-cloud/clickhouse-tiered-storage/aws_s3_worm.xml
+     ClickHouse 10-Year Local NVMe + 15-Year AWS S3 Object Lock (COMPLIANCE Mode)
+     Mount at: /etc/clickhouse-server/config.d/tiered_storage.xml
+     ========================================================================== -->
+<clickhouse>
+  <storage_configuration>
+    <disks>
+      <!-- Hot Tier: On-Premises NVMe RAID or AWS EC2 Nitro NVMe / EBS gp3 (Years 0-10) -->
+      <hot_nvme>
+        <path>/var/lib/clickhouse/</path>
+        <keep_free_space_bytes>1099511627776</keep_free_space_bytes> <!-- 1 TB safety reserve -->
+      </hot_nvme>
+
+      <!-- Cold WORM Tier: Amazon S3 with S3 Object Lock in COMPLIANCE Mode (Years 10-15) -->
+      <cold_worm_s3>
+        <type>s3</type>
+        <endpoint>https://s3.us-east-1.amazonaws.com/biocorp-gxphistorian-worm-15yr/telemetry/</endpoint>
+        <!-- Uses IAM Role / IRSA in AWS or IAM Anywhere / Access Keys from On-Premises -->
+        <use_environment_credentials>true</use_environment_credentials>
+        <server_side_encryption_customer_key_base64 from_env="AWS_S3_SSE_KMS_KEY_ID" />
+        <metadata_path>/var/lib/clickhouse/disks/cold_worm_s3/</metadata_path>
+        <cache_enabled>true</cache_enabled>
+        <data_cache_max_size>107374182400</data_cache_max_size> <!-- 100 GB local NVMe read cache -->
+      </cold_worm_s3>
+    </disks>
+
+    <policies>
+      <gxp_10yr_nvme_15yr_worm>
+        <volumes>
+          <hot_volume>
+            <disk>hot_nvme</disk>
+          </hot_volume>
+          <cold_volume>
+            <disk>cold_worm_s3</disk>
+          </cold_volume>
+        </volumes>
+        <move_factor>0.2</move_factor>
+      </gxp_10yr_nvme_15yr_worm>
+    </policies>
+  </storage_configuration>
+</clickhouse>

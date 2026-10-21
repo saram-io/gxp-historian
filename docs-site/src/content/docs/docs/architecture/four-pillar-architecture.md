@@ -137,3 +137,15 @@ Pillar 3 combines **PostgreSQL 16** (`ltree`, `btree_gist`, `pgcrypto`) and the 
 - **Grafana OSS 11.2 (`grafana-vision`):** Auto-provisioned with ClickHouse and PostgreSQL datasources and the **GxPHistorian GxP Bioreactor & Cleanroom HMI** dashboard (`gxphistorian_bioreactor_hmi.json`).
 - **GxPHistorian DataLink for Microsoft Excel & StreamSets:** Provides zero-plugin native Excel Power Query CSV streams, bulk multi-tag StreamSets (`/api/v1/streamsets/end`, `/api/v1/streamsets/interpolated`), and all 8 `xlwings` worksheet functions (`=GXPHISTORIAN_SAMPLED`, `=GXPHISTORIAN_PLOT_VALUES`, `=GXPHISTORIAN_EVENT_SUMMARY`, `=GXPHISTORIAN_CURRENT_VALUE`, `=GXPHISTORIAN_ARCHIVE_VALUE`, `=GXPHISTORIAN_COMPRESSED_DATA`, `=GXPHISTORIAN_CALCULATED_DATA`, `=GXPHISTORIAN_TIME_FILTER`).
 - **Zero-ETL Apache Parquet Lakehouse Exporter:** Exports Snappy-compressed `.parquet` files enriched with ISA-95 `asset_path` and `eng_units` for downstream AI/ML and MSAT analytics.
+
+---
+
+## 6. Hybrid OT + Cloud Deployment Topologies (AWS, Microsoft Azure & Google Cloud)
+
+Because GxPHistorian cleanly decouples Pillar 1 (`edge-collector`) from Pillars 2, 3, and 4, regulated manufacturing plants can split the stack across on-premises cleanroom networks and **AWS**, **Microsoft Azure**, or **Google Cloud (GCP)** in three selectable topologies:
+
+1. **Pattern A (Thick Plant Core + Cloud 15-Year WORM & Lakehouse):** Pillars 1–4 run on-premises in Purdue Levels 2.5/3 for zero-WAN-dependency local HMIs and `§11.200` e-signatures, while ClickHouse tiers aged partitions (`TTL ... TO VOLUME 'cold_volume'`) into **AWS S3 Object Lock (`COMPLIANCE`)**, **Azure Immutable Blob Storage**, or **Google Cloud Storage Bucket Lock** (`deploy/hybrid-cloud/clickhouse-tiered-storage/*.xml`) and exports Parquet to **Athena**, **Microsoft Fabric**, or **BigQuery BigLake**.
+2. **Pattern B (Thin Plant Edge + Cloud Historian Core):** Only Pillar 1 (`edge-collector` with a 100 GB local Disk WAL for $>14\text{ days}$ of offline autonomy) runs at the plant edge (`deploy/hybrid-cloud/docker-compose.edge-only.yml`), streaming outbound over HTTPS/mTLS (`:8443`) to ClickHouse, Managed PostgreSQL 16 (`Amazon RDS`, `Azure Flexible Server`, `Cloud SQL` with `PG_SSLMODE=verify-full`), `historian-api`, and `gxphistorian-mcp` inside your cloud VPC/VNet.
+3. **Pattern C (Multi-Site Hub & Spoke Federation):** Full Pillars 1–4 per manufacturing site plus Telegraf dual-write (`deploy/hybrid-cloud/telegraf-hybrid-dualwrite.conf`) feeding a global cloud aggregator for cross-site Golden Batch comparisons (`/api/v1/batches/compare`) and private cloud AI investigations (`Amazon Bedrock`, `Azure OpenAI`, `Google Vertex AI`).
+
+See the full **[Hybrid Cloud Deployment Guide (AWS, Azure & GCP)](/docs/architecture/hybrid-cloud-deployment/)** or query `GET /api/v1/cloud/hybrid-blueprints` for ready-to-apply configurations.

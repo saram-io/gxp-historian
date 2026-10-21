@@ -416,6 +416,9 @@ curl -s -X POST http://localhost:8020/api/v1/notifications/sms-webhook \
 
 # 7. Inspect Audit-Logged Deliveries (Filterable by EMAIL, SMS, MOBILE_PUSH, WEBHOOK)
 curl -s "http://localhost:8020/api/v1/notifications/deliveries?channel=SMS" | jq .
+
+# 8. Retrieve Validated Hybrid Cloud Deployment Blueprints (AWS, Azure & Google Cloud)
+curl -s "http://localhost:8020/api/v1/cloud/hybrid-blueprints?provider=aws&pattern=pattern_b_cloud_core" | jq .
 ```
 
 For a comprehensive deep-dive into AVEVA PI System alerting architecture and `GxPHistorian` multi-channel setup, see **[PI Notifications: Email, SMS & Mobile Alerting](/docs/clients-and-api/pi-notifications-alerting/)**.

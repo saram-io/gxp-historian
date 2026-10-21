@@ -1,0 +1,40 @@
+# =============================================================================
+# deploy/hybrid-cloud/docker-compose.edge-only.yml
+# Pattern B: Thin Plant Edge Collector (Purdue Level 2.5 Industrial DMZ)
+# Deploys ONLY Pillar 1 (edge-collector) on-premises with a 100 GB persistent
+# disk-backed Write-Ahead Log (/var/lib/telegraf/buffer, >14-day autonomy)
+# streaming outbound over HTTPS/mTLS (:8443) to AWS, Azure, or Google Cloud.
+# =============================================================================
+
+services:
+  edge-collector:
+    build:
+      context: ../../edge-collector
+      dockerfile: Dockerfile
+    container_name: gxphistorian-edge-collector
+    restart: unless-stopped
+    environment:
+      CH_USER: ${CH_USER:-historian_admin}
+      CH_PASSWORD: ${CH_PASSWORD:?Set CH_PASSWORD in .env for cloud ClickHouse authentication}
+      CH_DB: ${CH_DB:-pi_historian}
+      # Point to AWS PrivateLink, Azure Private Link, or GCP Private Service Connect ClickHouse endpoint:
+      CH_INGEST_URL: ${CH_INGEST_URL:-https://clickhouse-internal.biocorp.cloud.internal:8443/?query=INSERT%20INTO%20pi_historian.sensor_data%20FORMAT%20JSONEachRow}
+    ports:
+      - "${EDGE_INGEST_PORT:-8080}:8080"
+    volumes:
+      - telegraf_edge_wal:/var/lib/telegraf/buffer
+      - ./certs:/etc/telegraf/certs:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep telegraf || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ot-dmz-net
+
+volumes:
+  telegraf_edge_wal:
+
+networks:
+  ot-dmz-net:
+    driver: bridge

@@ -1,0 +1,41 @@
+<!-- ==========================================================================
+     deploy/hybrid-cloud/clickhouse-tiered-storage/gcp_gcs_worm.xml
+     ClickHouse 10-Year Local NVMe + 15-Year Google Cloud Storage Bucket Lock
+     Mount at: /etc/clickhouse-server/config.d/tiered_storage.xml
+     ========================================================================== -->
+<clickhouse>
+  <storage_configuration>
+    <disks>
+      <!-- Hot Tier: On-Premises NVMe RAID or GCP Local Titanium SSD / Hyperdisk (Years 0-10) -->
+      <hot_nvme>
+        <path>/var/lib/clickhouse/</path>
+        <keep_free_space_bytes>1099511627776</keep_free_space_bytes> <!-- 1 TB safety reserve -->
+      </hot_nvme>
+
+      <!-- Cold WORM Tier: Google Cloud Storage with Locked Retention Policy (Years 10-15) -->
+      <cold_worm_gcs>
+        <type>s3</type>
+        <endpoint>https://storage.googleapis.com/biocorp-gxphistorian-worm-15yr/telemetry/</endpoint>
+        <access_key_id from_env="GCS_HMAC_ACCESS_KEY_ID" />
+        <secret_access_key from_env="GCS_HMAC_SECRET_ACCESS_KEY" />
+        <metadata_path>/var/lib/clickhouse/disks/cold_worm_gcs/</metadata_path>
+        <cache_enabled>true</cache_enabled>
+        <data_cache_max_size>107374182400</data_cache_max_size> <!-- 100 GB local NVMe read cache -->
+      </cold_worm_gcs>
+    </disks>
+
+    <policies>
+      <gxp_10yr_nvme_15yr_worm>
+        <volumes>
+          <hot_volume>
+            <disk>hot_nvme</disk>
+          </hot_volume>
+          <cold_volume>
+            <disk>cold_worm_gcs</disk>
+          </cold_volume>
+        </volumes>
+        <move_factor>0.2</move_factor>
+      </gxp_10yr_nvme_15yr_worm>
+    </policies>
+  </storage_configuration>
+</clickhouse>

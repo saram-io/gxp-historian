@@ -133,10 +133,15 @@ clickhouse-historian/
 │   └── dashboards/
 │       ├── dashboards.yml                            # Dashboard provider configuration
 │       └── gxphistorian_bioreactor_hmi.json          # Asset-relative Bioreactor & Cleanroom HMI dashboard
+├── deploy/hybrid-cloud/
+│   ├── docker-compose.edge-only.yml                  # Pattern B: Thin Purdue L2.5 Edge Collector streaming over HTTPS/mTLS
+│   ├── telegraf-hybrid-dualwrite.conf                # Pattern C: Multi-Site Hub & Spoke dual-write (Local L3 + Cloud Hub)
+│   └── clickhouse-tiered-storage/                    # 15-Year WORM XML policies (aws_s3_worm.xml, azure_blob_worm.xml, gcp_gcs_worm.xml)
 ├── docs/
 │   ├── images/photos/                                # 9 high-res photorealistic instrument & connector product galleries
 │   ├── images/instruments/                           # 10 SVG visual equipment, rear-panel connector & wiring guides
-│   ├── images/connectors/                            # 7 SVG physical pinout, protocol packet, state-machine & multi-channel alerting diagrams
+│   ├── images/connectors/                            # 8 SVG physical pinout, protocol packet, alerting & hybrid cloud diagrams
+│   ├── HYBRID_CLOUD_DEPLOYMENT_AWS_AZURE_GCP.md      # Hybrid OT + Cloud Deployment Guide (AWS, Microsoft Azure & Google Cloud)
 │   ├── PI_NOTIFICATIONS_ALERTING_EMAIL_SMS_MOBILE.md # AVEVA PI Notifications Deep Dive & Multi-Channel Email, SMS & Mobile Alerting Guide
 │   ├── PYDANTIC_AI_COPILOT_AND_MCP_SERVER.md         # Pydantic AI GxP Co-Pilot & gxphistorian-mcp Server Guide
 │   ├── MOCK_INSTRUMENT_SERVER_TESTING_GUIDE.md       # Multi-Protocol Biopharma Instrument Mock Server & Testing Guide
@@ -206,6 +211,7 @@ clickhouse-historian/
 | [docs/LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md](docs/LEGACY_PROTOCOLS_BACNET_OPCDA_MODBUS_S7.md) | **Legacy Fieldbus, BMS & PLC Protocols:** `BACnet/IP & MS/TP` (`DNET:DADR` routing & BBMD), Windows COM/DCOM `OPC DA 2.05a` zero-DCOM bridge, `Modbus RTU/TCP` (`ABCD`/`CDAB` endianness & scaling), Siemens `S7comm` (S7-300/400 autoclaves + Helmholz NETLink adapter), and `4–20 mA HART` multiplexers. |
 | [docs/LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md](docs/LEGACY_SERIAL_RS232_AND_PI_UFL_REPLACEMENT.md) | **Legacy RS-232 Serial & PI UFL Flat-File Replacement:** Moxa NPort 5150 TCP serial streaming for Mettler Toledo / Sartorius `MT-SICS` analytical balances and Advanced Instruments osmometers, plus ALCOA+ SHA-256 watchfolder ingestion for Sartocheck® / Palltronic® filter integrity testers. |
 | [docs/HARDWARE_SIZING_AND_CAPACITY_PLANNING.md](docs/HARDWARE_SIZING_AND_CAPACITY_PLANNING.md) | **Hardware Sizing & Capacity Planning:** Compression math (`1.5–2.5 B/sample`), 10k–25k tag clinical/pilot GMP reference BOM, 10-year NVMe + 15-year S3 WORM tiering, and Level 2.5 Industrial Edge IPC specs. |
+| [docs/HYBRID_CLOUD_DEPLOYMENT_AWS_AZURE_GCP.md](docs/HYBRID_CLOUD_DEPLOYMENT_AWS_AZURE_GCP.md) | **Hybrid Cloud Deployment (AWS, Azure & Google Cloud):** 3 selectable hybrid OT/Cloud topologies, 15-year WORM (`S3 Object Lock`, `Azure Immutable Blob`, `GCS Bucket Lock`), Managed PostgreSQL 16 (`RDS`, `Azure Flexible Server`, `Cloud SQL`), Private AI (`Bedrock`, `Azure OpenAI`, `Vertex AI`), and Zero-ETL Lakehouses (`Athena`, `Fabric`, `BigQuery`). |
 
 ---
 

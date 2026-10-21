@@ -807,6 +807,24 @@ def test_oq_16_swinging_door_truefor_backfill_multisig_and_notifications(
     assert "operator_01" in signers
     assert "qa_approver_01" in signers
 
+    # 5. Hybrid Cloud Deployment Blueprints (AWS, Azure & Google Cloud)
+    cloud_resp = api_client.get("/api/v1/cloud/hybrid-blueprints")
+    assert cloud_resp.status_code == 200
+    cloud_data = cloud_resp.json()
+    assert set(cloud_data["providers"].keys()) == {"aws", "azure", "gcp"}
+    assert set(cloud_data["patterns"].keys()) == {
+        "pattern_a_worm_lakehouse",
+        "pattern_b_cloud_core",
+        "pattern_c_hub_spoke",
+    }
+    aws_bp = api_client.get(
+        "/api/v1/cloud/hybrid-blueprints",
+        params={"provider": "aws", "pattern": "pattern_b_cloud_core"},
+    )
+    assert aws_bp.status_code == 200
+    assert "aws" in aws_bp.json()["providers"]
+    assert "<cold_worm_s3>" in aws_bp.json()["providers"]["aws"]["clickhouse_worm_storage_xml"]
+
     evidence.record(
         assertion_summary=(
             f"Verified Stage 2 Swinging Door compression ({sdt_data['compression_ratio_pct']}% reduction), "

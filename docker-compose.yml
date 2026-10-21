@@ -90,6 +90,7 @@ services:
       CH_USER: ${CH_USER:-historian_admin}
       CH_PASSWORD: ${CH_PASSWORD:-GxP_Ch_Secret_2026!}
       CH_DB: ${CH_DB:-pi_historian}
+      CH_INGEST_URL: ${CH_INGEST_URL:-http://clickhouse-archive:8123/?query=INSERT%20INTO%20pi_historian.sensor_data%20FORMAT%20JSONEachRow}
       MOCK_SERVER_URL: http://instrument-mock-server:8095
     ports:
       - "${EDGE_INGEST_PORT:-8080}:8080"
@@ -115,11 +116,14 @@ services:
       PG_USER: ${PG_USER:-historian_admin}
       PG_PASSWORD: ${PG_PASSWORD:-GxP_Pg_Secret_2026!}
       PG_DB: ${PG_DB:-pi_control_plane}
+      PG_SSLMODE: ${PG_SSLMODE:-}
       CH_HOST: clickhouse-archive
       CH_PORT_INTERNAL: 8123
       CH_USER: ${CH_USER:-historian_admin}
       CH_PASSWORD: ${CH_PASSWORD:-GxP_Ch_Secret_2026!}
       CH_DB: ${CH_DB:-pi_historian}
+      CH_SECURE: ${CH_SECURE:-false}
+      CH_VERIFY: ${CH_VERIFY:-true}
       ESIG_SECRET_KEY: ${ESIG_SECRET_KEY:-Part11_Hmac_Key_2026!}
       EXPORT_DIR: /app/exports
       MCP_PORT: ${MCP_PORT:-8030}
@@ -163,11 +167,14 @@ services:
       PG_USER: ${PG_USER:-historian_admin}
       PG_PASSWORD: ${PG_PASSWORD:-GxP_Pg_Secret_2026!}
       PG_DB: ${PG_DB:-pi_control_plane}
+      PG_SSLMODE: ${PG_SSLMODE:-}
       CH_HOST: clickhouse-archive
       CH_PORT_INTERNAL: 8123
       CH_USER: ${CH_USER:-historian_admin}
       CH_PASSWORD: ${CH_PASSWORD:-GxP_Ch_Secret_2026!}
       CH_DB: ${CH_DB:-pi_historian}
+      CH_SECURE: ${CH_SECURE:-false}
+      CH_VERIFY: ${CH_VERIFY:-true}
       ESIG_SECRET_KEY: ${ESIG_SECRET_KEY:-Part11_Hmac_Key_2026!}
       EXPORT_DIR: /app/exports
       MCP_PORT: ${MCP_PORT:-8030}

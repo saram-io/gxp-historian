@@ -44,12 +44,15 @@ PG_PORT = int(os.getenv("PG_PORT_INTERNAL", "5432"))
 PG_USER = os.getenv("PG_USER", "historian_admin")
 PG_PASSWORD = os.getenv("PG_PASSWORD", "GxP_Pg_Secret_2026!")
 PG_DB = os.getenv("PG_DB", "pi_control_plane")
+PG_SSLMODE = os.getenv("PG_SSLMODE", "").strip()
 
 CH_HOST = os.getenv("CH_HOST", "clickhouse-archive")
 CH_PORT = int(os.getenv("CH_PORT_INTERNAL", "8123"))
 CH_USER = os.getenv("CH_USER", "historian_admin")
 CH_PASSWORD = os.getenv("CH_PASSWORD", "GxP_Ch_Secret_2026!")
 CH_DB = os.getenv("CH_DB", "pi_historian")
+CH_SECURE = os.getenv("CH_SECURE", "false").strip().lower() in ("1", "true", "yes")
+CH_VERIFY = os.getenv("CH_VERIFY", "true").strip().lower() in ("1", "true", "yes")
 
 ESIG_SECRET_KEY = os.getenv("ESIG_SECRET_KEY", "Part11_Hmac_Key_2026!")
 _DEFAULT_EXPORT_DIR = (
@@ -62,15 +65,18 @@ EXPORT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def get_pg_conn() -> psycopg.Connection[Dict[str, Any]]:
-    return psycopg.connect(
-        host=PG_HOST,
-        port=PG_PORT,
-        user=PG_USER,
-        password=PG_PASSWORD,
-        dbname=PG_DB,
-        row_factory=dict_row,
-        autocommit=False,
-    )
+    conn_kwargs: Dict[str, Any] = {
+        "host": PG_HOST,
+        "port": PG_PORT,
+        "user": PG_USER,
+        "password": PG_PASSWORD,
+        "dbname": PG_DB,
+        "row_factory": dict_row,
+        "autocommit": False,
+    }
+    if PG_SSLMODE:
+        conn_kwargs["sslmode"] = PG_SSLMODE
+    return psycopg.connect(**conn_kwargs)
 
 
 def get_ch_client() -> Any:
@@ -80,6 +86,8 @@ def get_ch_client() -> Any:
         username=CH_USER,
         password=CH_PASSWORD,
         database=CH_DB,
+        secure=CH_SECURE,
+        verify=CH_VERIFY,
     )
 
 

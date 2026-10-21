@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" width="100%" height="auto" font-family="'Roboto Mono', monospace">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1120"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrowAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="720" rx="14" fill="url(#bgGrad)" stroke="#334155" stroke-width="2"/>
+
+  <!-- Header Banner -->
+  <rect x="20" y="18" width="1160" height="54" rx="8" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+  <text x="40" y="42" fill="#f8fafc" font-size="16" font-weight="700">GxPHistorian Hybrid OT + Cloud Deployment Architecture (AWS · Microsoft Azure · Google Cloud)</text>
+  <text x="40" y="61" fill="#94a3b8" font-size="11">Purdue Level 1–2.5 On-Premises Store-and-Forward Edge  |  3 Selectable Hybrid Topologies  |  21 CFR Part 11 WORM Cloud Storage &amp; Zero-ETL Lakehouse</text>
+
+  <!-- ===================================================================== -->
+  <!-- COLUMN 1: ON-PREMISES cGMP PLANT (PURDUE LEVELS 1 - 2.5 / 3)          -->
+  <!-- ===================================================================== -->
+  <rect x="20" y="88" width="350" height="610" rx="10" fill="#0f172a" stroke="#10b981" stroke-width="2"/>
+  <rect x="20" y="88" width="350" height="34" rx="10" fill="#064e3b"/>
+  <text x="195" y="110" text-anchor="middle" fill="#ecfdf5" font-size="12" font-weight="700">ON-PREMISES cGMP PLANT (PURDUE L1–L3)</text>
+
+  <!-- Level 1/2 Cleanroom Skids -->
+  <rect x="36" y="136" width="318" height="142" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+  <text x="48" y="156" fill="#34d399" font-size="10.5" font-weight="700">Purdue Level 1/2: Cleanroom Skids &amp; Instruments</text>
+  <text x="48" y="176" fill="#e2e8f0" font-size="9">• Bioreactors &amp; Chrom: OPC UA (:4840) / S7comm (:102)</text>
+  <text x="48" y="194" fill="#e2e8f0" font-size="9">• UNICORN 7 &amp; DeltaV: Windows OPC DA Localhost Sidecar</text>
+  <text x="48" y="212" fill="#e2e8f0" font-size="9">• Cleanroom EMS &amp; Counters: BACnet/IP (:47808) &amp; Modbus</text>
+  <text x="48" y="230" fill="#e2e8f0" font-size="9">• Balances &amp; Filter Testers: RS-232 (:4001) &amp; SHA-256 UFL</text>
+  <rect x="50" y="244" width="290" height="22" rx="4" fill="#065f46"/>
+  <text x="195" y="259" text-anchor="middle" fill="#a7f3d0" font-size="9" font-weight="700">Air-Gapped OT VLAN (Zero Direct Internet Routing)</text>
+
+  <!-- Arrow L1/2 to L2.5 -->
+  <line x1="195" y1="278" x2="195" y2="306" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+
+  <!-- Level 2.5 Industrial DMZ Edge Collector -->
+  <rect x="36" y="308" width="318" height="184" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+  <text x="48" y="328" fill="#6ee7b7" font-size="10.5" font-weight="700">Purdue Level 2.5: Pillar 1 (edge-collector)</text>
+  <text x="48" y="346" fill="#cbd5e1" font-size="8.8">Fanless DIN-Rail IPC / DMZ VM / Outposts / Azure Local</text>
+  <rect x="48" y="356" width="294" height="54" rx="6" fill="#0f172a" stroke="#475569"/>
+  <text x="58" y="374" fill="#38bdf8" font-size="9.5" font-weight="700">1. Stage 1 ExcDev + Stage 2 Swinging Door</text>
+  <text x="58" y="390" fill="#94a3b8" font-size="8.8">65–80% noise suppression; preserves quality &gt;= 192</text>
+  <text x="58" y="403" fill="#94a3b8" font-size="8.8">Canonical tuple: (tag_id, ts, val, str_val, quality)</text>
+
+  <rect x="48" y="418" width="294" height="62" rx="6" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="58" y="436" fill="#fbbf24" font-size="9.5" font-weight="700">2. 100 GB Telegraf Disk WAL (URS-005)</text>
+  <text x="58" y="452" fill="#e2e8f0" font-size="8.8">/var/lib/telegraf/buffer (pSLC Industrial NVMe)</text>
+  <text x="58" y="468" fill="#fde68a" font-size="8.8" font-weight="700">&gt;14 Days Zero-Data-Loss Offline WAN Autonomy</text>
+
+  <!-- Arrow L2.5 to Optional On-Prem L3 Core -->
+  <line x1="195" y1="492" x2="195" y2="520" stroke="#10b981" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowGreen)"/>
+
+  <!-- Optional On-Prem Level 3 Core (Patterns A & C) -->
+  <rect x="36" y="522" width="318" height="160" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="48" y="542" fill="#38bdf8" font-size="10.2" font-weight="700">Purdue Level 3: Local Plant Core (Patterns A &amp; C)</text>
+  <text x="48" y="560" fill="#e2e8f0" font-size="9">• clickhouse-archive (10-Yr Local NVMe Hot Tier)</text>
+  <text x="48" y="577" fill="#e2e8f0" font-size="9">• postgres-control (ISA-95 ltree + SHA-256 WORM Log)</text>
+  <text x="48" y="594" fill="#e2e8f0" font-size="9">• historian-api + gxphistorian-mcp (:8020 / :8030)</text>
+  <text x="48" y="611" fill="#e2e8f0" font-size="9">• grafana-vision Cleanroom HMI (:3020) + Excel DataLink</text>
+  <rect x="48" y="624" width="294" height="44" rx="5" fill="#0f172a" stroke="#334155"/>
+  <text x="195" y="642" text-anchor="middle" fill="#7dd3fc" font-size="8.8" font-weight="700">100% Autonomous Local Batch Execution &amp; E-Signatures</text>
+  <text x="195" y="658" text-anchor="middle" fill="#94a3b8" font-size="8.5">Optional in Pattern B (Thin Edge -&gt; Cloud Core)</text>
+
+  <!-- ===================================================================== -->
+  <!-- COLUMN 2: HYBRID TOPOLOGY SELECTOR & PRIVATE WAN BOUNDARY             -->
+  <!-- ===================================================================== -->
+  <rect x="394" y="88" width="268" height="610" rx="10" fill="#0f172a" stroke="#475569" stroke-width="1.5"/>
+  <rect x="394" y="88" width="268" height="34" rx="10" fill="#1e293b"/>
+  <text x="528" y="110" text-anchor="middle" fill="#f8fafc" font-size="12" font-weight="700">3 HYBRID DEPLOYMENT PATTERNS</text>
+
+  <!-- Pattern B Box -->
+  <rect x="408" y="138" width="240" height="145" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="1.5"/>
+  <text x="420" y="158" fill="#34d399" font-size="10.5" font-weight="700">Pattern B: Thin Edge + Cloud Core</text>
+  <text x="420" y="176" fill="#e2e8f0" font-size="9.5">• On-Prem: Pillar 1 (edge-collector)</text>
+  <text x="420" y="192" fill="#e2e8f0" font-size="9.5">• Cloud: Pillars 2, 3 &amp; 4 in VPC/VNet</text>
+  <text x="420" y="210" fill="#94a3b8" font-size="9">Outbound HTTPS/mTLS (:8443)</text>
+  <text x="420" y="225" fill="#94a3b8" font-size="9">CH_INGEST_URL -&gt; Cloud ClickHouse</text>
+  <text x="420" y="240" fill="#94a3b8" font-size="9">PG_SSLMODE=verify-full -&gt; Managed PG</text>
+  <rect x="420" y="252" width="216" height="20" rx="4" fill="#064e3b"/>
+  <text x="528" y="266" text-anchor="middle" fill="#a7f3d0" font-size="9" font-weight="700">Zero On-Prem Database Servers</text>
+
+  <!-- Pattern C Box -->
+  <rect x="408" y="302" width="240" height="150" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="420" y="322" fill="#fbbf24" font-size="10.5" font-weight="700">Pattern C: Multi-Site Hub &amp; Spoke</text>
+  <text x="420" y="340" fill="#e2e8f0" font-size="9.5">• On-Prem: Full Pillars 1–4 per site</text>
+  <text x="420" y="356" fill="#e2e8f0" font-size="9.5">• Cloud: Global Enterprise Hub</text>
+  <text x="420" y="374" fill="#94a3b8" font-size="9">Telegraf Dual [[outputs.http]]:</text>
+  <text x="420" y="389" fill="#94a3b8" font-size="9">1) Local Plant ClickHouse (:8123)</text>
+  <text x="420" y="404" fill="#94a3b8" font-size="9">2) Cloud Hub ClickHouse (:8443 mTLS)</text>
+  <rect x="420" y="420" width="216" height="20" rx="4" fill="#78350f"/>
+  <text x="528" y="434" text-anchor="middle" fill="#fde68a" font-size="9" font-weight="700">Cross-Site Golden Batch &amp; AI</text>
+
+  <!-- Pattern A Box -->
+  <rect x="408" y="470" width="240" height="150" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>
+  <text x="420" y="490" fill="#38bdf8" font-size="10.5" font-weight="700">Pattern A: Thick Plant + Cloud WORM</text>
+  <text x="420" y="508" fill="#e2e8f0" font-size="9.5">• On-Prem: Full Pillars 1–4 in L3</text>
+  <text x="420" y="524" fill="#e2e8f0" font-size="9.5">• Cloud: 15-Yr WORM + Lakehouse</text>
+  <text x="420" y="542" fill="#94a3b8" font-size="9">ClickHouse TTL TO VOLUME 'cold_worm'</text>
+  <text x="420" y="557" fill="#94a3b8" font-size="9">pgBackRest Encrypted PITR WAL</text>
+  <text x="420" y="572" fill="#94a3b8" font-size="9">/api/v1/lakehouse/export-parquet</text>
+  <rect x="420" y="588" width="216" height="20" rx="4" fill="#0c4a6e"/>
+  <text x="528" y="602" text-anchor="middle" fill="#bae6fd" font-size="9" font-weight="700">21 CFR 211.180 15-Yr WORM Tier</text>
+
+  <!-- Private WAN Footer -->
+  <rect x="408" y="634" width="240" height="50" rx="6" fill="#090d16" stroke="#64748b"/>
+  <text x="528" y="653" text-anchor="middle" fill="#f8fafc" font-size="9.5" font-weight="700">21 CFR §11.30 Open System Transit</text>
+  <text x="528" y="670" text-anchor="middle" fill="#94a3b8" font-size="8.5">Direct Connect · ExpressRoute · Interconnect</text>
+
+  <!-- Connecting Arrows Between Columns -->
+  <line x1="354" y1="365" x2="408" y2="210" stroke="#10b981" stroke-width="2" marker-end="url(#arrowGreen)"/>
+  <line x1="354" y1="395" x2="408" y2="375" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrowAmber)"/>
+  <line x1="354" y1="590" x2="408" y2="545" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <!-- ===================================================================== -->
+  <!-- COLUMN 3: AWS, MICROSOFT AZURE & GOOGLE CLOUD (GCP) TARGET STACKS     -->
+  <!-- ===================================================================== -->
+  <rect x="686" y="88" width="494" height="610" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+  <rect x="686" y="88" width="494" height="34" rx="10" fill="#0c4a6e"/>
+  <text x="933" y="110" text-anchor="middle" fill="#f0f9ff" font-size="12" font-weight="700">CLOUD VPC / VNET STACKS (AWS · AZURE · GOOGLE CLOUD)</text>
+
+  <!-- 1. AWS Card -->
+  <rect x="702" y="136" width="462" height="174" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+  <rect x="702" y="136" width="462" height="28" rx="8" fill="#78350f"/>
+  <text x="716" y="155" fill="#fef3c7" font-size="11" font-weight="700">1. Amazon Web Services (AWS) — Direct Connect &amp; PrivateLink</text>
+  <text x="716" y="182" fill="#fde68a" font-size="9.5" font-weight="700">• Pillar 2 (Archive &amp; 15-Yr WORM):</text>
+  <text x="724" y="197" fill="#e2e8f0" font-size="8.4">EC2 i4i.4xlarge (Nitro NVMe) / ClickHouse Cloud + S3 Object Lock (COMPLIANCE)</text>
+  <text x="716" y="216" fill="#fde68a" font-size="9.5" font-weight="700">• Pillar 3 (Control Plane &amp; Part 11 WORM Audit):</text>
+  <text x="724" y="231" fill="#e2e8f0" font-size="8.4">Amazon RDS for PostgreSQL 16 (Multi-AZ, ltree/pgcrypto) + ECS Fargate API</text>
+  <text x="716" y="250" fill="#fde68a" font-size="9.5" font-weight="700">• Pillar 3/4 (Private GxP AI, HMI &amp; Zero-ETL Lakehouse):</text>
+  <text x="724" y="265" fill="#e2e8f0" font-size="8.4">Amazon Bedrock (Claude / Nova VPC Endpoint) + Managed Grafana + Glue &amp; Athena</text>
+  <text x="716" y="294" fill="#94a3b8" font-size="8.2">Config: deploy/hybrid-cloud/clickhouse-tiered-storage/aws_s3_worm.xml | PG_SSLMODE=verify-full</text>
+
+  <!-- 2. Microsoft Azure Card -->
+  <rect x="702" y="324" width="462" height="174" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>
+  <rect x="702" y="324" width="462" height="28" rx="8" fill="#075985"/>
+  <text x="716" y="343" fill="#e0f2fe" font-size="11" font-weight="700">2. Microsoft Azure — ExpressRoute &amp; Azure Private Link</text>
+  <text x="716" y="370" fill="#7dd3fc" font-size="9.5" font-weight="700">• Pillar 2 (Archive &amp; 15-Yr WORM):</text>
+  <text x="724" y="385" fill="#e2e8f0" font-size="8.4">Azure L16s_v3 (NVMe) / ClickHouse Cloud + Azure Immutable Blob (Locked Policy)</text>
+  <text x="716" y="404" fill="#7dd3fc" font-size="9.5" font-weight="700">• Pillar 3 (Control Plane &amp; Part 11 WORM Audit):</text>
+  <text x="724" y="419" fill="#e2e8f0" font-size="8.4">Azure Database for PostgreSQL Flexible Server (Zone-HA) + Container Apps / AKS</text>
+  <text x="716" y="438" fill="#7dd3fc" font-size="9.5" font-weight="700">• Pillar 3/4 (Private GxP AI, HMI &amp; Zero-ETL Lakehouse):</text>
+  <text x="724" y="453" fill="#e2e8f0" font-size="8.4">Azure OpenAI Service (Private Link) + Managed Grafana (Entra ID) + MS Fabric</text>
+  <text x="716" y="482" fill="#94a3b8" font-size="8.2">Config: deploy/hybrid-cloud/clickhouse-tiered-storage/azure_blob_worm.xml | Managed Identity</text>
+
+  <!-- 3. Google Cloud (GCP) Card -->
+  <rect x="702" y="512" width="462" height="172" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="1.5"/>
+  <rect x="702" y="512" width="462" height="28" rx="8" fill="#065f46"/>
+  <text x="716" y="531" fill="#d1fae5" font-size="11" font-weight="700">3. Google Cloud (GCP) — Dedicated Interconnect &amp; PSC</text>
+  <text x="716" y="558" fill="#6ee7b7" font-size="9.5" font-weight="700">• Pillar 2 (Archive &amp; 15-Yr WORM):</text>
+  <text x="724" y="573" fill="#e2e8f0" font-size="8.4">GCE n2-standard-16 (Local SSD) / ClickHouse Cloud + GCS Bucket Lock (15-Yr WORM)</text>
+  <text x="716" y="592" fill="#6ee7b7" font-size="9.5" font-weight="700">• Pillar 3 (Control Plane &amp; Part 11 WORM Audit):</text>
+  <text x="724" y="607" fill="#e2e8f0" font-size="8.4">Cloud SQL for PostgreSQL 16 (Enterprise Plus) or AlloyDB + Cloud Run / GKE</text>
+  <text x="716" y="626" fill="#6ee7b7" font-size="9.5" font-weight="700">• Pillar 3/4 (Private GxP AI, HMI &amp; Zero-ETL Lakehouse):</text>
+  <text x="724" y="641" fill="#e2e8f0" font-size="8.4">Vertex AI (Gemini 2.5 via PSC) + Grafana behind Cloud IAP + BigQuery BigLake</text>
+  <text x="716" y="668" fill="#94a3b8" font-size="8.2">Config: deploy/hybrid-cloud/clickhouse-tiered-storage/gcp_gcs_worm.xml | PG_SSLMODE=verify-ca</text>
+
+  <!-- Arrows from Column 2 to Column 3 -->
+  <line x1="648" y1="210" x2="702" y2="210" stroke="#10b981" stroke-width="2" marker-end="url(#arrowGreen)"/>
+  <line x1="648" y1="375" x2="702" y2="405" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrowAmber)"/>
+  <line x1="648" y1="545" x2="702" y2="590" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+</svg>

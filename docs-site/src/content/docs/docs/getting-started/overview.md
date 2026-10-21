@@ -80,7 +80,11 @@ clickhouse-historian/
 │   └── dashboards/
 │       ├── dashboards.yml                            # Dashboard provider configuration
 │       └── gxphistorian_bioreactor_hmi.json          # Asset-relative Bioreactor & Cleanroom HMI dashboard
-├── docs/                                             # Biopharma Equipment, Connector & Pydantic AI Guides
+├── deploy/hybrid-cloud/
+│   ├── docker-compose.edge-only.yml                  # Pattern B: Thin Purdue L2.5 Edge Collector streaming over HTTPS/mTLS
+│   ├── telegraf-hybrid-dualwrite.conf                # Pattern C: Multi-Site Hub & Spoke dual-write (Local L3 + Cloud Hub)
+│   └── clickhouse-tiered-storage/                    # 15-Year WORM XML policies (aws_s3_worm.xml, azure_blob_worm.xml, gcp_gcs_worm.xml)
+├── docs/                                             # Biopharma Equipment, Connector, Hybrid Cloud & Pydantic AI Guides
 ├── docs-site/                                        # Astro Starlight Documentation Portal
 ├── excel-datalink-client/
 │   ├── gxphistorian_datalink_udf.py                  # 8 xlwings UDFs (=GXPHISTORIAN_SAMPLED, =GXPHISTORIAN_CALCULATED_DATA, etc.)
@@ -92,3 +96,15 @@ clickhouse-historian/
     ├── evidence/oq_execution_results.json            # Timestamped pytest execution evidence log
     └── dist_binder/                                  # Generated 8 Markdown deliverables + HTML/PDF binder
 ```
+
+---
+
+## 4. Hybrid Cloud Deployment Options (AWS, Microsoft Azure & Google Cloud)
+
+GxPHistorian's 4-Pillar separation allows regulated plants to keep deterministic fieldbus polling and **100 GB (>14-day) Telegraf Disk WAL** store-and-forward buffering on-premises at **Purdue Level 2.5**, while deploying cold storage, lakehouses, or core historian services in **AWS**, **Microsoft Azure**, or **Google Cloud (GCP)** across three selectable patterns:
+
+- **Pattern A (Thick Plant Core + Cloud 15-Year WORM & Lakehouse):** All 4 Pillars run on-premises for 100% WAN-independent cleanroom HMIs and `§11.200` e-signatures, tiering aged telemetry and `pgBackRest` WAL archives into **Amazon S3 Object Lock (`COMPLIANCE`)**, **Azure Immutable Blob Storage**, or **Google Cloud Storage Bucket Lock** and Zero-ETL Parquet Lakehouses (`Athena`, `Microsoft Fabric`, `BigQuery BigLake`).
+- **Pattern B (Thin Plant Edge + Cloud Historian Core):** Only Pillar 1 (`edge-collector`) runs on-premises (`deploy/hybrid-cloud/docker-compose.edge-only.yml`), streaming over outbound HTTPS/mTLS (`:8443`) to ClickHouse, Managed PostgreSQL 16 (`Amazon RDS`, `Azure Flexible Server`, `Cloud SQL`), `historian-api`, `gxphistorian-mcp`, and Private AI (`Bedrock`, `Azure OpenAI`, `Vertex AI`) inside your cloud VPC/VNet.
+- **Pattern C (Multi-Site Hub & Spoke Federation):** Full local Pillars 1–4 per manufacturing site plus Telegraf dual-write (`deploy/hybrid-cloud/telegraf-hybrid-dualwrite.conf`) to a global cloud aggregator for cross-site Golden Batch comparisons (`/api/v1/batches/compare`).
+
+See the complete **[Hybrid Cloud Deployment Guide (AWS, Azure & GCP)](/docs/architecture/hybrid-cloud-deployment/)** for architecture diagrams, XML policies, and GAMP 5 Cloud Shared Responsibility controls.

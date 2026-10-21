@@ -89,6 +89,7 @@ export default defineConfig({
             { label: '4-Pillar System Architecture', slug: 'docs/architecture/four-pillar-architecture' },
             { label: '21 CFR Part 11 & ALCOA+ Controls', slug: 'docs/architecture/part11-compliance' },
             { label: 'Hardware Sizing & Capacity Planning', slug: 'docs/architecture/hardware-sizing' },
+            { label: 'Hybrid Cloud (AWS, Azure & GCP)', slug: 'docs/architecture/hybrid-cloud-deployment' },
           ],
         },
         {

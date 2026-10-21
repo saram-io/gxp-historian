@@ -3712,5 +3712,292 @@ def build_pi_parity_router(
                 rows = cur.fetchall()
         return {"count": len(rows), "deliveries": rows}
 
+    # =========================================================================
+    # PHASE 5: Hybrid Cloud Deployment Blueprints (AWS, Azure & Google Cloud)
+    # =========================================================================
+
+    HYBRID_CLOUD_PATTERNS: Dict[str, Dict[str, Any]] = {
+        "pattern_a_worm_lakehouse": {
+            "pattern_id": "pattern_a_worm_lakehouse",
+            "name": "Pattern A: Thick Plant Core + Cloud 15-Year WORM Archive & Zero-ETL Lakehouse",
+            "purdue_split": {
+                "on_premises_ot": [
+                    "Pillar 1: edge-collector (Purdue L2.5 DIN-Rail IPC / DMZ VM + 100 GB Telegraf Disk WAL)",
+                    "Pillar 2: clickhouse-archive (Purdue L3 Local NVMe 10-Year Hot Tier)",
+                    "Pillar 3: postgres-control + historian-api + gxphistorian-mcp (Purdue L3)",
+                    "Pillar 4: grafana-vision Local Cleanroom Operator HMI (Purdue L3)",
+                ],
+                "cloud_vpc_vnet": [
+                    "Pillar 2 Cold Tier: 15-Year WORM Object Storage (AWS S3 Object Lock / Azure Immutable Blob / GCP Bucket Lock)",
+                    "Pillar 3 DR & PITR: pgBackRest Encrypted WAL Archive in Cloud WORM Storage",
+                    "Pillar 4 Lakehouse: Zero-ETL Snappy Apache Parquet queried by Athena / Microsoft Fabric / BigQuery BigLake",
+                ],
+            },
+            "wan_outage_resilience": "100% full plant autonomy; local cleanroom HMIs, batch Event Frames, and 21 CFR Part 11 e-signatures operate with zero WAN connectivity.",
+        },
+        "pattern_b_cloud_core": {
+            "pattern_id": "pattern_b_cloud_core",
+            "name": "Pattern B: Thin Plant Edge + Cloud-Hosted Historian Core",
+            "purdue_split": {
+                "on_premises_ot": [
+                    "Pillar 1 Only: Redundant edge-collector IPCs (Purdue L2.5) + Windows COM OPC DA localhost forwarders",
+                    "Local 100 GB Telegraf Disk WAL (/var/lib/telegraf/buffer) providing >14 days of offline store-and-forward autonomy",
+                ],
+                "cloud_vpc_vnet": [
+                    "Pillar 2: ClickHouse 24.8 LTS on Cloud NVMe VMs or ClickHouse Cloud (via PrivateLink / Private Link / PSC)",
+                    "Pillar 3: Managed PostgreSQL 16 (RDS / Azure Flexible Server / Cloud SQL) + containerized historian-api & gxphistorian-mcp",
+                    "Pillar 4: Cloud-hosted Grafana Vision HMI + Excel DataLink over VPN / ExpressRoute / Interconnect",
+                ],
+            },
+            "wan_outage_resilience": ">14 days of zero-data-loss telemetry buffering on local industrial pSLC NVMe at Purdue Level 2.5; automatic chronological catch-up upon WAN restoration.",
+        },
+        "pattern_c_hub_spoke": {
+            "pattern_id": "pattern_c_hub_spoke",
+            "name": "Pattern C: Multi-Site Hub & Spoke Federation (Local Autonomous Plant + Global Cloud Rollup)",
+            "purdue_split": {
+                "on_premises_ot": [
+                    "Full Pillars 1-4 per manufacturing site (e.g., Fremont, Boston, Dublin) for local batch execution and §11.200 signing",
+                    "Telegraf dual-write [[outputs.http]] with independent local and cloud disk buffer queues",
+                ],
+                "cloud_vpc_vnet": [
+                    "Global Enterprise ClickHouse Aggregator + Global Asset/Event Catalog Replica",
+                    "Cross-site Golden Batch comparison (/api/v1/batches/compare) and global Pydantic AI Co-Pilot deviation investigations",
+                ],
+            },
+            "wan_outage_resilience": "100% local site autonomy plus asynchronous multi-site cloud synchronization with independent backpressure queues.",
+        },
+    }
+
+    HYBRID_CLOUD_PROVIDERS: Dict[str, Dict[str, Any]] = {
+        "aws": {
+            "provider": "aws",
+            "display_name": "Amazon Web Services (AWS)",
+            "services": {
+                "edge_runtime": "Fanless DIN-Rail IPC (Docker), AWS IoT Greengrass v2, or AWS Outposts 1U/2U",
+                "wan_transport": "AWS Site-to-Site VPN / AWS Direct Connect + AWS PrivateLink (:8443 mTLS)",
+                "pillar2_clickhouse_hot": "Amazon EC2 i4i.4xlarge (Local Nitro NVMe) or m7i.4xlarge + EBS gp3/io2, or ClickHouse Cloud on AWS",
+                "pillar2_worm_cold_storage": "Amazon S3 with S3 Object Lock (COMPLIANCE Mode, 15-Year Retention) + AWS KMS CMK",
+                "pillar3_postgres_control": "Amazon RDS for PostgreSQL 16 (Multi-AZ) or Amazon Aurora PostgreSQL (ltree, btree_gist, pgcrypto)",
+                "pillar3_api_and_mcp_compute": "Amazon ECS on AWS Fargate or Amazon EKS behind Internal ALB",
+                "pillar3_private_ai_model": "Amazon Bedrock (anthropic.claude-sonnet-4 / amazon.nova-pro via VPC Endpoint)",
+                "pillar4_grafana_and_lakehouse": "Amazon Managed Grafana (or ECS) + AWS Glue + Amazon Athena / Redshift Spectrum over S3 Parquet",
+            },
+            "env_overrides": {
+                "PG_HOST": "gxp-postgres.cluster-xxxx.us-east-1.rds.amazonaws.com",
+                "PG_SSLMODE": "verify-full",
+                "CH_HOST": "clickhouse-internal.biocorp.aws.internal",
+                "CH_PORT_INTERNAL": "8443",
+                "CH_SECURE": "true",
+                "GXPHISTORIAN_AI_MODEL": "bedrock:anthropic.claude-3-5-sonnet-20241022-v2:0",
+            },
+            "clickhouse_worm_storage_xml": """<clickhouse>
+  <storage_configuration>
+    <disks>
+      <hot_nvme>
+        <path>/var/lib/clickhouse/</path>
+        <keep_free_space_bytes>1099511627776</keep_free_space_bytes>
+      </hot_nvme>
+      <cold_worm_s3>
+        <type>s3</type>
+        <endpoint>https://s3.us-east-1.amazonaws.com/biocorp-gxphistorian-worm-15yr/telemetry/</endpoint>
+        <use_environment_credentials>true</use_environment_credentials>
+        <metadata_path>/var/lib/clickhouse/disks/cold_worm_s3/</metadata_path>
+        <cache_enabled>true</cache_enabled>
+        <data_cache_max_size>107374182400</data_cache_max_size>
+      </cold_worm_s3>
+    </disks>
+    <policies>
+      <gxp_10yr_nvme_15yr_worm>
+        <volumes>
+          <hot_volume><disk>hot_nvme</disk></hot_volume>
+          <cold_volume><disk>cold_worm_s3</disk></cold_volume>
+        </volumes>
+        <move_factor>0.2</move_factor>
+      </gxp_10yr_nvme_15yr_worm>
+    </policies>
+  </storage_configuration>
+</clickhouse>""",
+            "lakehouse_sql_ddl": """CREATE EXTERNAL TABLE IF NOT EXISTS gxp_lakehouse.sensor_telemetry (
+  tag_id INT,
+  tag_name STRING,
+  asset_path STRING,
+  eng_units STRING,
+  ts TIMESTAMP,
+  val DOUBLE,
+  str_val STRING,
+  quality INT
+)
+STORED AS PARQUET
+LOCATION 's3://biocorp-gxphistorian-worm-15yr/lakehouse-parquet/';""",
+        },
+        "azure": {
+            "provider": "azure",
+            "display_name": "Microsoft Azure",
+            "services": {
+                "edge_runtime": "Fanless DIN-Rail IPC (Docker), Azure IoT Operations (Arc-enabled K8s), or Azure Local (Stack HCI)",
+                "wan_transport": "Azure VPN Gateway / Azure ExpressRoute + Azure Private Link (:8443 mTLS)",
+                "pillar2_clickhouse_hot": "Azure VM Standard_L16s_v3 (Local NVMe) or Standard_E16bs_v5 + Premium SSD v2, or ClickHouse Cloud on Azure",
+                "pillar2_worm_cold_storage": "Azure Blob Storage / ADLS Gen2 with Immutable Storage for Blob (Locked Time-Based Retention) + Azure Key Vault",
+                "pillar3_postgres_control": "Azure Database for PostgreSQL - Flexible Server (Zone-Redundant HA, azure.extensions = ltree,btree_gist,pgcrypto)",
+                "pillar3_api_and_mcp_compute": "Azure Container Apps (VNet-Injected) or Azure Kubernetes Service (AKS)",
+                "pillar3_private_ai_model": "Azure OpenAI Service (gpt-4o via Azure Private Link)",
+                "pillar4_grafana_and_lakehouse": "Azure Managed Grafana (Entra ID SSO) + Microsoft Fabric OneLake Shortcuts / Azure Synapse / Databricks",
+            },
+            "env_overrides": {
+                "PG_HOST": "gxp-postgres-prod.postgres.database.azure.com",
+                "PG_SSLMODE": "verify-full",
+                "CH_HOST": "clickhouse-internal.biocorp.azure.internal",
+                "CH_PORT_INTERNAL": "8443",
+                "CH_SECURE": "true",
+                "GXPHISTORIAN_AI_MODEL": "openai:gpt-4o",
+            },
+            "clickhouse_worm_storage_xml": """<clickhouse>
+  <storage_configuration>
+    <disks>
+      <hot_nvme>
+        <path>/var/lib/clickhouse/</path>
+        <keep_free_space_bytes>1099511627776</keep_free_space_bytes>
+      </hot_nvme>
+      <cold_worm_azure>
+        <type>azure_blob_storage</type>
+        <storage_account_url>https://biocorpgxpworm15yr.blob.core.windows.net</storage_account_url>
+        <container_name>gxphistorian-telemetry-worm</container_name>
+        <use_managed_identity>true</use_managed_identity>
+        <metadata_path>/var/lib/clickhouse/disks/cold_worm_azure/</metadata_path>
+        <cache_enabled>true</cache_enabled>
+        <data_cache_max_size>107374182400</data_cache_max_size>
+      </cold_worm_azure>
+    </disks>
+    <policies>
+      <gxp_10yr_nvme_15yr_worm>
+        <volumes>
+          <hot_volume><disk>hot_nvme</disk></hot_volume>
+          <cold_volume><disk>cold_worm_azure</disk></cold_volume>
+        </volumes>
+        <move_factor>0.2</move_factor>
+      </gxp_10yr_nvme_15yr_worm>
+    </policies>
+  </storage_configuration>
+</clickhouse>""",
+            "lakehouse_sql_ddl": """SELECT tag_name, asset_path, AVG(val) AS avg_val, MIN(val) AS min_val, MAX(val) AS max_val
+FROM OPENROWSET(
+  BULK 'https://biocorpgxpworm15yr.dfs.core.windows.net/gxphistorian-lakehouse/*.parquet',
+  FORMAT = 'PARQUET'
+) AS telemetry
+WHERE quality >= 192
+GROUP BY tag_name, asset_path;""",
+        },
+        "gcp": {
+            "provider": "gcp",
+            "display_name": "Google Cloud (GCP)",
+            "services": {
+                "edge_runtime": "Fanless DIN-Rail IPC (Docker) or Google Distributed Cloud (GDC) Edge Appliance",
+                "wan_transport": "Cloud HA VPN / Dedicated Interconnect + Private Service Connect (:8443 mTLS)",
+                "pillar2_clickhouse_hot": "Compute Engine n2-standard-16 (Local Titanium SSD) or c3-standard-22 + Hyperdisk Extreme, or ClickHouse Cloud on GCP",
+                "pillar2_worm_cold_storage": "Google Cloud Storage (GCS) with Bucket Lock (Locked Retention Policy, 15 Years) + Cloud KMS CMEK",
+                "pillar3_postgres_control": "Cloud SQL for PostgreSQL 16 (Enterprise Plus Regional HA) or AlloyDB for PostgreSQL (ltree, btree_gist, pgcrypto)",
+                "pillar3_api_and_mcp_compute": "Google Cloud Run (Internal VPC Ingress) or Google Kubernetes Engine (GKE) Autopilot",
+                "pillar3_private_ai_model": "Google Vertex AI (google-vertex:gemini-2.5-flash via Private Service Connect)",
+                "pillar4_grafana_and_lakehouse": "Grafana OSS behind Cloud Identity-Aware Proxy (IAP) + BigQuery BigLake External Tables + Vertex AI",
+            },
+            "env_overrides": {
+                "PG_HOST": "10.128.0.15",
+                "PG_SSLMODE": "verify-ca",
+                "CH_HOST": "clickhouse-internal.biocorp.gcp.internal",
+                "CH_PORT_INTERNAL": "8443",
+                "CH_SECURE": "true",
+                "GXPHISTORIAN_AI_MODEL": "google-vertex:gemini-2.5-flash",
+            },
+            "clickhouse_worm_storage_xml": """<clickhouse>
+  <storage_configuration>
+    <disks>
+      <hot_nvme>
+        <path>/var/lib/clickhouse/</path>
+        <keep_free_space_bytes>1099511627776</keep_free_space_bytes>
+      </hot_nvme>
+      <cold_worm_gcs>
+        <type>s3</type>
+        <endpoint>https://storage.googleapis.com/biocorp-gxphistorian-worm-15yr/telemetry/</endpoint>
+        <access_key_id from_env="GCS_HMAC_ACCESS_KEY_ID" />
+        <secret_access_key from_env="GCS_HMAC_SECRET_ACCESS_KEY" />
+        <metadata_path>/var/lib/clickhouse/disks/cold_worm_gcs/</metadata_path>
+        <cache_enabled>true</cache_enabled>
+        <data_cache_max_size>107374182400</data_cache_max_size>
+      </cold_worm_gcs>
+    </disks>
+    <policies>
+      <gxp_10yr_nvme_15yr_worm>
+        <volumes>
+          <hot_volume><disk>hot_nvme</disk></hot_volume>
+          <cold_volume><disk>cold_worm_gcs</disk></cold_volume>
+        </volumes>
+        <move_factor>0.2</move_factor>
+      </gxp_10yr_nvme_15yr_worm>
+    </policies>
+  </storage_configuration>
+</clickhouse>""",
+            "lakehouse_sql_ddl": """CREATE EXTERNAL TABLE IF NOT EXISTS `biocorp-gxp.lakehouse.sensor_telemetry`
+WITH CONNECTION `biocorp-gxp.us.biglake-gcs-conn`
+OPTIONS (
+  format = 'PARQUET',
+  uris = ['gs://biocorp-gxphistorian-worm-15yr/lakehouse-parquet/*.parquet']
+);""",
+        },
+    }
+
+    @router.get("/api/v1/cloud/hybrid-blueprints")
+    def get_hybrid_cloud_blueprints(
+        provider: Optional[str] = Query(
+            default=None,
+            description="Optional cloud provider filter: aws, azure, or gcp",
+        ),
+        pattern: Optional[str] = Query(
+            default=None,
+            description="Optional hybrid topology pattern filter: pattern_a_worm_lakehouse, pattern_b_cloud_core, or pattern_c_hub_spoke",
+        ),
+    ) -> Dict[str, Any]:
+        """
+        Return GAMP 5 & 21 CFR Part 11 qualified hybrid OT + Cloud deployment blueprints,
+        ClickHouse 15-Year WORM tiered storage XML configs, Managed PostgreSQL 16 connection profiles,
+        and Zero-ETL Lakehouse DDL for AWS, Microsoft Azure, and Google Cloud (GCP).
+        """
+        selected_providers = dict(HYBRID_CLOUD_PROVIDERS)
+        if provider:
+            p_key = provider.strip().lower()
+            if p_key not in HYBRID_CLOUD_PROVIDERS:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Unsupported cloud provider '{provider}'. Choose from: {list(HYBRID_CLOUD_PROVIDERS.keys())}",
+                )
+            selected_providers = {p_key: HYBRID_CLOUD_PROVIDERS[p_key]}
+
+        selected_patterns = dict(HYBRID_CLOUD_PATTERNS)
+        if pattern:
+            pat_key = pattern.strip().lower()
+            if pat_key not in HYBRID_CLOUD_PATTERNS:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Unsupported hybrid pattern '{pattern}'. Choose from: {list(HYBRID_CLOUD_PATTERNS.keys())}",
+                )
+            selected_patterns = {pat_key: HYBRID_CLOUD_PATTERNS[pat_key]}
+
+        return {
+            "architecture": "GxPHistorian 4-Pillar Hybrid OT + Cloud Reference Architecture",
+            "regulatory_standards": [
+                "FDA 21 CFR Part 11 (§11.10(c) Archive Protection, §11.10(e) WORM Audit Trail, §11.30 Open System Controls)",
+                "EU GMP Annex 11 (Section 4.3 Cloud Supplier Assessment, Section 17 Archiving)",
+                "ISPE GAMP 5 Second Edition (Cloud Service Provider Shared Responsibility & CSA)",
+                "ISA-95 / IEC 62443 Purdue Model (Level 2.5 Industrial DMZ Store-and-Forward Isolation)",
+            ],
+            "patterns": selected_patterns,
+            "providers": selected_providers,
+            "part11_open_system_controls": {
+                "transport_encryption": "TLS 1.3 / mTLS required across Site-to-Site VPN, Direct Connect, ExpressRoute, or Cloud Interconnect (§11.30)",
+                "edge_store_and_forward": "Telegraf 100 GB disk WAL (/var/lib/telegraf/buffer) buffers >14 days of 25,000 tags during WAN outages (URS-005)",
+                "immutable_worm_storage": "AWS S3 Object Lock (COMPLIANCE), Azure Immutable Blob (Locked Policy), or GCP GCS Bucket Lock (Locked Policy) for 15-year retention",
+                "managed_postgres_compatibility": "Uses standard PostgreSQL 16 contrib extensions (ltree, btree_gist, pgcrypto) and PL/pgSQL WORM triggers compatible with RDS, Azure Flexible Server, and Cloud SQL",
+            },
+        }
+
     return router
 
