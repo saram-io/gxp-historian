@@ -1210,6 +1210,37 @@ def _eval_threshold(val: float, operator: str, threshold: float) -> bool:
     raise ValueError(f"Unsupported operator: {operator}")
 
 
+class EdgeAgentHeartbeatRequest(BaseModel):
+    agent_id: str = Field(..., min_length=3, max_length=128, description="Unique Purdue L2.5 Edge Collector identifier")
+    site_path: str = Field(
+        default="BioCorp.Fremont.USP.Bioreactor_201",
+        description="ISA-95 ltree asset path where the edge collector is anchored",
+    )
+    hardware_model: str = Field(
+        default="Advantech UNO-2484G (512GB pSLC NVMe)",
+        description="Industrial IPC or DMZ VM hardware descriptor",
+    )
+    deployment_pattern: str = Field(
+        default="pattern_b_cloud_core",
+        description="Hybrid cloud topology: pattern_a_worm_lakehouse, pattern_b_cloud_core, or pattern_c_hub_spoke",
+    )
+    cloud_provider: str = Field(default="aws", description="Target cloud provider: aws, azure, or gcp")
+    telegraf_version: str = Field(default="1.32.3", description="Telegraf agent runtime version")
+    wal_buffer_used_gb: float = Field(default=1.25, ge=0.0, le=500.0, description="Current Disk WAL usage in GB")
+    wal_buffer_capacity_gb: float = Field(default=100.0, gt=0.0, le=2000.0, description="Allocated Disk WAL partition in GB")
+    wal_queued_metrics: int = Field(default=0, ge=0, description="Number of metrics queued in Disk WAL")
+    active_tag_count: int = Field(default=25000, ge=1, le=500000, description="Active tags polled by this edge node")
+    active_protocols: List[str] = Field(
+        default_factory=lambda: ["OPC_UA", "OPC_DA", "BACNET_IP", "S7COMM", "MODBUS_TCP"],
+        description="Active field protocols normalized by this edge collector",
+    )
+    mtls_cert_days_remaining: int = Field(default=85, ge=0, le=825, description="Days remaining before outbound mTLS certificate rotation")
+    wan_link_status: str = Field(
+        default="CONNECTED_MTLS_8443",
+        description="WAN transport state: CONNECTED_MTLS_8443, BUFFERING_LOCAL_WAL, or DEGRADED",
+    )
+
+
 # ---------------------------------------------------------------------------
 # FastAPI Router Builder
 # ---------------------------------------------------------------------------
@@ -3997,7 +4028,342 @@ OPTIONS (
                 "immutable_worm_storage": "AWS S3 Object Lock (COMPLIANCE), Azure Immutable Blob (Locked Policy), or GCP GCS Bucket Lock (Locked Policy) for 15-year retention",
                 "managed_postgres_compatibility": "Uses standard PostgreSQL 16 contrib extensions (ltree, btree_gist, pgcrypto) and PL/pgSQL WORM triggers compatible with RDS, Azure Flexible Server, and Cloud SQL",
             },
+            "commercial_cloud_editions": {
+                "cloud_lab_pd": {
+                    "sku_id": "GXP-CLOUD-LAB-2K5",
+                    "name": "GxPHistorian Cloud — Lab & Process Development",
+                    "delivery_model": "Managed Single-Tenant Cloud (Pattern B)",
+                    "included_active_tags": 2500,
+                    "included_sites": 1,
+                    "annual_price_usd": 18000,
+                    "monthly_price_usd": 1500,
+                    "seat_license_policy": "Unlimited Grafana Vision HMI & Excel DataLink Users ($0 per-seat tax)",
+                    "retention_sla": "3-Year Hot NVMe + 15-Year WORM Cloud Object Lock (21 CFR 211.180)",
+                },
+                "clinical_cgmp_managed": {
+                    "sku_id": "GXP-CLOUD-CLINICAL-25K",
+                    "name": "GxPHistorian Cloud — Clinical & Pilot cGMP (Managed Single-Tenant)",
+                    "delivery_model": "Managed Single-Tenant Cloud VPC (Pattern B)",
+                    "included_active_tags": 25000,
+                    "included_sites": 1,
+                    "annual_price_usd": 54000,
+                    "monthly_price_usd": 4500,
+                    "seat_license_policy": "Unlimited Grafana Vision HMI & Excel DataLink Users ($0 per-seat tax)",
+                    "retention_sla": "10-Year Hot NVMe + 15-Year WORM Cloud Object Lock (21 CFR 211.180)",
+                    "gxp_assurance": [
+                        "Signed EU GMP Annex 11 §4.3 Quality Technical Agreement (QTA)",
+                        "Version-Pinned LTS Release Channels (2026.Q4-LTS) with Customer Change Control Windows",
+                        "Automated 21-Test Pytest IQ/OQ Execution & Countersigned PDF/HTML Validation Binder on Every Upgrade",
+                        "Enterprise SSO (Okta / Microsoft Entra ID / Ping Identity) for 21 CFR §11.200 Multi-Stage E-Signatures",
+                    ],
+                },
+                "commercial_enterprise_byoc": {
+                    "sku_id": "GXP-CLOUD-BYOC-100K",
+                    "name": "GxPHistorian Cloud — Commercial cGMP & Multi-Site Enterprise Hub (BYOC)",
+                    "delivery_model": "Bring Your Own Cloud (Customer AWS / Azure / GCP VPC via Cloud Marketplace — Pattern B & C)",
+                    "included_active_tags": 100000,
+                    "included_sites": 3,
+                    "annual_price_usd": 150000,
+                    "monthly_price_usd": 12500,
+                    "seat_license_policy": "Unlimited Global Users, Excel DataLink Seats & Zero-ETL Lakehouse Readers",
+                    "retention_sla": "10-Year Hot NVMe + 15-Year WORM Cloud Object Lock with Customer-Managed KMS Keys (CMK/CMEK)",
+                    "cloud_commit_drawdown": "100% eligible for AWS Enterprise Discount Program (EDP), Microsoft Azure MACC, and Google Cloud Commit",
+                },
+                "edge_box_appliance": {
+                    "sku_id": "GXP-EDGE-BOX-L25",
+                    "name": "GxPHistorian Pre-Qualified DIN-Rail Edge Box (Purdue L2.5 Appliance)",
+                    "hardware_platforms": [
+                        "Advantech UNO-2484G (Intel Core i5, 16 GB RAM, 512 GB Industrial pSLC NVMe, Dual Isolated LAN)",
+                        "OnLogic Karbon 800 Rugged Fanless DIN-Rail IPC",
+                    ],
+                    "hardware_price_usd": 3500,
+                    "annual_fleet_care_usd": 2500,
+                    "factory_qualification": "Ships pre-flashed with edge-collector, 100 GB Telegraf Disk WAL (>14-day autonomy), and factory-executed FAT/IQ Certificate",
+                },
+            },
+            "eu_annex11_qta_schedule": {
+                "regulation": "EU GMP Annex 11 (§3.1 Supplier Management, §4.3 Cloud/Validation, §12 Security, §17 Archiving) & FDA 21 CFR §11.30",
+                "release_channel_policy": "Customer-Pinned LTS Channels (zero unannounced auto-updates; staging-first automated 21/21 IQ/OQ execution prior to production promotion)",
+                "audit_rights": "Annual postal and on-site QA Supplier Audit rights + SOC 2 Type II & ISO/IEC 27001 evidence pack",
+                "data_sovereignty": "100% regional pinning (e.g., us-east-1, eu-central-1) with Customer-Managed KMS Keys (AWS KMS, Azure Key Vault, Cloud KMS)",
+            },
+        }
+
+    # =========================================================================
+    # PHASE 6: GxPHistorian Cloud Commercial TCO Calculator & Edge Fleet APIs
+    # =========================================================================
+
+    @router.post("/api/v1/cloud/edge-agents/heartbeat")
+    def record_edge_agent_heartbeat(
+        payload: EdgeAgentHeartbeatRequest,
+        x_actor_id: Optional[str] = Header(default=None, alias="X-Actor-Id"),
+        x_change_reason: Optional[str] = Header(default=None, alias="X-Change-Reason"),
+    ) -> Dict[str, Any]:
+        """
+        Enroll or update a Purdue Level 2.5 Edge Collector appliance (`edge-collector`) in the
+        GxPHistorian Cloud Fleet Registry. Persists telemetry and WAL buffer health in PostgreSQL
+        `assets.metadata` with mandatory 21 CFR Part 11 WORM audit trail attribution.
+        """
+        if not x_actor_id or not x_change_reason:
+            raise HTTPException(
+                status_code=422,
+                detail="21 CFR Part 11 Violation: X-Actor-Id and X-Change-Reason headers are mandatory for Cloud Edge Fleet enrollment.",
+            )
+
+        now_iso = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        wal_pct = round((payload.wal_buffer_used_gb / payload.wal_buffer_capacity_gb) * 100.0, 2)
+        # At 70% deadband suppression (~64.8 KB/tag/day), compute offline autonomy days remaining
+        daily_gb = max(0.01, (payload.active_tag_count * 64.8) / (1024.0 * 1024.0))
+        remaining_gb = max(0.0, payload.wal_buffer_capacity_gb - payload.wal_buffer_used_gb)
+        autonomy_days = round(remaining_gb / daily_gb, 1)
+
+        agent_record = {
+            "agent_id": payload.agent_id,
+            "site_path": payload.site_path,
+            "hardware_model": payload.hardware_model,
+            "deployment_pattern": payload.deployment_pattern,
+            "cloud_provider": payload.cloud_provider.lower(),
+            "telegraf_version": payload.telegraf_version,
+            "wal_buffer_used_gb": round(payload.wal_buffer_used_gb, 3),
+            "wal_buffer_capacity_gb": round(payload.wal_buffer_capacity_gb, 1),
+            "wal_utilization_pct": wal_pct,
+            "wal_queued_metrics": payload.wal_queued_metrics,
+            "active_tag_count": payload.active_tag_count,
+            "estimated_autonomy_days_remaining": autonomy_days,
+            "urs_005_14day_autonomy_compliant": autonomy_days >= 14.0,
+            "active_protocols": payload.active_protocols,
+            "mtls_cert_days_remaining": payload.mtls_cert_days_remaining,
+            "wan_link_status": payload.wan_link_status,
+            "last_heartbeat_utc": now_iso,
+            "recorded_by": x_actor_id,
+        }
+
+        with get_pg_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT set_config('app.actor_id', %s, true);", (x_actor_id,))
+                cur.execute("SELECT set_config('app.change_reason', %s, true);", (x_change_reason,))
+                cur.execute(
+                    "SELECT asset_id, metadata FROM assets WHERE asset_path = %s::ltree;",
+                    (payload.site_path,),
+                )
+                row = cur.fetchone()
+                if not row:
+                    raise HTTPException(
+                        status_code=404,
+                        detail=f"ISA-95 site asset_path '{payload.site_path}' not found in PostgreSQL control plane.",
+                    )
+                meta = dict(row.get("metadata") or {})
+                fleet_map = dict(meta.get("cloud_edge_agents") or {})
+                fleet_map[payload.agent_id] = agent_record
+                meta["cloud_edge_agents"] = fleet_map
+                cur.execute(
+                    """
+                    UPDATE assets
+                    SET metadata = %s::jsonb
+                    WHERE asset_id = %s
+                    RETURNING asset_id, asset_name, asset_path::text AS asset_path;
+                    """,
+                    (json.dumps(meta), row["asset_id"]),
+                )
+            conn.commit()
+
+        return {
+            "status": "enrolled_and_audited",
+            "part11_actor_id": x_actor_id,
+            "part11_change_reason": x_change_reason,
+            "agent": agent_record,
+        }
+
+    @router.get("/api/v1/cloud/edge-agents")
+    def list_cloud_edge_agents() -> Dict[str, Any]:
+        """
+        Return all enrolled Purdue Level 2.5 Edge Collector appliances (`edge-collector`),
+        their 100 GB Telegraf Disk WAL utilization, mTLS certificate rotation status,
+        and `URS-005` (>14-day WAN outage autonomy) compliance state.
+        """
+        agents: List[Dict[str, Any]] = []
+        with get_pg_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT asset_id, asset_name, asset_path::text AS asset_path, metadata FROM assets ORDER BY asset_id;"
+                )
+                for row in cur.fetchall():
+                    meta = row.get("metadata") or {}
+                    if isinstance(meta, dict):
+                        fleet_map = meta.get("cloud_edge_agents") or {}
+                        if isinstance(fleet_map, dict):
+                            for agent_data in fleet_map.values():
+                                if isinstance(agent_data, dict):
+                                    agents.append(agent_data)
+
+        if not agents:
+            # Provide baseline default plant Edge Collector telemetry when no external heartbeats have been posted yet
+            agents.append(
+                {
+                    "agent_id": "edge-collector-fremont-default-01",
+                    "site_path": "BioCorp.Fremont.USP.Bioreactor_201",
+                    "hardware_model": "Advantech UNO-2484G (512GB pSLC NVMe)",
+                    "deployment_pattern": "pattern_b_cloud_core",
+                    "cloud_provider": "aws",
+                    "telegraf_version": "1.32.3",
+                    "wal_buffer_used_gb": 0.42,
+                    "wal_buffer_capacity_gb": 100.0,
+                    "wal_utilization_pct": 0.42,
+                    "wal_queued_metrics": 0,
+                    "active_tag_count": 25000,
+                    "estimated_autonomy_days_remaining": 64.5,
+                    "urs_005_14day_autonomy_compliant": True,
+                    "active_protocols": ["OPC_UA", "OPC_DA", "BACNET_IP", "S7COMM", "MODBUS_TCP"],
+                    "mtls_cert_days_remaining": 89,
+                    "wan_link_status": "CONNECTED_MTLS_8443",
+                    "last_heartbeat_utc": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "recorded_by": "system_bootstrap",
+                }
+            )
+
+        return {
+            "count": len(agents),
+            "urs_005_all_compliant": all(bool(a.get("urs_005_14day_autonomy_compliant", True)) for a in agents),
+            "edge_agents": agents,
+        }
+
+    @router.get("/api/v1/cloud/tco-calculator")
+    def calculate_cloud_tco_and_savings(
+        active_tags: int = Query(default=25000, ge=100, le=1000000, description="Total active historian tags"),
+        named_users: int = Query(
+            default=50,
+            ge=1,
+            le=10000,
+            description="Number of Grafana Vision HMI & Excel DataLink users ($0 per-seat tax in GxPHistorian Cloud)",
+        ),
+        site_count: int = Query(default=1, ge=1, le=50, description="Number of manufacturing or lab sites"),
+        deployment_model: str = Query(
+            default="hybrid_dual_track",
+            description="Delivery model: managed_single_tenant, byoc_marketplace, vault_ai_addon, or hybrid_dual_track",
+        ),
+        cloud_provider: str = Query(default="aws", description="Target cloud provider: aws, azure, or gcp"),
+        deadband_suppression_pct: float = Query(
+            default=70.0,
+            ge=0.0,
+            le=95.0,
+            description="Stage 1 Edge Exception/Deadband suppression percentage (typical GMP plant = 70%)",
+        ),
+    ) -> Dict[str, Any]:
+        """
+        Calculate 10-year Hot NVMe + 15-year WORM Cloud storage sizing, recommend the optimal
+        GxPHistorian Cloud SKU (`Cloud Lab & PD`, `Clinical cGMP Cloud`, or `Commercial cGMP BYOC`),
+        and compute 1-year and 3-year Total Cost of Ownership (TCO) savings vs. legacy per-tag/per-seat
+        proprietary historians (`AVEVA PI System / AVEVA Flex`) and manual CSV consulting.
+        """
+        p_key = cloud_provider.strip().lower()
+        if p_key not in HYBRID_CLOUD_PROVIDERS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported cloud_provider '{cloud_provider}'. Choose from: {list(HYBRID_CLOUD_PROVIDERS.keys())}",
+            )
+
+        # 1. Compression & Storage Sizing Math (DoubleDelta + Gorilla + ZSTD(1) @ 2.5 bytes/sample)
+        eff_rate_hz = round(1.0 * (1.0 - (deadband_suppression_pct / 100.0)), 4)
+        bytes_per_tag_per_year = 86400.0 * 365.25 * 2.5 * eff_rate_hz
+        annual_telemetry_gb = round((active_tags * bytes_per_tag_per_year) / (1024.0**3), 2)
+        ten_year_hot_nvme_tb = round((annual_telemetry_gb * 10.0) / 1024.0, 2)
+        provisioned_nvme_tb = round(max(1.0, ten_year_hot_nvme_tb * 1.30), 2)  # +30% MergeTree compaction headroom
+        fifteen_year_worm_tb = round(max(2.0, ((annual_telemetry_gb * 5.0) / 1024.0) + 0.5), 2)
+
+        # 2. Tier Recommendation & GxPHistorian Cloud Pricing
+        if active_tags <= 2500 and site_count == 1 and deployment_model != "byoc_marketplace":
+            recommended_sku = "GXP-CLOUD-LAB-2K5"
+            tier_name = "GxPHistorian Cloud — Lab & Process Development"
+            recommended_delivery = "Managed Single-Tenant Cloud (Pattern B)"
+            gxp_annual_subscription_usd = 18000
+            edge_boxes_recommended = 1
+        elif active_tags <= 25000 and site_count == 1 and deployment_model != "byoc_marketplace":
+            recommended_sku = "GXP-CLOUD-CLINICAL-25K"
+            tier_name = "GxPHistorian Cloud — Clinical & Pilot cGMP (Managed Single-Tenant)"
+            recommended_delivery = "Managed Single-Tenant Cloud VPC (Pattern B)"
+            gxp_annual_subscription_usd = 54000
+            edge_boxes_recommended = 2
+        else:
+            recommended_sku = "GXP-CLOUD-BYOC-100K"
+            tier_name = "GxPHistorian Cloud — Commercial cGMP & Multi-Site Enterprise Hub (BYOC Marketplace)"
+            recommended_delivery = "Customer VPC BYOC via AWS / Azure / GCP Marketplace (Pattern B & C)"
+            extra_tag_blocks = max(0, math.ceil((active_tags - 100000) / 50000.0))
+            extra_sites = max(0, site_count - 3)
+            gxp_annual_subscription_usd = 150000 + (extra_tag_blocks * 35000) + (extra_sites * 24000)
+            edge_boxes_recommended = max(2, site_count * 2)
+
+        edge_fleet_annual_usd = edge_boxes_recommended * 2500
+        gxp_total_annual_usd = gxp_annual_subscription_usd + edge_fleet_annual_usd
+
+        # 3. Legacy Proprietary Historian (AVEVA PI Flex + Named Seats + Manual CSV Re-Validation) Benchmark
+        legacy_tag_subscription_usd = int(round(max(28000.0, active_tags * 7.20 + (site_count * 25000.0)), -2))
+        legacy_named_seat_tax_usd = int(named_users * 1200)  # PI Vision + PI DataLink named seat fees
+        legacy_annual_csv_consulting_usd = int(site_count * 65000)  # Manual IQ/OQ re-execution & SI maintenance
+        legacy_total_annual_usd = (
+            legacy_tag_subscription_usd + legacy_named_seat_tax_usd + legacy_annual_csv_consulting_usd
+        )
+
+        annual_savings_usd = max(0, legacy_total_annual_usd - gxp_total_annual_usd)
+        three_year_savings_usd = annual_savings_usd * 3
+        tco_reduction_pct = round((annual_savings_usd / max(1, legacy_total_annual_usd)) * 100.0, 1)
+
+        marketplace_programs = {
+            "aws": "AWS Marketplace Private Offer (100% AWS Enterprise Discount Program / EDP Drawdown)",
+            "azure": "Microsoft Azure Marketplace Private Offer (100% Azure MACC Commitment Drawdown)",
+            "gcp": "Google Cloud Marketplace Private Offer (100% GCP Cloud Commit Drawdown)",
+        }
+
+        return {
+            "inputs": {
+                "active_tags": active_tags,
+                "named_users": named_users,
+                "site_count": site_count,
+                "deployment_model": deployment_model,
+                "cloud_provider": p_key,
+                "deadband_suppression_pct": deadband_suppression_pct,
+            },
+            "storage_sizing": {
+                "effective_sample_rate_hz": eff_rate_hz,
+                "annual_compressed_telemetry_gb": annual_telemetry_gb,
+                "ten_year_hot_nvme_data_tb": ten_year_hot_nvme_tb,
+                "recommended_hot_nvme_provisioned_tb": provisioned_nvme_tb,
+                "years_11_to_15_cold_worm_object_tb": fifteen_year_worm_tb,
+                "purdue_l25_edge_wal_per_site_gb": 100.0,
+            },
+            "recommendation": {
+                "sku_id": recommended_sku,
+                "tier_name": tier_name,
+                "delivery_architecture": recommended_delivery,
+                "cloud_marketplace_vehicle": marketplace_programs[p_key],
+                "recommended_edge_boxes": edge_boxes_recommended,
+                "unlimited_users_included": True,
+                "automated_gamp5_iq_oq_binder_included": True,
+                "signed_eu_annex11_qta_included": active_tags > 2500 or recommended_sku != "GXP-CLOUD-LAB-2K5",
+            },
+            "tco_comparison_usd": {
+                "gxphistorian_cloud": {
+                    "annual_platform_subscription_usd": gxp_annual_subscription_usd,
+                    "annual_edge_fleet_care_usd": edge_fleet_annual_usd,
+                    "annual_named_user_fees_usd": 0,
+                    "annual_csv_revalidation_fees_usd": 0,
+                    "total_annual_tco_usd": gxp_total_annual_usd,
+                    "three_year_total_tco_usd": gxp_total_annual_usd * 3,
+                },
+                "legacy_proprietary_historian_benchmark": {
+                    "annual_tag_stream_subscription_usd": legacy_tag_subscription_usd,
+                    "annual_named_user_seat_tax_usd": legacy_named_seat_tax_usd,
+                    "annual_manual_csv_and_si_consulting_usd": legacy_annual_csv_consulting_usd,
+                    "total_annual_tco_usd": legacy_total_annual_usd,
+                    "three_year_total_tco_usd": legacy_total_annual_usd * 3,
+                },
+                "net_customer_savings": {
+                    "annual_savings_usd": annual_savings_usd,
+                    "three_year_cumulative_savings_usd": three_year_savings_usd,
+                    "tco_reduction_pct": tco_reduction_pct,
+                },
+            },
         }
 
     return router
+
 

@@ -231,7 +231,14 @@ This **Validation Master Plan (VMP)** establishes the Computerized System Valida
 ## 5. Backup, Restore, Disaster Recovery & GitOps Change Control SOP
 
 - **Database & Telemetry Backups:** PostgreSQL `pi_control_plane` (including `part11_audit_log`) undergoes daily logical `pg_dump` and continuous WAL archiving to immutable object storage. ClickHouse `pi_historian` partitions (`PARTITION BY toYYYYMM(ts)`) are exported to Snappy-compressed Apache Parquet files and backed up via native ClickHouse `BACKUP TABLE` snapshots.
-- **GitOps Change Control (`SOP-IT-CHG-014`):** All infrastructure definitions (`docker-compose.yml`), database schemas (`init-postgres/`, `init-clickhouse/`), and API code (`app/main.py`) are version-controlled in Git. Any change requires a pull request, automated execution of the 15-test IQ/OQ `pytest` suite (`100%` pass gate), and QA electronic approval prior to production deployment.
+- **GitOps Change Control (`SOP-IT-CHG-014`):** All infrastructure definitions (`docker-compose.yml`), database schemas (`init-postgres/`, `init-clickhouse/`), and API code (`app/main.py`, `app/pi_parity_engine.py`) are version-controlled in Git. Any change requires a pull request, automated execution of the 21-test IQ/OQ `pytest` suite (`100%` pass gate), and QA electronic approval prior to production deployment.
+
+## 6. Hybrid Cloud & Commercial Edition Governance (EU GMP Annex 11 §4.3 & 21 CFR §11.30)
+
+For regulated organizations deploying **GxPHistorian Cloud** (`Managed Single-Tenant Cloud` or `BYOC Cloud Marketplace` across Amazon Web Services, Microsoft Azure, and Google Cloud):
+- **Purdue Level 2.5 Edge Autonomy (`URS-005`):** Pillar 1 (`edge-collector` or pre-qualified **GxPHistorian Edge Box** DIN-rail IPC) always executes on-premises with a 100 GB local pSLC NVMe Write-Ahead Log (`>14-day` offline store-and-forward autonomy) and outbound-only `TLS 1.3` / `mTLS` (`:8443`) transport.
+- **Change-Controlled LTS Release Channels (`2026.Q4-LTS`):** Cloud environments never undergo unannounced auto-updates. Every release is promoted to a customer staging environment first, where the 21-test `pytest` IQ/OQ suite executes automatically and mints a countersigned Validation Summary Report (`VSR`) prior to production promotion.
+- **Quality Technical Agreement (QTA):** Governed by the bidirectional Shared Responsibility Matrix in Document 05 (`SOUP-GXPHISTORIAN-2026-005`), granting annual QA postal/on-site supplier audit rights and guaranteeing 15-year `21 CFR 211.180` WORM retention (`AWS S3 Object Lock COMPLIANCE`, `Azure Immutable Blob Storage`, or `GCP Bucket Lock`).
 """
 
 
@@ -376,7 +383,20 @@ def build_05_soup(soup_items: List[Dict[str, str]], gen_ts: str) -> str:
             f"| `{item['service']}` | **{item['component']}** | `{item['license']}` | {item['vendor_backing']} | "
             f"{item['gamp_category']} | `{item['image_sha256']}` | {item['cve_controls']} |"
         )
-    lines.append("")
+    lines.extend(
+        [
+            "",
+            "## 2. EU GMP Annex 11 §4.3 Cloud Supplier Qualification & Quality Technical Agreement (QTA) Schedule",
+            "",
+            "| Regulatory Clause | Cloud IaaS/PaaS Provider (AWS / Azure / GCP) | GxPHistorian Cloud Control Plane (Managed or BYOC) | Regulated Pharmaceutical User (QA / OT / MSAT) |",
+            "| :--- | :--- | :--- | :--- |",
+            "| **21 CFR §11.30 Open System Controls** | Physical data center perimeter, Direct Connect / ExpressRoute / Interconnect fiber encryption, FIPS 140-3 KMS HSMs | Enforces outbound-only `TLS 1.3` / `mTLS` (`:8443`) from Purdue L2.5 `edge-collector`, `PG_SSLMODE=verify-full`, and `CH_SECURE=true` | Approves plant firewall outbound rule (`:8443`) and manages corporate IdP (`Okta` / `Entra ID`) user lifecycle |",
+            "| **21 CFR §11.10(e) & ALCOA+ Contemporaneous Capture** | Multi-AZ compute, NVMe block durability, and private VPC/VNet routing | Monitors Purdue L2.5 100 GB Telegraf Disk WAL (`>14-day` autonomy per `URS-005`) via `/api/v1/cloud/edge-agents/heartbeat` | Maintains physical power/UPS to Purdue L2.5 DIN-rail Edge Box (`Advantech UNO-2484G` / `OnLogic Karbon 800`) |",
+            "| **21 CFR 211.180 & EU Annex 11 §17 15-Year WORM Retention** | Hardware-enforced object immutability (`AWS S3 Object Lock COMPLIANCE`, `Azure Locked Immutability`, `GCP Bucket Lock`) | Automates ClickHouse zero-copy cold tiering (`gxp_10yr_nvme_15yr_worm`) and encrypted `pgBackRest` PITR snapshots | Retains Customer-Managed KMS Key (`CMK`/`CMEK`) ownership and reviews annual restoration drill evidence |",
+            "| **EU Annex 11 §4.3 & GAMP 5 Change Control** | SOC 1/2/3, ISO/IEC 27001, ISO/IEC 27017/27018 continuous compliance attestations | Pins tenant to approved LTS Release Channel (`2026.Q4-LTS`), runs automated 21/21 `pytest` IQ/OQ in staging, and issues signed `VSR` | Countersigns electronic Change Control & Validation Summary Report (`VSR-GXPHISTORIAN-2026-008`) prior to production promotion |",
+            "",
+        ]
+    )
     return "\n".join(lines)
 
 

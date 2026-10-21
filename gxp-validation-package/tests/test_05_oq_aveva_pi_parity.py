@@ -807,7 +807,7 @@ def test_oq_16_swinging_door_truefor_backfill_multisig_and_notifications(
     assert "operator_01" in signers
     assert "qa_approver_01" in signers
 
-    # 5. Hybrid Cloud Deployment Blueprints (AWS, Azure & Google Cloud)
+    # 5. Hybrid Cloud Deployment Blueprints, Edge Fleet Enrollment & TCO Calculator (AWS, Azure & Google Cloud)
     cloud_resp = api_client.get("/api/v1/cloud/hybrid-blueprints")
     assert cloud_resp.status_code == 200
     cloud_data = cloud_resp.json()
@@ -817,6 +817,15 @@ def test_oq_16_swinging_door_truefor_backfill_multisig_and_notifications(
         "pattern_b_cloud_core",
         "pattern_c_hub_spoke",
     }
+    assert "commercial_cloud_editions" in cloud_data
+    assert set(cloud_data["commercial_cloud_editions"].keys()) == {
+        "cloud_lab_pd",
+        "clinical_cgmp_managed",
+        "commercial_enterprise_byoc",
+        "edge_box_appliance",
+    }
+    assert "eu_annex11_qta_schedule" in cloud_data
+
     aws_bp = api_client.get(
         "/api/v1/cloud/hybrid-blueprints",
         params={"provider": "aws", "pattern": "pattern_b_cloud_core"},
@@ -824,6 +833,67 @@ def test_oq_16_swinging_door_truefor_backfill_multisig_and_notifications(
     assert aws_bp.status_code == 200
     assert "aws" in aws_bp.json()["providers"]
     assert "<cold_worm_s3>" in aws_bp.json()["providers"]["aws"]["clickhouse_worm_storage_xml"]
+
+    # 6. Cloud Edge Fleet Heartbeat Enrollment (Part 11 Attribution + URS-005 >14-Day WAL Autonomy)
+    unattr_hb = api_client.post(
+        "/api/v1/cloud/edge-agents/heartbeat",
+        json={"agent_id": "edge-fremont-oq-01", "site_path": "BioCorp.Fremont.USP.Bioreactor_201"},
+    )
+    assert unattr_hb.status_code == 422
+
+    attr_hb = api_client.post(
+        "/api/v1/cloud/edge-agents/heartbeat",
+        headers={
+            "X-Actor-Id": "operator_01",
+            "X-Change-Reason": "OQ-16 Purdue L2.5 Edge Box Enrollment & WAL Autonomy Check",
+        },
+        json={
+            "agent_id": "edge-fremont-oq-01",
+            "site_path": "BioCorp.Fremont.USP.Bioreactor_201",
+            "hardware_model": "Advantech UNO-2484G (512GB pSLC NVMe)",
+            "deployment_pattern": "pattern_b_cloud_core",
+            "cloud_provider": "aws",
+            "wal_buffer_used_gb": 1.25,
+            "wal_buffer_capacity_gb": 100.0,
+            "active_tag_count": 25000,
+            "mtls_cert_days_remaining": 84,
+            "wan_link_status": "CONNECTED_MTLS_8443",
+        },
+    )
+    assert attr_hb.status_code == 200
+    hb_agent = attr_hb.json()["agent"]
+    assert hb_agent["urs_005_14day_autonomy_compliant"] is True
+    assert hb_agent["estimated_autonomy_days_remaining"] >= 14.0
+
+    fleet_resp = api_client.get("/api/v1/cloud/edge-agents")
+    assert fleet_resp.status_code == 200
+    fleet_data = fleet_resp.json()
+    assert fleet_data["count"] >= 1
+    assert fleet_data["urs_005_all_compliant"] is True
+
+    # 7. Cloud Commercial TCO & AVEVA PI Savings Calculator
+    tco_clinical = api_client.get(
+        "/api/v1/cloud/tco-calculator",
+        params={"active_tags": 25000, "named_users": 50, "site_count": 1, "cloud_provider": "aws"},
+    )
+    assert tco_clinical.status_code == 200
+    tco_c_data = tco_clinical.json()
+    assert tco_c_data["recommendation"]["sku_id"] == "GXP-CLOUD-CLINICAL-25K"
+    assert tco_c_data["recommendation"]["unlimited_users_included"] is True
+    assert tco_c_data["tco_comparison_usd"]["net_customer_savings"]["tco_reduction_pct"] >= 60.0
+
+    tco_byoc = api_client.get(
+        "/api/v1/cloud/tco-calculator",
+        params={
+            "active_tags": 100000,
+            "named_users": 150,
+            "site_count": 3,
+            "deployment_model": "byoc_marketplace",
+            "cloud_provider": "azure",
+        },
+    )
+    assert tco_byoc.status_code == 200
+    assert tco_byoc.json()["recommendation"]["sku_id"] == "GXP-CLOUD-BYOC-100K"
 
     evidence.record(
         assertion_summary=(

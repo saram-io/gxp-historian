@@ -417,10 +417,34 @@ curl -s -X POST http://localhost:8020/api/v1/notifications/sms-webhook \
 # 7. Inspect Audit-Logged Deliveries (Filterable by EMAIL, SMS, MOBILE_PUSH, WEBHOOK)
 curl -s "http://localhost:8020/api/v1/notifications/deliveries?channel=SMS" | jq .
 
-# 8. Retrieve Validated Hybrid Cloud Deployment Blueprints (AWS, Azure & Google Cloud)
+# 8. Retrieve Validated Hybrid Cloud Deployment Blueprints & Commercial Editions (AWS, Azure & Google Cloud)
 curl -s "http://localhost:8020/api/v1/cloud/hybrid-blueprints?provider=aws&pattern=pattern_b_cloud_core" | jq .
+
+# 9. Enroll a Purdue Level 2.5 Edge Collector Appliance & Verify URS-005 (>14-Day WAL Autonomy)
+curl -s -X POST "http://localhost:8020/api/v1/cloud/edge-agents/heartbeat" \
+  -H "Content-Type: application/json" \
+  -H "X-Actor-Id: operator_01" \
+  -H "X-Change-Reason: Enroll Purdue L2.5 DIN-Rail Edge Box for USP Suite 201" \
+  -d '{
+    "agent_id": "edge-fremont-usp-01",
+    "site_path": "BioCorp.Fremont.USP.Bioreactor_201",
+    "hardware_model": "Advantech UNO-2484G (512GB pSLC NVMe)",
+    "deployment_pattern": "pattern_b_cloud_core",
+    "cloud_provider": "aws",
+    "wal_buffer_used_gb": 1.25,
+    "wal_buffer_capacity_gb": 100.0,
+    "active_tag_count": 25000,
+    "mtls_cert_days_remaining": 84,
+    "wan_link_status": "CONNECTED_MTLS_8443"
+  }' | jq .
+
+curl -s "http://localhost:8020/api/v1/cloud/edge-agents" | jq .
+
+# 10. Calculate 10-Year Hot NVMe + 15-Year WORM Cloud Sizing & AVEVA PI TCO Savings
+curl -s "http://localhost:8020/api/v1/cloud/tco-calculator?active_tags=25000&named_users=50&site_count=1&cloud_provider=aws" | jq .
 ```
 
-For a comprehensive deep-dive into AVEVA PI System alerting architecture and `GxPHistorian` multi-channel setup, see **[PI Notifications: Email, SMS & Mobile Alerting](/docs/clients-and-api/pi-notifications-alerting/)**.
+For a comprehensive deep-dive into AVEVA PI System alerting architecture and `GxPHistorian` multi-channel setup, see **[PI Notifications: Email, SMS & Mobile Alerting](/docs/clients-and-api/pi-notifications-alerting/)** and **[Hybrid Cloud Deployment (AWS, Azure & GCP)](/docs/architecture/hybrid-cloud-deployment/)**.
+
 
 

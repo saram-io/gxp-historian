@@ -406,6 +406,11 @@ curl -s -X POST http://localhost:8020/api/v1/notifications/evaluate \
 curl -s -X POST http://localhost:8020/api/v1/notifications/sms-webhook \
   -H "Content-Type: application/json" \
   -d '{"From": "+14155550101", "Body": "ACK 1 Jacket cooling valve reset"}' | jq .
+
+# 5. Hybrid Cloud Blueprints, Purdue L2.5 Edge Fleet Enrollment & AVEVA PI TCO Savings Calculator
+curl -s "http://localhost:8020/api/v1/cloud/hybrid-blueprints?provider=aws&pattern=pattern_b_cloud_core" | jq .
+curl -s "http://localhost:8020/api/v1/cloud/edge-agents" | jq .
+curl -s "http://localhost:8020/api/v1/cloud/tco-calculator?active_tags=25000&named_users=50&site_count=1&cloud_provider=aws" | jq .
 ```
 
 ---

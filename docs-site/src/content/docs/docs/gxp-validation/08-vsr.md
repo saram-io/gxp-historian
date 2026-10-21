@@ -2,7 +2,7 @@
 title: "Document 08 — Validation Summary Report (VSR) & Release Certificate"
 description: "Document 08 — Validation Summary Report (VSR) and QA Release Disposition for Production GMP Use."
 ---
-**Document ID:** `VSR-GXPHISTORIAN-2026-008` | **Release Date (UTC):** `2026-10-21T00:47:02Z` | **System Release Status:** **QUALIFIED FOR GxP PRODUCTION USE**
+**Document ID:** `VSR-GXPHISTORIAN-2026-008` | **Release Date (UTC):** `2026-10-21T01:31:29Z` | **System Release Status:** **QUALIFIED FOR GxP PRODUCTION USE**
 
 ---
 
@@ -14,7 +14,7 @@ The **GxPHistorian GxP Industrial Historian** (ClickHouse 24.8 Telemetry Archive
 | :--- | :--- | :--- | :--- |
 | **User Requirements Coverage (URS-001..021)** | 100% Bidirectional Traceability | `21 / 21` Requirements Mapped & Verified | **PASS** |
 | **Automated IQ/OQ Test Suite (`pytest`)** | 100% Pass Rate (0 Failures) | `21 / 21` Passed (`100.0%`) | **PASS** |
-| **21 CFR Part 11 Cryptographic Hash Chain** | `chain_valid == true` from `GENESIS` | `69222` Audit Records Verified (`head: afcbe93f3a072f4be604f6fe...`) | **PASS** |
+| **21 CFR Part 11 Cryptographic Hash Chain** | `chain_valid == true` from `GENESIS` | `69888` Audit Records Verified (`head: 5a646177e5d0886c6bef57ae...`) | **PASS** |
 | **Validation Deviations / CAPAs** | 0 Open Critical/Major Deviations | `0` Deviations Encountered | **PASS** |
 
 ## 2. Deviation & Non-Conformance Log
@@ -32,6 +32,6 @@ Based on the objective cryptographic evidence captured in `oq_execution_results.
 
 | Signer Role | Printed Name | User ID | Signature Meaning | Signed Timestamp (UTC) | Cryptographic Verification |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **System Owner (IT/OT)** | Sarah Jenkins | `operator_01` | System Technical Qualification & Operational Handover Approval | `2026-10-21T00:47:02Z` | Verified via `pgcrypto` & Part 11 Audit Chain |
-| **Quality Assurance (QP)** | Dr. Marcus Vance | `qa_approver_01` | Final QA Validation Release & 21 CFR Part 11 Compliance Approval | `2026-10-21T00:47:02Z` | HMAC-SHA256 Bound (`afcbe93f3a072f4be604f6fed57b0846...`) |
+| **System Owner (IT/OT)** | Sarah Jenkins | `operator_01` | System Technical Qualification & Operational Handover Approval | `2026-10-21T01:31:29Z` | Verified via `pgcrypto` & Part 11 Audit Chain |
+| **Quality Assurance (QP)** | Dr. Marcus Vance | `qa_approver_01` | Final QA Validation Release & 21 CFR Part 11 Compliance Approval | `2026-10-21T01:31:29Z` | HMAC-SHA256 Bound (`5a646177e5d0886c6bef57aeb94d911d...`) |
 

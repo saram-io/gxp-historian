@@ -328,3 +328,60 @@ When qualifying a hybrid deployment under **ISPE GAMP 5 (Second Edition)** and *
 | **`21 CFR §11.10(e)` — Tamper-Evident WORM Audit Trail** | Managed PostgreSQL (`RDS`, `Azure Flexible Server`, `Cloud SQL`) underlying storage durability and automated encrypted backups. | • Database-enforced PL/pgSQL triggers (`fn_enforce_part11_audit()` and `fn_prevent_audit_tampering()`) blocking `UPDATE`/`DELETE`/`TRUNCATE` even by DB superusers.<br>• Cryptographic `SHA-256` hash chain verified via `GET /api/v1/audit-trail/verify`. |
 | **`21 CFR 211.180` & `EU Annex 11 §17` — 15-Year Immutable Batch & Telemetry Archiving** | Hardware-enforced object immutability (`AWS S3 Object Lock COMPLIANCE`, `Azure Locked Immutability Policy`, `GCP Locked Bucket Retention`). | • ClickHouse multi-volume storage policy (`<move_factor>0.2</move_factor>` and `TTL ... TO VOLUME 'cold_volume'`) moving aged partitions to WORM object storage without `DELETE`. |
 | **`EU Annex 11 §4.3` & `GAMP 5` — Cloud Supplier Assessment & Data Residency** | SOC 1/2/3, ISO/IEC 27001, ISO/IEC 27017/27018, and GxP Qualification packs (AWS GxP, Azure GxP, Google Cloud GxP). | • Pin all cloud resources, WORM buckets, and private AI endpoints (`Bedrock`, `Azure OpenAI`, `Vertex AI`) to approved sovereign/regional jurisdictions (e.g., `us-east-1`, `eu-central-1`). |
+
+---
+
+## 9. GxPHistorian Cloud Commercial Editions & Transparent Pricing
+
+While the **GxPHistorian Open-Source Core (`MIT`)** is 100% free forever for self-managed deployments, regulated biotech and pharmaceutical organizations frequently prefer a **turnkey, pre-validated cloud control plane** backed by a signed **EU GMP Annex 11 §4.3 Quality Technical Agreement (QTA)**, version-pinned **Change-Controlled Release Channels (`2026.Q4-LTS`)**, and **Unlimited Grafana Vision HMI & Excel DataLink seats (\$0 per-seat tax)**.
+
+### Dual-Track Commercial Delivery Model
+
+| Commercial Edition | Architecture & Cloud Residency | Included Capacity | Annual Subscription | Ideal Regulated Buyer |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. GxPHistorian Cloud — Lab & PD** (`GXP-CLOUD-LAB-2K5`) | **Managed Single-Tenant Cloud (`Pattern B`):** Dedicated isolated VPC managed by Saram Consulting + 1 Purdue L2.5 Edge Collector | Up to **2,500 active tags** · 1 Site · **Unlimited Users** · 3-Yr Hot NVMe + 15-Yr WORM Archive · Automated IQ/OQ Sandbox Binder | **\$18,000 / yr** *(\$1,500 / mo)* | Process Development (PD), Analytical Development, and Pre-Clinical Biotech Labs |
+| **2. GxPHistorian Cloud — Clinical & Pilot cGMP** (`GXP-CLOUD-CLINICAL-25K`) | **Managed Single-Tenant Cloud (`Pattern B`):** Dedicated Multi-AZ VPC + 2 Redundant Purdue L2.5 Edge Collectors (`>14-day` Disk WAL) | Up to **25,000 active tags** · 1 Site · **Unlimited Users** · 10-Yr Hot NVMe + 15-Yr WORM · Okta / Entra ID `§11.200` SSO · **Signed EU Annex 11 §4.3 QTA** & Change-Controlled IQ/OQ Releases | **\$54,000 / yr** *(\$4,500 / mo)* | Phase I–III Clinical Manufacturing Plants, Cell & Gene Therapy (CAR-T / mRNA) Suites, and Nimble CDMOs |
+| **3. GxPHistorian Cloud — Commercial cGMP & Enterprise Hub (BYOC)** (`GXP-CLOUD-BYOC-100K`) | **Bring Your Own Cloud (`Pattern B & C`):** Deployed directly inside the **Customer's AWS / Azure / GCP VPC** via Cloud Marketplace with Customer-Managed KMS Keys (`CMK`/`CMEK`) | Up to **100,000 active tags** (up to 3 Sites) · **Unlimited Global Users** · Cross-Site Golden Batch Hub · Private Bedrock / Azure OpenAI / Vertex AI Co-Pilot · Zero-ETL Lakehouse · Annual QA Supplier Audit Rights | **\$150,000 / yr** *(\$12,500 / mo — 100% AWS EDP / Azure MACC / GCP Commit eligible)* | Commercial Biomanufacturing Facilities, Mid-to-Large Pharma, and Multi-Site Global CDMOs |
+| **Add-On: Pre-Qualified GxPHistorian Edge Box** (`GXP-EDGE-BOX-L25`) | **Plug-and-Play Purdue Level 2.5 Appliance:** Fanless DIN-rail IPC (`Advantech UNO-2484G` or `OnLogic Karbon 800`, 512 GB pSLC NVMe, Dual Isolated LAN) | Pre-flashed with `edge-collector`, 100 GB Telegraf Disk WAL (`>14-day` autonomy), outbound mTLS (`:8443`), and **Factory-Executed FAT/IQ Certificate** | **\$3,500 hardware** + **\$2,500 / yr Fleet Care** | Cleanroom suites requiring zero-IT shop-floor commissioning |
+
+---
+
+## 10. Cloud Edge Fleet Enrollment & TCO Calculator REST APIs
+
+### A. Enroll & Monitor Purdue Level 2.5 Edge Collectors (`POST /api/v1/cloud/edge-agents/heartbeat`)
+
+Every Purdue Level 2.5 `edge-collector` node (or pre-qualified **GxPHistorian Edge Box**) reports its 100 GB Telegraf Disk WAL utilization, active field protocols, and outbound mTLS certificate expiration to the control plane with mandatory **21 CFR Part 11 attribution (`X-Actor-Id` & `X-Change-Reason`)**:
+
+```bash
+curl -s -X POST "http://localhost:8020/api/v1/cloud/edge-agents/heartbeat" \
+  -H "Content-Type: application/json" \
+  -H "X-Actor-Id: operator_01" \
+  -H "X-Change-Reason: Enroll Purdue L2.5 DIN-Rail Edge Box for USP Suite 201" \
+  -d '{
+    "agent_id": "edge-fremont-usp-01",
+    "site_path": "BioCorp.Fremont.USP.Bioreactor_201",
+    "hardware_model": "Advantech UNO-2484G (512GB pSLC NVMe)",
+    "deployment_pattern": "pattern_b_cloud_core",
+    "cloud_provider": "aws",
+    "wal_buffer_used_gb": 1.25,
+    "wal_buffer_capacity_gb": 100.0,
+    "active_tag_count": 25000,
+    "mtls_cert_days_remaining": 84,
+    "wan_link_status": "CONNECTED_MTLS_8443"
+  }' | jq .
+```
+
+To inspect all enrolled Edge Collectors and verify `URS-005` ($>14\text{-day}$ WAN outage autonomy) compliance across your fleet:
+
+```bash
+curl -s "http://localhost:8020/api/v1/cloud/edge-agents" | jq .
+```
+
+### B. Programmatic Cloud Sizing & AVEVA PI TCO Savings Calculator (`GET /api/v1/cloud/tco-calculator`)
+
+Compute 10-year Hot NVMe + 15-year WORM S3/Blob/GCS storage requirements, get an automated SKU recommendation, and compare 1-year and 3-year Total Cost of Ownership (TCO) against legacy per-tag/per-seat historians (`AVEVA PI Flex` + manual CSV consulting):
+
+```bash
+curl -s "http://localhost:8020/api/v1/cloud/tco-calculator?active_tags=25000&named_users=50&site_count=1&cloud_provider=aws" | jq .
+```
+
