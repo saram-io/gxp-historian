@@ -30,8 +30,349 @@ import Default from '@astrojs/starlight/components/Footer.astro';
   </p>
 </div>
 
+<!-- Modern Web Guidance (light-dismiss-a-dialog & platform-controls-dismiss-dialog):
+     Native top-layer modal dialog with declarative closedby="any" light-dismiss -->
+<dialog id="gxp-image-lightbox" class="gxp-lightbox" closedby="any" aria-labelledby="gxp-lightbox-title">
+  <div class="gxp-lightbox-header">
+    <h2 id="gxp-lightbox-title" class="gxp-lightbox-title">Diagram Viewer</h2>
+    <div class="gxp-lightbox-controls" role="toolbar" aria-label="Image zoom controls">
+      <button type="button" class="gxp-lightbox-btn" data-zoom-step="-0.25" aria-label="Zoom out">−</button>
+      <button type="button" class="gxp-lightbox-btn" data-zoom-preset="1" aria-pressed="true">100% Fit</button>
+      <button type="button" class="gxp-lightbox-btn" data-zoom-preset="1.5" aria-pressed="false">150%</button>
+      <button type="button" class="gxp-lightbox-btn" data-zoom-preset="2" aria-pressed="false">200%</button>
+      <button type="button" class="gxp-lightbox-btn" data-zoom-preset="2.5" aria-pressed="false">250%</button>
+      <button type="button" class="gxp-lightbox-btn" data-zoom-step="0.25" aria-label="Zoom in">+</button>
+      <a
+        id="gxp-lightbox-raw"
+        class="gxp-lightbox-link"
+        href="#"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Open Original ↗
+      </a>
+      <button type="button" id="gxp-lightbox-close" class="gxp-lightbox-btn gxp-lightbox-close">
+        ✕ Close (Esc)
+      </button>
+    </div>
+  </div>
+  <div id="gxp-lightbox-stage" class="gxp-lightbox-stage" tabindex="0" aria-label="Scrollable enlarged diagram canvas"></div>
+  <div class="gxp-lightbox-footer">
+    <span>Tip: Click the diagram to toggle zoom (100% ↔ 175%), drag to pan when zoomed, or use + / − / 0 keys.</span>
+    <span>Click outside the modal or press Esc to close.</span>
+  </div>
+</dialog>
+
 <script>
+  // Modern Web Guidance (animate-to-from-top-layer): Probe discrete display transition support
+  let supportsDisplayTransition: boolean | undefined;
+  function canTransitionDisplay(): boolean {
+    if (supportsDisplayTransition !== undefined) return supportsDisplayTransition;
+    if (!window.CSS?.supports?.('transition-behavior', 'allow-discrete') || !document.body) {
+      return false;
+    }
+    const probe = document.createElement('div');
+    probe.style.cssText = 'transition: display 1s allow-discrete !important; display: block;';
+    document.body.appendChild(probe);
+    getComputedStyle(probe).display;
+    probe.style.display = 'none';
+    supportsDisplayTransition = getComputedStyle(probe).display === 'block';
+    probe.remove();
+    return supportsDisplayTransition;
+  }
+
+  function supportsTopLayerExit(): boolean {
+    return Boolean(window.CSS?.supports?.('overlay', 'auto') && canTransitionDisplay());
+  }
+
+  async function closeTopLayer(dialog: HTMLDialogElement) {
+    if (!dialog.open) return;
+    if (!supportsTopLayerExit()) {
+      dialog.setAttribute('data-closing', '');
+      const animations = dialog.getAnimations({ subtree: true });
+      if (animations.length > 0) {
+        await Promise.race([
+          Promise.allSettled(animations.map((a) => a.finished)),
+          new Promise((r) => setTimeout(r, 2000)),
+        ]);
+      }
+      if (!dialog.hasAttribute('data-closing')) return;
+      dialog.removeAttribute('data-closing');
+    }
+    dialog.close();
+  }
+
+  let currentZoom = 1;
+  let activeBlobUrl: string | null = null;
+
+  function applyLightboxZoom(zoom: number) {
+    const stage = document.getElementById('gxp-lightbox-stage');
+    const dialog = document.getElementById('gxp-image-lightbox');
+    if (!stage || !dialog) return;
+
+    currentZoom = Math.min(3, Math.max(0.75, Math.round(zoom * 100) / 100));
+    stage.style.setProperty('--gxp-zoom', String(currentZoom));
+    stage.setAttribute('data-zoomed', currentZoom > 1 ? 'true' : 'false');
+
+    const presetButtons = dialog.querySelectorAll<HTMLButtonElement>('button[data-zoom-preset]');
+    for (const btn of presetButtons) {
+      const preset = Number(btn.getAttribute('data-zoom-preset'));
+      btn.setAttribute('aria-pressed', Math.abs(preset - currentZoom) < 0.05 ? 'true' : 'false');
+    }
+  }
+
+  function openImageInLightbox(options: { src?: string; alt: string; svgNode?: SVGElement }) {
+    const dialog = document.getElementById('gxp-image-lightbox') as HTMLDialogElement | null;
+    const stage = document.getElementById('gxp-lightbox-stage');
+    const titleEl = document.getElementById('gxp-lightbox-title');
+    const rawLink = document.getElementById('gxp-lightbox-raw') as HTMLAnchorElement | null;
+    if (!dialog || !stage || !titleEl || !rawLink) return;
+
+    if (activeBlobUrl) {
+      URL.revokeObjectURL(activeBlobUrl);
+      activeBlobUrl = null;
+    }
+
+    stage.replaceChildren();
+    titleEl.textContent = options.alt || 'Architecture & Equipment Diagram';
+
+    if (options.src) {
+      const enlargedImg = document.createElement('img');
+      enlargedImg.src = options.src;
+      enlargedImg.alt = options.alt || 'Enlarged diagram';
+      stage.appendChild(enlargedImg);
+      rawLink.href = options.src;
+      rawLink.hidden = false;
+    } else if (options.svgNode) {
+      const clone = options.svgNode.cloneNode(true) as SVGElement;
+      clone.removeAttribute('style');
+      clone.setAttribute('width', '100%');
+      clone.setAttribute('height', 'auto');
+      stage.appendChild(clone);
+
+      const serialized = new XMLSerializer().serializeToString(clone);
+      const blob = new Blob([serialized], { type: 'image/svg+xml;charset=utf-8' });
+      activeBlobUrl = URL.createObjectURL(blob);
+      rawLink.href = activeBlobUrl;
+      rawLink.hidden = false;
+    }
+
+    applyLightboxZoom(1);
+    if (!dialog.open) {
+      dialog.showModal();
+    }
+  }
+
+  function initLightboxDialogControls() {
+    const dialog = document.getElementById('gxp-image-lightbox') as HTMLDialogElement | null;
+    const stage = document.getElementById('gxp-lightbox-stage');
+    const closeBtn = document.getElementById('gxp-lightbox-close');
+    if (!dialog || !stage || dialog.dataset.bound === 'true') return;
+    dialog.dataset.bound = 'true';
+
+    // Modern Web Guidance (light-dismiss-a-dialog): Mandatory fallback for browsers without closedby support
+    if (!('closedBy' in HTMLDialogElement.prototype)) {
+      dialog.addEventListener('click', (event) => {
+        if (event.target !== dialog) return;
+        const rect = dialog.getBoundingClientRect();
+        const isDialogContent =
+          rect.top <= event.clientY &&
+          event.clientY <= rect.top + rect.height &&
+          rect.left <= event.clientX &&
+          event.clientX <= rect.left + rect.width;
+        if (isDialogContent) return;
+        closeTopLayer(dialog);
+      });
+    }
+
+    dialog.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      closeTopLayer(dialog);
+    });
+
+    dialog.addEventListener('close', () => {
+      if (activeBlobUrl) {
+        URL.revokeObjectURL(activeBlobUrl);
+        activeBlobUrl = null;
+      }
+    });
+
+    closeBtn?.addEventListener('click', () => {
+      closeTopLayer(dialog);
+    });
+
+    dialog.querySelectorAll<HTMLButtonElement>('button[data-zoom-preset]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const val = Number(btn.getAttribute('data-zoom-preset') || '1');
+        applyLightboxZoom(val);
+      });
+    });
+
+    dialog.querySelectorAll<HTMLButtonElement>('button[data-zoom-step]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const step = Number(btn.getAttribute('data-zoom-step') || '0.25');
+        applyLightboxZoom(currentZoom + step);
+      });
+    });
+
+    // Click to toggle zoom or drag to pan inside stage
+    let isDragging = false;
+    let didDrag = false;
+    let startX = 0;
+    let startY = 0;
+    let scrollLeft = 0;
+    let scrollTop = 0;
+
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      isDragging = true;
+      didDrag = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      scrollLeft = stage.scrollLeft;
+      scrollTop = stage.scrollTop;
+      if (currentZoom > 1) {
+        stage.setAttribute('data-dragging', 'true');
+      }
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+        didDrag = true;
+      }
+      if (currentZoom > 1 && didDrag) {
+        stage.scrollLeft = scrollLeft - dx;
+        stage.scrollTop = scrollTop - dy;
+      }
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      stage.removeAttribute('data-dragging');
+    });
+
+    stage.addEventListener('click', (e) => {
+      if (didDrag) {
+        didDrag = false;
+        return;
+      }
+      if (e.target === stage) return;
+      applyLightboxZoom(currentZoom > 1.1 ? 1 : 1.75);
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (!dialog.open) return;
+      if (e.key === '+' || e.key === '=') {
+        e.preventDefault();
+        applyLightboxZoom(currentZoom + 0.25);
+      } else if (e.key === '-' || e.key === '_') {
+        e.preventDefault();
+        applyLightboxZoom(currentZoom - 0.25);
+      } else if (e.key === '0') {
+        e.preventDefault();
+        applyLightboxZoom(1);
+      }
+    });
+  }
+
+  function bindZoomableImages() {
+    initLightboxDialogControls();
+    const images = document.querySelectorAll<HTMLImageElement>('.sl-markdown-content img');
+    for (const img of images) {
+      if (img.dataset.zoomBound === 'true' || img.closest('a')) continue;
+      img.dataset.zoomBound = 'true';
+
+      const altText = img.getAttribute('alt') || 'Documentation diagram';
+      const wrapper = document.createElement('figure');
+      wrapper.className = 'gxp-zoomable-figure';
+
+      const captionBar = document.createElement('figcaption');
+      captionBar.className = 'gxp-zoom-caption-bar';
+
+      const captionSpan = document.createElement('span');
+      captionSpan.className = 'gxp-zoom-caption-text';
+      captionSpan.textContent = altText;
+
+      const badge = document.createElement('button');
+      badge.type = 'button';
+      badge.className = 'gxp-zoom-badge';
+      badge.setAttribute('aria-label', `Enlarge image: ${altText}`);
+      badge.textContent = '🔍 Click to enlarge';
+
+      captionBar.appendChild(captionSpan);
+      captionBar.appendChild(badge);
+
+      const parent = img.parentNode;
+      if (parent) {
+        parent.insertBefore(wrapper, img);
+        wrapper.appendChild(img);
+        wrapper.appendChild(captionBar);
+      }
+
+      const openHandler = () => {
+        openImageInLightbox({
+          src: img.currentSrc || img.src,
+          alt: altText,
+        });
+      };
+
+      img.addEventListener('click', openHandler);
+      badge.addEventListener('click', openHandler);
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('enlarge') === '1') {
+      const firstImg = document.querySelector<HTMLImageElement>('.sl-markdown-content img');
+      if (firstImg) {
+        openImageInLightbox({
+          src: firstImg.currentSrc || firstImg.src,
+          alt: firstImg.getAttribute('alt') || 'Documentation diagram',
+        });
+        const zoomParam = Number(params.get('zoom') || '1');
+        if (zoomParam > 0.5) applyLightboxZoom(zoomParam);
+      }
+    }
+  }
+
+  function bindZoomableMermaidDiagrams() {
+    initLightboxDialogControls();
+    const wrappers = document.querySelectorAll<HTMLElement>('.mermaid-wrapper');
+    for (const wrapper of wrappers) {
+      const svg = wrapper.querySelector<SVGElement>('svg');
+      if (!svg || wrapper.dataset.zoomBound === 'true') continue;
+      wrapper.dataset.zoomBound = 'true';
+      wrapper.classList.add('gxp-zoomable-mermaid');
+
+      const badge = document.createElement('button');
+      badge.type = 'button';
+      badge.className = 'gxp-zoom-badge';
+      badge.setAttribute('aria-label', 'Enlarge interactive architecture flowchart');
+      badge.textContent = '🔍 Click to enlarge';
+      wrapper.appendChild(badge);
+
+      const openHandler = () => {
+        const currentSvg = wrapper.querySelector<SVGElement>('svg');
+        if (!currentSvg) return;
+        openImageInLightbox({
+          alt: 'Architecture Flowchart & Sequence Diagram',
+          svgNode: currentSvg,
+        });
+      };
+
+      wrapper.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).closest('a')) return;
+        openHandler();
+      });
+    }
+  }
+
   async function renderMermaidDiagrams() {
+    bindZoomableImages();
+
     const blocks = document.querySelectorAll<HTMLElement>('pre.mermaid');
     if (!blocks.length) return;
 
@@ -56,6 +397,7 @@ import Default from '@astrojs/starlight/components/Footer.astro';
       await mermaid.run({
         nodes: Array.from(blocks),
       });
+      bindZoomableMermaidDiagrams();
     } catch (err) {
       console.error('Mermaid rendering error:', err);
     }

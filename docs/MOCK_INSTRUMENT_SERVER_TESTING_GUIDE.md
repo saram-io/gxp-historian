@@ -148,7 +148,7 @@ Below are copy-pasteable terminal commands (`curl`, `python3`, and `nc`) to test
 
 ### 4.1 Protocol 1: OPC UA (`IEC 62541` Binary `HEL`/`ACK` + Node Read on `TCP :4840`)
 
-![OPC UA & Classic OPC DA Architecture & Certificate Handshake](images/connectors/opc-ua-opc-da-architecture.svg)
+![OPC UA & Classic OPC DA Architecture & Certificate Handshake](images/connectors/opc-ua-vs-opc-da-architecture.svg)
 
 #### A. Inspect the Simulated OPC UA Address Space (`HTTP :8095`)
 ```bash
@@ -178,7 +178,7 @@ with socket.create_connection(("localhost", 4840), timeout=3.0) as s:
 
 ### 4.2 Protocol 2: Modbus TCP (`MBAP` + `FC 0x03`/`0x04` Registers on `TCP :5020`)
 
-![Modbus TCP/RTU Register Map & 32-Bit IEEE-754 Endianness (`ABCD` vs `CDAB`)](images/connectors/modbus-register-endianness.svg)
+![Modbus TCP/RTU Register Map & 32-Bit IEEE-754 Endianness (`ABCD` vs `CDAB`)](images/connectors/modbus-tcp-rtu-register-map.svg)
 
 The Modbus TCP listener on `:5020` intentionally exposes every process variable in **three encodings** so you can verify your Modbus client's word-swap (`ABCD` vs `CDAB`) and fixed-point scaling (`INT16 × 10`) configuration:
 
@@ -221,7 +221,7 @@ with socket.create_connection(("localhost", 5020), timeout=3.0) as s:
 
 ### 4.3 Protocol 3: BACnet/IP (`ASHRAE 135 Annex J` `UDP :47808`)
 
-![BACnet/IP & MS/TP Cleanroom EMS Architecture & 4-Bit Status_Flags](images/connectors/bacnet-ip-mstp-topology.svg)
+![BACnet/IP & MS/TP Cleanroom EMS Architecture & 4-Bit Status_Flags](images/connectors/bacnet-ip-mstp-anatomy.svg)
 
 #### A. Inspect BACnet Device `30104` Objects & 4-Bit `Status_Flags` (`HTTP :8095`)
 ```bash
@@ -253,7 +253,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
 
 ### 4.4 Protocol 4: Siemens S7comm (`RFC 1006` ISO-on-TCP `DB10` on `TCP :1102`)
 
-![Siemens S7comm, EtherNet/IP, 4–20 mA HART & RS-232 Serial Architecture](images/connectors/plc-s7-ethernetip-hart-serial.svg)
+![Siemens S7comm, EtherNet/IP, 4–20 mA HART & RS-232 Serial Architecture](images/connectors/plc-s7comm-ethernetip-hart.svg)
 
 #### A. Inspect Data Block `DB10` Layout (`DB10.DBW0` LOCF Step State & `DB10.DBD2` Temp)
 ```bash
@@ -283,7 +283,7 @@ with socket.create_connection(("localhost", 1102), timeout=3.0) as s:
 
 ### 4.5 Protocol 5: RS-232 Serial-over-TCP (`Moxa NPort 5150` `MT-SICS` & `OSMO` on `TCP :4001`)
 
-![RS-232 Serial & OSIsoft PI UFL Watch-Folder Replacement Guide](images/instruments/legacy-serial-rs232-pi-ufl-guide.svg)
+![RS-232 Serial & OSIsoft PI UFL Watch-Folder Replacement Guide](images/instruments/serial-rs232-ufl-watchfolder.svg)
 
 You can interact with port `:4001` just like a **[Moxa NPort 5150](https://www.moxa.com/en/products/industrial-edge-connectivity/serial-device-servers/general-device-servers/nport-5100-series)** connected to a **[Mettler Toledo XPR](https://www.mt.com/us/en/home/products/Laboratory_Weighing_Solutions/analytical-balances/xpr-essential-analytical-balances.html)** balance or **[Advanced Instruments OsmoTECH®](https://www.novabiomedical.com/bioprocessing-osmometers/osmotech-xt-single-sample-micro-osmometer/)** osmometer:
 

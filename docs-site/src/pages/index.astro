@@ -1370,6 +1370,158 @@ FOR EACH STATEMENT EXECUTE FUNCTION fn_prevent_audit_tampering();</code></pre>
         updateTco();
       })();
     </script>
+
+    <!-- Modern Web Guidance (light-dismiss-a-dialog & platform-controls-dismiss-dialog):
+         Native top-layer modal dialog with declarative closedby="any" light-dismiss -->
+    <dialog id="gxp-image-lightbox" class="gxp-lightbox" closedby="any" aria-labelledby="gxp-lightbox-title">
+      <div class="gxp-lightbox-header">
+        <h2 id="gxp-lightbox-title" class="gxp-lightbox-title">Diagram Viewer</h2>
+        <div class="gxp-lightbox-controls" role="toolbar" aria-label="Image zoom controls">
+          <button type="button" class="gxp-lightbox-btn" data-zoom-step="-0.25" aria-label="Zoom out">−</button>
+          <button type="button" class="gxp-lightbox-btn" data-zoom-preset="1" aria-pressed="true">100% Fit</button>
+          <button type="button" class="gxp-lightbox-btn" data-zoom-preset="1.5" aria-pressed="false">150%</button>
+          <button type="button" class="gxp-lightbox-btn" data-zoom-preset="2" aria-pressed="false">200%</button>
+          <button type="button" class="gxp-lightbox-btn" data-zoom-preset="2.5" aria-pressed="false">250%</button>
+          <button type="button" class="gxp-lightbox-btn" data-zoom-step="0.25" aria-label="Zoom in">+</button>
+          <a
+            id="gxp-lightbox-raw"
+            class="gxp-lightbox-link"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open Original ↗
+          </a>
+          <button type="button" id="gxp-lightbox-close" class="gxp-lightbox-btn gxp-lightbox-close">
+            ✕ Close (Esc)
+          </button>
+        </div>
+      </div>
+      <div id="gxp-lightbox-stage" class="gxp-lightbox-stage" tabindex="0" aria-label="Scrollable enlarged diagram canvas"></div>
+      <div class="gxp-lightbox-footer">
+        <span>Tip: Click the diagram to toggle zoom (100% ↔ 175%), drag to pan when zoomed, or use + / − / 0 keys.</span>
+        <span>Click outside the modal or press Esc to close.</span>
+      </div>
+    </dialog>
+
+    <script is:inline>
+      (function () {
+        let supportsDisplayTransition;
+        function canTransitionDisplay() {
+          if (supportsDisplayTransition !== undefined) return supportsDisplayTransition;
+          if (!window.CSS?.supports?.('transition-behavior', 'allow-discrete') || !document.body) {
+            return false;
+          }
+          const probe = document.createElement('div');
+          probe.style.cssText = 'transition: display 1s allow-discrete !important; display: block;';
+          document.body.appendChild(probe);
+          getComputedStyle(probe).display;
+          probe.style.display = 'none';
+          supportsDisplayTransition = getComputedStyle(probe).display === 'block';
+          probe.remove();
+          return supportsDisplayTransition;
+        }
+
+        function supportsTopLayerExit() {
+          return Boolean(window.CSS?.supports?.('overlay', 'auto') && canTransitionDisplay());
+        }
+
+        async function closeTopLayer(dialog) {
+          if (!dialog.open) return;
+          if (!supportsTopLayerExit()) {
+            dialog.setAttribute('data-closing', '');
+            const animations = dialog.getAnimations({ subtree: true });
+            if (animations.length > 0) {
+              await Promise.race([
+                Promise.allSettled(animations.map((a) => a.finished)),
+                new Promise((r) => setTimeout(r, 2000)),
+              ]);
+            }
+            if (!dialog.hasAttribute('data-closing')) return;
+            dialog.removeAttribute('data-closing');
+          }
+          dialog.close();
+        }
+
+        const dialog = document.getElementById('gxp-image-lightbox');
+        const stage = document.getElementById('gxp-lightbox-stage');
+        const titleEl = document.getElementById('gxp-lightbox-title');
+        const rawLink = document.getElementById('gxp-lightbox-raw');
+        const closeBtn = document.getElementById('gxp-lightbox-close');
+        if (!dialog || !stage || !titleEl || !rawLink) return;
+
+        let currentZoom = 1;
+
+        function applyLightboxZoom(zoom) {
+          currentZoom = Math.min(3, Math.max(0.75, Math.round(zoom * 100) / 100));
+          stage.style.setProperty('--gxp-zoom', String(currentZoom));
+          stage.setAttribute('data-zoomed', currentZoom > 1 ? 'true' : 'false');
+          dialog.querySelectorAll('button[data-zoom-preset]').forEach((btn) => {
+            const preset = Number(btn.getAttribute('data-zoom-preset'));
+            btn.setAttribute('aria-pressed', Math.abs(preset - currentZoom) < 0.05 ? 'true' : 'false');
+          });
+        }
+
+        function openLightbox(src, alt) {
+          stage.replaceChildren();
+          titleEl.textContent = alt || 'Architecture Diagram';
+          const enlargedImg = document.createElement('img');
+          enlargedImg.src = src;
+          enlargedImg.alt = alt || 'Enlarged diagram';
+          stage.appendChild(enlargedImg);
+          rawLink.href = src;
+          applyLightboxZoom(1);
+          if (!dialog.open) dialog.showModal();
+        }
+
+        if (!('closedBy' in HTMLDialogElement.prototype)) {
+          dialog.addEventListener('click', (event) => {
+            if (event.target !== dialog) return;
+            const rect = dialog.getBoundingClientRect();
+            const isDialogContent =
+              rect.top <= event.clientY &&
+              event.clientY <= rect.top + rect.height &&
+              rect.left <= event.clientX &&
+              event.clientX <= rect.left + rect.width;
+            if (isDialogContent) return;
+            closeTopLayer(dialog);
+          });
+        }
+
+        dialog.addEventListener('cancel', (event) => {
+          event.preventDefault();
+          closeTopLayer(dialog);
+        });
+
+        closeBtn?.addEventListener('click', () => closeTopLayer(dialog));
+
+        dialog.querySelectorAll('button[data-zoom-preset]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            applyLightboxZoom(Number(btn.getAttribute('data-zoom-preset') || '1'));
+          });
+        });
+
+        dialog.querySelectorAll('button[data-zoom-step]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            applyLightboxZoom(currentZoom + Number(btn.getAttribute('data-zoom-step') || '0.25'));
+          });
+        });
+
+        stage.addEventListener('click', (e) => {
+          if (e.target === stage) return;
+          applyLightboxZoom(currentZoom > 1.1 ? 1 : 1.75);
+        });
+
+        document
+          .querySelectorAll('.arch-diagram-box img, .hero-photo-card img, .hmi-window-img')
+          .forEach((img) => {
+            img.style.cursor = 'zoom-in';
+            img.addEventListener('click', () => {
+              openLightbox(img.currentSrc || img.src, img.getAttribute('alt') || 'GxPHistorian Visual');
+            });
+          });
+      })();
+    </script>
   </body>
 </html>
 
@@ -2767,5 +2919,189 @@ FOR EACH STATEMENT EXECUTE FUNCTION fn_prevent_audit_tampering();</code></pre>
   .tco-metric-note {
     font-size: 0.73rem;
     color: var(--text-secondary);
+  }
+
+  /* Lightbox Modal on Homepage */
+  dialog.gxp-lightbox {
+    width: min(96vw, 1740px);
+    max-width: 96vw;
+    height: min(93vh, 1080px);
+    max-height: 93vh;
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--border-accent);
+    border-radius: 0.875rem;
+    background: #0b1120;
+    color: #f8fafc;
+    box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.78);
+    overflow: hidden;
+    opacity: 0;
+    transform: scale(0.95);
+    transition-property: opacity, transform, display, overlay;
+    transition-duration: 0.22s;
+    transition-timing-function: ease-out;
+    transition-behavior: allow-discrete;
+  }
+
+  dialog.gxp-lightbox::backdrop {
+    background-color: rgba(2, 6, 23, 0);
+    backdrop-filter: blur(4px);
+    transition-property: background-color, display, overlay;
+    transition-duration: 0.22s;
+    transition-timing-function: ease-out;
+    transition-behavior: allow-discrete;
+  }
+
+  :is(dialog.gxp-lightbox[open]):where(:not([data-closing])) {
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    transform: scale(1);
+
+    @starting-style {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    &::backdrop {
+      background-color: rgba(2, 6, 23, 0.82);
+
+      @starting-style {
+        background-color: rgba(2, 6, 23, 0);
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    dialog.gxp-lightbox {
+      transform: none;
+      transition-duration: 0.08s;
+    }
+
+    @starting-style {
+      dialog.gxp-lightbox[open] {
+        transform: none;
+      }
+    }
+  }
+
+  .gxp-lightbox-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1.15rem;
+    background: #111827;
+    border-block-end: 1px solid #334155;
+    flex-shrink: 0;
+  }
+
+  .gxp-lightbox-title {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: #f8fafc;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-inline-size: min(52vw, 760px);
+  }
+
+  .gxp-lightbox-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .gxp-lightbox-btn,
+  .gxp-lightbox-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    min-block-size: 2rem;
+    min-inline-size: 2rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 0.45rem;
+    border: 1px solid #334155;
+    background: #1e293b;
+    color: #e2e8f0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .gxp-lightbox-btn:hover,
+  .gxp-lightbox-link:hover {
+    background: #334155;
+    border-color: #38bdf8;
+    color: #ffffff;
+  }
+
+  .gxp-lightbox-btn[aria-pressed='true'] {
+    background: #0284c7;
+    border-color: #38bdf8;
+    color: #ffffff;
+  }
+
+  .gxp-lightbox-close {
+    background: #7f1d1d;
+    border-color: #ef4444;
+    color: #fef2f2;
+  }
+
+  .gxp-lightbox-close:hover {
+    background: #b91c1c;
+    border-color: #f87171;
+  }
+
+  .gxp-lightbox-stage {
+    position: relative;
+    flex: 1 1 auto;
+    overflow: auto;
+    padding: 1.25rem;
+    background: radial-gradient(circle at center, #111827 0%, #090d16 100%);
+    display: grid;
+    place-items: center;
+    cursor: zoom-in;
+  }
+
+  .gxp-lightbox-stage[data-zoomed='true'] {
+    place-items: start;
+    cursor: grab;
+  }
+
+  .gxp-lightbox-stage :global(img) {
+    display: block;
+    width: calc(max(88vw, 1140px) * var(--gxp-zoom, 1));
+    max-width: none !important;
+    height: auto !important;
+    margin: auto;
+    border-radius: 0.625rem;
+    border: 1px solid #334155;
+    background: #0b1120;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.65);
+  }
+
+  .gxp-lightbox-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 1.15rem;
+    background: #0f172a;
+    border-block-start: 1px solid #1e293b;
+    color: #94a3b8;
+    font-size: 0.74rem;
+    flex-shrink: 0;
   }
 </style>
