@@ -1,0 +1,109 @@
+---
+import Default from '@astrojs/starlight/components/Head.astro';
+import config from 'virtual:starlight/user-config';
+
+const { entry, siteTitle } = Astro.locals.starlightRoute;
+const { data } = entry;
+
+const siteOrigin = Astro.site ? Astro.site.origin : 'https://gxphistorian.com';
+const canonicalUrl = new URL(Astro.url.pathname, siteOrigin).href;
+const ogImageUrl = `${siteOrigin}/og-card.png`;
+const description =
+  data.description ||
+  config.description ||
+  'A 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 Qualified Open-Source Industrial Time-Series Historian & Asset Framework';
+const fullTitle = `${data.title} | ${siteTitle}`;
+
+const pathSegments = Astro.url.pathname.split('/').filter(Boolean);
+const breadcrumbItems = [
+  {
+    '@type': 'ListItem',
+    position: 1,
+    name: 'GxPHistorian Home',
+    item: `${siteOrigin}/`,
+  },
+];
+
+let accumulatedPath = '';
+pathSegments.forEach((segment, idx) => {
+  accumulatedPath += `/${segment}`;
+  const isLast = idx === pathSegments.length - 1;
+  const label = isLast
+    ? data.title
+    : segment === 'docs'
+      ? 'Documentation Portal'
+      : segment
+          .split('-')
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(' ');
+  breadcrumbItems.push({
+    '@type': 'ListItem',
+    position: idx + 2,
+    name: label,
+    item: `${siteOrigin}${accumulatedPath}/`,
+  });
+});
+
+const jsonLdSchema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'TechArticle',
+      '@id': `${canonicalUrl}#article`,
+      headline: data.title,
+      name: fullTitle,
+      description,
+      url: canonicalUrl,
+      image: ogImageUrl,
+      inLanguage: 'en-US',
+      proficiencyLevel: 'Expert',
+      dependencies: 'ClickHouse 24.8 LTS, PostgreSQL 16, InfluxData Telegraf 1.32, FastAPI, Grafana OSS 11.2',
+      author: {
+        '@type': 'Organization',
+        name: 'GxPHistorian Architecture & CSV Validation Team (Saram Consulting)',
+        url: 'https://saram.io',
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'GxPHistorian',
+        url: `${siteOrigin}/`,
+        logo: {
+          '@type': 'ImageObject',
+          url: `${siteOrigin}/favicon.svg`,
+        },
+      },
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': canonicalUrl,
+      },
+      isPartOf: {
+        '@type': 'WebSite',
+        '@id': `${siteOrigin}/#website`,
+        name: 'GxPHistorian Documentation Portal',
+        url: `${siteOrigin}/docs/`,
+      },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${canonicalUrl}#breadcrumb`,
+      itemListElement: breadcrumbItems,
+    },
+  ],
+};
+---
+
+<Default><slot /></Default>
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+<meta name="author" content="Saram Consulting (saram.io) — GxPHistorian Architecture & CSV Validation Team" />
+<meta property="og:image" content={ogImageUrl} />
+<meta property="og:image:secure_url" content={ogImageUrl} />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={`${data.title} — GxPHistorian Documentation`} />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImageUrl} />
+<meta name="twitter:image:alt" content={`${data.title} — GxPHistorian Documentation`} />
+<link rel="alternate" type="text/plain" title="LLMs.txt Documentation Index" href="/llms.txt" />
+<script type="application/ld+json" set:html={JSON.stringify(jsonLdSchema)} />

@@ -1,0 +1,71 @@
+# GxPHistorian
+
+> GxPHistorian is a 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 (2nd Ed.) qualified 4-Pillar open-source industrial time-series historian and ISA-95 Asset Framework powered by ClickHouse 24.8 LTS and PostgreSQL 16. It replaces proprietary OSIsoft / AVEVA PI System per-tag and per-seat licensing for regulated biopharma, cell & gene therapy, and cGMP manufacturing facilities.
+
+- Canonical Site: https://gxphistorian.com/
+- Documentation Portal: https://gxphistorian.com/docs/
+- Executed 8-Document GMP Validation Binder (HTML): https://gxphistorian.com/binder/COMPLETE_GMP_VALIDATION_BINDER.html
+- GitHub Repository (MIT Open-Core): https://github.com/saram-io/gxp-historian
+- Commercial Implementation & Validation Services: https://saram.io/#inquiry
+
+## 4-Pillar System Architecture
+
+1. **Pillar 1 (`edge-collector`):** InfluxData Telegraf 1.32 + Python 3.12 `execd` workers normalizing 10 industrial protocols (OPC UA `:4840`, Classic Windows OPC DA 2.05a Zero-DCOM bridge, BACnet/IP `:47808 COV` & MS/TP, Siemens S7comm `:102`, EtherNet/IP CIP `:44818`, Modbus TCP `:502` & RTU RS-485, 4–20 mA HART, RS-232 MT-SICS balances, and ALCOA+ SHA-256 SMB Watch-Folders) with Stage 1 Exception/Deadband (`ExcDev`/`ExcMax`), optional Stage 2 Swinging Door (`CompDev`/`CompMax`), and a 1,000,000-sample disk-backed Store-and-Forward WAL (`>14-day` Level 2.5 OT autonomy).
+2. **Pillar 2 (`clickhouse-archive`):** ClickHouse Server 24.8 LTS (`pi_historian.sensor_data`) using 100% mathematically lossless `DoubleDelta`, `Gorilla`, and `T64` + `ZSTD(1)` compression (1.5–2.5 bytes/sample), real-time 1-minute `AggregatingMergeTree` rollups filtered strictly on Good OPC quality (`WHERE quality >= 192`), and `largestTriangleThreeBuckets` (LTTB) peak-preserving visual downsampling.
+3. **Pillar 3 (`postgres-control` + `historian-api`):** PostgreSQL 16 (`ltree` + `pgcrypto`) and FastAPI serving the ISA-95 Asset Hierarchy, GxP Tag Catalog, ISA-88 Event Frames (`TrueFor` historical backfill, parent/child batch phases, multi-stage §11.200 electronic signatures), GxP Calculation Engine (ICH Q1A `MKT`, USP `<1229>` $F_0$ steam lethality, Western Electric `SQC`), Multi-Channel PI Notifications (Email, SMS, Mobile Push, Escalation Teams, Two-Way SMS ACK), Pydantic AI Co-Pilot & `gxphistorian-mcp` FastMCP server, and kernel-level PL/pgSQL WORM SHA-256 hash-chain audit triggers across all 10 GxP state tables.
+4. **Pillar 4 (`grafana-vision` + Excel DataLink + Lakehouse):** Pre-provisioned Grafana OSS 11.2 Bioreactor & Cleanroom Operator HMI (`gxphistorian-gxp-bioreactor-hmi`) with Event Frame & Golden Batch (`mean ± 2 SD`) overlays, 8 drop-in Excel DataLink UDFs (`=GXPHISTORIAN_CURRENT_VALUE`, `=GXPHISTORIAN_ARCHIVE_VALUE`, `=GXPHISTORIAN_COMPRESSED_DATA`, `=GXPHISTORIAN_SAMPLED`, `=GXPHISTORIAN_CALCULATED_DATA`, `=GXPHISTORIAN_TIME_FILTER`, `=GXPHISTORIAN_PLOT_VALUES`, `=GXPHISTORIAN_EVENT_SUMMARY`) + StreamSets & zero-macro Power Query CSV streams, and Zero-ETL Snappy Apache Parquet exports.
+
+## Commercial Cloud & Edge SKUs (Unlimited HMI & Excel Users — $0 Per-Seat Tax)
+
+- `GXP-CLOUD-LAB-2K5`: $18,000/yr — Up to 2,500 tags, 1 site, Managed Single-Tenant Cloud (`Pattern B`).
+- `GXP-CLOUD-CLINICAL-25K`: $54,000/yr — Up to 25,000 tags, 2 redundant Edge IPCs, Multi-AZ Managed VPC (`Pattern B`), Okta/Entra §11.200 SSO, signed EU GMP Annex 11 §4.3 Quality Technical Agreement (QTA), and version-pinned `2026.Q4-LTS` Change Control channels.
+- `GXP-CLOUD-BYOC-100K`: $150,000/yr — Up to 100,000 tags across 3 sites, deployed inside Customer's AWS/Azure/GCP VPC via Cloud Marketplace (`Pattern B & C`), 100% eligible for AWS EDP / Azure MACC / GCP Commit drawdown, with Customer-Managed KMS keys (`CMK`/`CMEK`).
+- `GXP-EDGE-BOX-L25`: $3,500 hardware + $2,500/yr Fleet Care — Pre-flashed Advantech UNO-2484G / OnLogic Karbon 800 DIN-rail IPC with 100 GB pSLC NVMe Disk WAL and factory FAT/IQ certificate.
+
+## Core Documentation Index
+
+### Getting Started & Architecture
+- [Overview & AVEVA PI System Parity](https://gxphistorian.com/docs/getting-started/overview/)
+- [Quickstart & Deployment](https://gxphistorian.com/docs/getting-started/quickstart/)
+- [4-Pillar System Architecture](https://gxphistorian.com/docs/architecture/four-pillar-architecture/)
+- [21 CFR Part 11, EU Annex 11 & ALCOA+ Controls](https://gxphistorian.com/docs/architecture/part11-compliance/)
+- [Hardware Sizing & Capacity Planning](https://gxphistorian.com/docs/architecture/hardware-sizing/)
+- [Hybrid Cloud Deployment (AWS, Azure & GCP)](https://gxphistorian.com/docs/architecture/hybrid-cloud-deployment/)
+
+### REST API, AI / MCP, HMI & Excel
+- [REST API Reference (historian-api)](https://gxphistorian.com/docs/clients-and-api/rest-api-reference/)
+- [PI Notifications (Email, SMS & Mobile Push)](https://gxphistorian.com/docs/clients-and-api/pi-notifications-alerting/)
+- [Pydantic AI Co-Pilot & MCP Server](https://gxphistorian.com/docs/clients-and-api/pydantic-ai-and-mcp/)
+- [Grafana Vision Operator HMI](https://gxphistorian.com/docs/clients-and-api/grafana-vision-hmi/)
+- [Excel DataLink Client (Power Query & 8 UDFs)](https://gxphistorian.com/docs/clients-and-api/excel-datalink/)
+
+### Connectors & Protocols Reference
+- [Connectors & Wiring Encyclopedia](https://gxphistorian.com/docs/connectors/overview/)
+- [Mock Instrument Server & Protocol Testing](https://gxphistorian.com/docs/connectors/mock-instrument-testing/)
+- [OPC UA (:4840) & Classic OPC DA (COM)](https://gxphistorian.com/docs/connectors/opc-ua-and-opc-da/)
+- [BACnet/IP (:47808) & BACnet MS/TP](https://gxphistorian.com/docs/connectors/bacnet-ip-and-mstp/)
+- [Modbus TCP (:502) & Modbus RTU (RS-485)](https://gxphistorian.com/docs/connectors/modbus-tcp-and-rtu/)
+- [Siemens S7, EtherNet/IP, HART, RS-232 & UFL](https://gxphistorian.com/docs/connectors/plc-s7-ethernetip-hart-serial-ufl/)
+
+### Biopharma & Legacy Equipment Integration Playbooks
+- [Master Biopharma Instrument Catalog](https://gxphistorian.com/docs/biopharma-integration/catalog/)
+- [Cytiva Xcellerex X-Platform (Figurate)](https://gxphistorian.com/docs/biopharma-integration/xcellerex-x-platform/)
+- [USP Bioreactors (Sartorius, Thermo, Eppendorf)](https://gxphistorian.com/docs/biopharma-integration/usp-bioreactors/)
+- [PAT Cell Analyzers & Raman Spectroscopy](https://gxphistorian.com/docs/biopharma-integration/pat-analyzers-spectroscopy/)
+- [DSP Chromatography & TFF (ÄKTA, Sartoflow)](https://gxphistorian.com/docs/biopharma-integration/dsp-chromatography-tff/)
+- [Cell & Gene Therapy, mRNA-LNP & CRFs](https://gxphistorian.com/docs/biopharma-integration/cgt-mrna-lnp-instruments/)
+- [Aseptic Fill-Finish, Lyophilizers & EMS](https://gxphistorian.com/docs/biopharma-integration/aseptic-fill-finish-lyo-utilities/)
+- [Stability Chambers, Cold Chain & Autoclaves](https://gxphistorian.com/docs/biopharma-integration/stability-chambers-cold-chain-autoclaves/)
+- [Legacy Fieldbus (BACnet, OPC DA, Modbus, S7)](https://gxphistorian.com/docs/biopharma-integration/legacy-protocols/)
+- [Legacy RS-232 Serial & PI UFL Watchfolders](https://gxphistorian.com/docs/biopharma-integration/legacy-serial-rs232-pi-ufl/)
+
+### GAMP 5 / FDA CSA Qualification Binder (URS-001 through URS-021 — 21/21 Passed)
+- [Qualification Package Overview](https://gxphistorian.com/docs/gxp-validation/overview/)
+- [01 — Validation Master Plan (VMP-GXPHISTORIAN-2026-001)](https://gxphistorian.com/docs/gxp-validation/01-vmp/)
+- [02 — User Requirements Specification (URS-GXPHISTORIAN-2026-002)](https://gxphistorian.com/docs/gxp-validation/02-urs/)
+- [03 — Functional & Design Specification (FDS-GXPHISTORIAN-2026-003)](https://gxphistorian.com/docs/gxp-validation/03-fds/)
+- [04 — FDA CSA Functional Risk Assessment (FRA-GXPHISTORIAN-2026-004)](https://gxphistorian.com/docs/gxp-validation/04-fra/)
+- [05 — SOUP / OSS Vendor Qualification Dossier (SOUP-GXPHISTORIAN-2026-005)](https://gxphistorian.com/docs/gxp-validation/05-soup-dossier/)
+- [06 — Executed IQ/OQ Evidence Report (IQOQ-GXPHISTORIAN-2026-006)](https://gxphistorian.com/docs/gxp-validation/06-iq-oq-evidence/)
+- [07 — Requirements Traceability Matrix (RTM-GXPHISTORIAN-2026-007)](https://gxphistorian.com/docs/gxp-validation/07-rtm/)
+- [08 — Validation Summary Report & QA Release (VSR-GXPHISTORIAN-2026-008)](https://gxphistorian.com/docs/gxp-validation/08-vsr/)

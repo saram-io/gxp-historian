@@ -646,6 +646,47 @@ def build_complete_html_binder(
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GxPHistorian GxP Industrial Historian — Complete 21 CFR Part 11 Validation Binder</title>
+  <meta name="description" content="Executed 8-Document Commercial 21 CFR Part 11, EU GMP Annex 11, ISPE GAMP 5 (2nd Ed.), and FDA CSA Validation Binder for GxPHistorian (VMP, URS-001..021, FDS, FRA, SOUP Dossier, IQ/OQ Evidence Report, RTM, and VSR).">
+  <meta name="author" content="Saram Consulting (saram.io) — GxPHistorian Architecture &amp; CSV Validation Team">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <link rel="canonical" href="https://gxphistorian.com/binder/COMPLETE_GMP_VALIDATION_BINDER.html">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="sitemap" href="/sitemap-index.xml">
+  <meta property="og:title" content="GxPHistorian — Executed 8-Document 21 CFR Part 11 &amp; GAMP 5 Validation Binder">
+  <meta property="og:description" content="Complete executed VMP, URS (21/21 requirements), FDS, FDA CSA Risk Assessment, SOUP SHA-256 Dossier, IQ/OQ Evidence Report, Bidirectional RTM, and QA Release Certificate.">
+  <meta property="og:url" content="https://gxphistorian.com/binder/COMPLETE_GMP_VALIDATION_BINDER.html">
+  <meta property="og:site_name" content="GxPHistorian">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://gxphistorian.com/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="GxPHistorian Executed 8-Document 21 CFR Part 11 &amp; GAMP 5 Validation Binder">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GxPHistorian — Executed 8-Document 21 CFR Part 11 &amp; GAMP 5 Validation Binder">
+  <meta name="twitter:description" content="Complete executed VMP, URS (21/21 requirements), FDS, FDA CSA Risk Assessment, SOUP SHA-256 Dossier, IQ/OQ Evidence Report, Bidirectional RTM, and QA Release Certificate.">
+  <meta name="twitter:image" content="https://gxphistorian.com/og-card.png">
+  <script type="application/ld+json">
+  {{
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "GxPHistorian GxP Industrial Historian — Commercial 21 CFR Part 11 Validation Binder (VMP-GXPHISTORIAN-2026-001 through VSR-GXPHISTORIAN-2026-008)",
+    "description": "Executed 8-Document Commercial 21 CFR Part 11, EU GMP Annex 11, ISPE GAMP 5 (2nd Ed.), and FDA CSA Validation Binder for GxPHistorian.",
+    "url": "https://gxphistorian.com/binder/COMPLETE_GMP_VALIDATION_BINDER.html",
+    "image": "https://gxphistorian.com/og-card.png",
+    "inLanguage": "en-US",
+    "author": {{
+      "@type": "Organization",
+      "name": "Saram Consulting (saram.io)",
+      "url": "https://saram.io"
+    }},
+    "publisher": {{
+      "@type": "Organization",
+      "name": "GxPHistorian",
+      "url": "https://gxphistorian.com/"
+    }}
+  }}
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
@@ -852,7 +893,7 @@ def build_complete_html_binder(
       </div>
       <div class="metric-tile">
         <div class="label">URS Traceability Coverage</div>
-        <div class="value">15 / 15 Verified (0 Gaps)</div>
+        <div class="value">{summary['passed']} / {summary['total_tests']} Verified (0 Gaps)</div>
       </div>
       <div class="metric-tile">
         <div class="label">Executed IQ / OQ Tests</div>

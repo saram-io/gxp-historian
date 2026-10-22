@@ -1,0 +1,37 @@
+# GxPHistorian Official Documentation & Marketing Portal (https://gxphistorian.com)
+# 21 CFR Part 11, EU GMP Annex 11 & ISPE GAMP 5 Qualified Open-Source Industrial Historian
+
+User-agent: *
+Allow: /
+
+# Explicitly allow major search engine and AI answer-engine crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+Sitemap: https://gxphistorian.com/sitemap-index.xml
+Sitemap: https://gxphistorian.com/sitemap-0.xml
+Host: https://gxphistorian.com

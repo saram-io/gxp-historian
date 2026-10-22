@@ -186,6 +186,144 @@ const validationDocs = [
   { id: 'RTM-GXPHISTORIAN-2026-007', title: '07 — Bidirectional Requirements Traceability Matrix', href: '/docs/gxp-validation/07-rtm/' },
   { id: 'VSR-GXPHISTORIAN-2026-008', title: '08 — Validation Summary Report & QA Release', href: '/docs/gxp-validation/08-vsr/' },
 ];
+
+const homeJsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://gxphistorian.com/#organization',
+      name: 'GxPHistorian',
+      legalName: 'Saram Consulting (saram.io)',
+      url: 'https://gxphistorian.com/',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://gxphistorian.com/favicon.svg',
+      },
+      image: 'https://gxphistorian.com/og-card.png',
+      sameAs: [
+        'https://github.com/saram-io/gxp-historian',
+        'https://saram.io',
+      ],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://gxphistorian.com/#website',
+      url: 'https://gxphistorian.com/',
+      name: 'GxPHistorian — 21 CFR Part 11 & GAMP 5 Open-Source Industrial Historian',
+      description:
+        'A 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 (2nd Ed.) qualified 4-Pillar open-source industrial time-series historian and ISA-95 Asset Framework replacing the OSIsoft / AVEVA PI System.',
+      inLanguage: 'en-US',
+      publisher: {
+        '@id': 'https://gxphistorian.com/#organization',
+      },
+    },
+    {
+      '@type': 'SoftwareApplication',
+      '@id': 'https://gxphistorian.com/#software',
+      name: 'GxPHistorian',
+      applicationCategory: 'BusinessApplication',
+      applicationSubCategory: '21 CFR Part 11 GxP Industrial Time-Series Historian & ISA-95 Asset Framework',
+      operatingSystem: 'Linux, Docker, Kubernetes, Windows Edge OPC DA Bridge, AWS, Microsoft Azure, Google Cloud',
+      softwareVersion: '2026.Q4-LTS',
+      license: 'https://opensource.org/licenses/MIT',
+      downloadUrl: 'https://github.com/saram-io/gxp-historian',
+      url: 'https://gxphistorian.com/',
+      screenshot: 'https://gxphistorian.com/images/photos/grafana-vision-hmi-dashboard.png',
+      image: 'https://gxphistorian.com/og-card.png',
+      author: {
+        '@id': 'https://gxphistorian.com/#organization',
+      },
+      featureList: [
+        '4-Pillar Industrial Historian Architecture (Telegraf Edge WAL, ClickHouse 24.8 LTS, PostgreSQL 16, Grafana OSS 11.2)',
+        'FDA 21 CFR Part 11 & EU GMP Annex 11 kernel-enforced SHA-256 WORM audit trail and §11.200 multi-stage electronic signatures',
+        '100% mathematically lossless DoubleDelta, Gorilla, and T64 + ZSTD(1) compression (1.5–2.5 bytes/sample)',
+        'ISA-95 ltree Asset Hierarchy, ISA-88 Event Frames, TrueFor backfill, and Golden Batch (mean ± 2 SD) overlays',
+        '8 Excel DataLink UDFs (=GXPHISTORIAN_CURRENT_VALUE through =GXPHISTORIAN_TIME_FILTER) and zero-macro Power Query CSV streams',
+        'Built-in ICH Q1A Mean Kinetic Temperature (MKT), USP <1229> Steam Lethality (F0), and Western Electric SQC SPC engine',
+        'Pydantic AI GxP Co-Pilot & read-only gxphistorian-mcp FastMCP server with Part 11 human-in-the-loop approval gates',
+        '35+ biopharma instrument wiring guides and an executable 21-test IQ/OQ GAMP 5 / FDA CSA Validation Binder',
+      ],
+      offers: [
+        {
+          '@type': 'Offer',
+          name: 'GxPHistorian Open-Core Edition (MIT License)',
+          sku: 'GXP-OSS-MIT',
+          price: '0',
+          priceCurrency: 'USD',
+          availability: 'https://schema.org/InStock',
+          url: 'https://github.com/saram-io/gxp-historian',
+        },
+        {
+          '@type': 'Offer',
+          name: 'GxPHistorian Cloud Lab / Seed Tier (Up to 2,500 Tags, 1 Site)',
+          sku: 'GXP-CLOUD-LAB-2K5',
+          price: '18000',
+          priceCurrency: 'USD',
+          availability: 'https://schema.org/InStock',
+          url: 'https://gxphistorian.com/#cloud-pricing',
+        },
+        {
+          '@type': 'Offer',
+          name: 'GxPHistorian Cloud Clinical GMP Tier (Up to 25,000 Tags, Multi-AZ + EU Annex 11 QTA)',
+          sku: 'GXP-CLOUD-CLINICAL-25K',
+          price: '54000',
+          priceCurrency: 'USD',
+          availability: 'https://schema.org/InStock',
+          url: 'https://gxphistorian.com/#cloud-pricing',
+        },
+        {
+          '@type': 'Offer',
+          name: 'GxPHistorian Cloud Commercial BYOC Tier (Up to 100,000 Tags / 3 Sites in Customer AWS/Azure/GCP VPC)',
+          sku: 'GXP-CLOUD-BYOC-100K',
+          price: '150000',
+          priceCurrency: 'USD',
+          availability: 'https://schema.org/InStock',
+          url: 'https://gxphistorian.com/#cloud-pricing',
+        },
+        {
+          '@type': 'Offer',
+          name: 'Pre-Validated Level 2.5 Industrial Edge Box (100 GB pSLC NVMe WAL + Factory FAT/IQ Certificate)',
+          sku: 'GXP-EDGE-BOX-L25',
+          price: '3500',
+          priceCurrency: 'USD',
+          availability: 'https://schema.org/InStock',
+          url: 'https://gxphistorian.com/#cloud-pricing',
+        },
+      ],
+    },
+    {
+      '@type': 'FAQPage',
+      '@id': 'https://gxphistorian.com/#faq',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'How does GxPHistorian replace the OSIsoft / AVEVA PI System in regulated GxP manufacturing?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'GxPHistorian provides a 4-Pillar open-source architecture: Pillar 1 (Telegraf 1.32 + Python Edge Workers with a 1M-sample disk WAL across 10 OT protocols), Pillar 2 (ClickHouse 24.8 LTS with 100% lossless DoubleDelta + Gorilla + ZSTD compression and 1m AggregatingMergeTree rollups filtered on WHERE quality >= 192), Pillar 3 (PostgreSQL 16 ISA-95 ltree Asset Framework, ISA-88 Event Frames, MKT/F0/SQC analytics, PI Notifications, and SHA-256 WORM Part 11 audit triggers), and Pillar 4 (Grafana Vision HMI, 8 Excel DataLink UDFs, and Zero-ETL Apache Parquet exports) with $0 per-seat user fees.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'How does GxPHistorian enforce FDA 21 CFR Part 11, EU GMP Annex 11, and ALCOA+ data integrity?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'All INSERT, UPDATE, and DELETE mutations across all 10 GxP configuration and state tables in PostgreSQL 16 require mandatory session context settings (app.actor_id and app.change_reason) enforced by kernel-level PL/pgSQL triggers. Every mutation appends a cryptographically linked SHA-256 hash chain record to part11_audit_log, protected by a BEFORE UPDATE OR DELETE OR TRUNCATE trigger that blocks tampering even by database superusers, alongside multi-stage §11.200 electronic signatures (Operator -> Supervisor -> QA).',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Does GxPHistorian support Hybrid Cloud deployments on AWS, Microsoft Azure, and Google Cloud?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes. In Hybrid OT + Cloud deployments, Pillar 1 (edge-collector) remains on-premises at Purdue Level 2/2.5 with a local NVMe disk Write-Ahead Log (>14-day WAN outage autonomy) and streams outbound-only mTLS HTTPS batches over AWS PrivateLink, Azure Private Link, or GCP Private Service Connect to ClickHouse and PostgreSQL 16 backed by 15-year WORM S3 Object Lock, Azure Immutable Blob, or GCS Bucket Lock.',
+          },
+        },
+      ],
+    },
+  ],
+};
 ---
 
 <!doctype html>
@@ -200,14 +338,46 @@ const validationDocs = [
       name="description"
       content="GxPHistorian is a 21 CFR Part 11, EU GMP Annex 11, and ISPE GAMP 5 (2nd Ed.) qualified 4-Pillar open-source replacement for the OSIsoft / AVEVA PI System, powered by ClickHouse 24.8 LTS and PostgreSQL 16."
     />
+    <meta
+      name="keywords"
+      content="GxPHistorian, industrial historian, 21 CFR Part 11 historian, OSIsoft PI alternative, AVEVA PI System alternative, ClickHouse historian, GAMP 5 validation, EU GMP Annex 11, ALCOA+ data integrity, ISA-95 asset framework, ISA-88 event frames, biopharma historian, OPC UA historian, BACnet historian, PI DataLink Excel"
+    />
+    <meta name="author" content="Saram Consulting (saram.io) — GxPHistorian Architecture &amp; CSV Validation Team" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="https://gxphistorian.com/" />
-    <meta property="og:title" content="GxPHistorian — GxP Open-Source Industrial Time-Series Historian" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="alternate" type="text/plain" title="LLMs.txt Documentation Index" href="/llms.txt" />
+    <meta property="og:title" content="GxPHistorian — 21 CFR Part 11 &amp; GAMP 5 Open-Source Industrial Historian" />
     <meta
       property="og:description"
-      content="Replace proprietary per-tag historian licensing with lossless ClickHouse telemetry, PostgreSQL 16 ISA-95 Asset Framework & WORM SHA-256 audit trails, and 35+ biopharma equipment guides."
+      content="Replace proprietary per-tag and per-seat AVEVA PI System licensing with lossless ClickHouse telemetry, PostgreSQL 16 ISA-95 Asset Framework &amp; WORM SHA-256 audit trails, 8 Excel DataLink UDFs, and 35+ biopharma equipment guides."
     />
     <meta property="og:url" content="https://gxphistorian.com/" />
+    <meta property="og:site_name" content="GxPHistorian" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://gxphistorian.com/og-card.png" />
+    <meta property="og:image:secure_url" content="https://gxphistorian.com/og-card.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="GxPHistorian — The Open-Source 21 CFR Part 11, EU GMP Annex 11 &amp; ISPE GAMP 5 Industrial Historian &amp; ISA-95 Asset Framework"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="GxPHistorian — 21 CFR Part 11 &amp; GAMP 5 Open-Source Industrial Historian" />
+    <meta
+      name="twitter:description"
+      content="Replace proprietary per-tag and per-seat AVEVA PI System licensing with lossless ClickHouse telemetry, PostgreSQL 16 ISA-95 Asset Framework &amp; WORM SHA-256 audit trails, and 35+ biopharma equipment guides."
+    />
+    <meta name="twitter:image" content="https://gxphistorian.com/og-card.png" />
+    <meta
+      name="twitter:image:alt"
+      content="GxPHistorian — The Open-Source 21 CFR Part 11, EU GMP Annex 11 &amp; ISPE GAMP 5 Industrial Historian &amp; ISA-95 Asset Framework"
+    />
+    <script type="application/ld+json" set:html={JSON.stringify(homeJsonLd)} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -359,7 +529,7 @@ const validationDocs = [
                 <span class="terminal-title">gxphistorian-control-plane — bash</span>
                 <span class="terminal-status">QUALIFIED</span>
               </div>
-              <pre class="terminal-body"><code><span class="t-comment"># 1. Launch all 7 GxP services (Edge WAL, ClickHouse, PG16, Grafana)</span>
+              <pre class="terminal-body" tabindex="0"><code><span class="t-comment"># 1. Launch all 7 GxP services (Edge WAL, ClickHouse, PG16, Grafana)</span>
 <span class="t-prompt">$</span> cp .env.example .env &amp;&amp; docker compose up -d --build
 
 <span class="t-comment"># 2. Verify live 6-protocol Instrument Mock Server (:4840..:8095)</span>
@@ -645,7 +815,7 @@ const validationDocs = [
                 <span class="terminal-title">init-postgres/01_control_plane_part11.sql</span>
                 <span class="terminal-status">WORM ACTIVE</span>
               </div>
-              <pre class="terminal-body"><code><span class="t-comment">-- Enforce mandatory 21 CFR Part 11 attribution context</span>
+              <pre class="terminal-body" tabindex="0"><code><span class="t-comment">-- Enforce mandatory 21 CFR Part 11 attribution context</span>
 IF v_actor IS NULL OR v_reason IS NULL THEN
     RAISE EXCEPTION
         <span class="t-str">'21 CFR Part 11 Violation: actor_id and change_reason required'</span>;
